@@ -11,9 +11,16 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: true,
         headerTitle: () => (
-          <Text style={{ fontSize: 20, fontWeight: "bold", color: "#0047AB" }}>
-            PrestamosYA
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <Image 
+              source={require("../../../assets/LogoP.png")} 
+              style={{ width: 24, height: 24 }} 
+              resizeMode="contain"
+            />
+            <Text style={{ fontSize: 20, fontWeight: "bold", color: "#0047AB" }}>
+              PrestamosYA
+            </Text>
+          </View>
         ),
         headerRight: () => (
           <View style={{ marginRight: 15 }}>

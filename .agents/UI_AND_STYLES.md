@@ -18,6 +18,15 @@ We do not write generic UI components (Buttons, Modals, Dropdowns) from scratch.
 
 ## 🌗 Theme & Colors
 
+### Colores Pivote (PrestamosYA)
+Se han definido los siguientes colores base (pivotes) para el proyecto:
+- **Verde secundario:** `#C5DB70`
+- **Celeste:** `#6DB6EF`
+- **Azul:** `#2368A3`
+- **Blanco:** `#FDFDFB`
+
+> **Nota:** Aún queda por definir cuál será el color primario definitivo (si el celeste o el azul) y se debe considerar el soporte para modo claro y oscuro más adelante. Por esto, la regla es que **estos colores deben declararse en un archivo CSS base (como `global.css`)** y usarse a través de variables o clases semánticas en toda la app. De esta forma, si el día de mañana se cambia un color o se ajusta el tema, solo se modifica el CSS.
+
 Do not hardcode colors like `className="bg-blue-500"` for core UI.
 We use semantic CSS variables defined in `global.css` and mapped in `tailwind.config.js`.
 
