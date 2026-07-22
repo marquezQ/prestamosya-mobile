@@ -14,7 +14,31 @@ This app uses File-Based Routing via **Expo Router v3+**.
 - `app/_layout.tsx`: The root layout. **Always** contains the `QueryClientProvider` and the `PortalHost` (which must be at the very end of the tree for modals/dropdowns to render on top).
 - `app/(auth)/`: Unauthenticated screens (login). Uses a standard `Stack`.
 - `app/(app)/`: Authenticated screens.
-- `app/(app)/(tabs)/`: The main bottom navigation tabs.
+- `app/(app)/(tabs)/`: The main bottom navigation tabs. Shared chrome (header, tab bar) lives in `app/(app)/(tabs)/_layout.tsx`.
+
+## 📱 Bottom Tab Bar (`app/(app)/(tabs)/_layout.tsx`)
+
+The authenticated app uses five tabs: **Inicio**, **Clientes**, **Nuevo**, **Cobros**, **Resumen**.
+
+### Header (shared across tabs)
+- **Left:** App logo + "PrestamosYA" title (`text-secondary dark:text-primary`).
+- **Right:** Dark/light toggle (`useColorScheme` from `nativewind`) + user avatar.
+- Header background/border colors come from `getThemeColors(colorScheme)` in `@/lib/theme`.
+
+### Tab bar styling
+- Active/inactive tint colors: `getThemeColors()` → `tabActive` / `tabInactive`.
+  - **Light mode:** active tab = azul (`secondary`); **dark mode:** active tab = celeste (`primary`).
+- Safe area: always use `useSafeAreaInsets()` for `paddingBottom` / `height` — never hardcode bottom padding.
+- Tab bar background/border: `colors.background` and `colors.border` from `@/lib/theme`.
+
+### Center FAB tab — "Nuevo" (`name="new"`)
+The middle tab is a **floating action button** style icon, visually elevated above the other four tabs:
+- Circle: `48×48`, `marginBottom: 24` (keeps icon raised; label stays aligned via `tabBarLabelStyle.marginTop`).
+- Fill: `palette.verde` (green accent).
+- Plus icon: `palette.celeste` (always green circle + celeste plus, regardless of active state).
+- **Do not** move the "Nuevo" label upward — only the icon is elevated.
+
+When adding new tabs or changing the FAB, keep brand colors from `@/lib/theme` — never hardcode hex values.
 
 ## 📱 Safe Areas & Viewports
 

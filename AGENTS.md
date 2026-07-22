@@ -22,7 +22,7 @@ To maintain consistency and prevent breaking the architecture, **you MUST read t
 
 1. **Stack & Setup**: See `.agents/STACK.md` for exact dependency versions and configuration file explanations.
 2. **Routing & Navigation**: See `.agents/ROUTING.md` for how the `app/` directory is structured, how to use `_layout.tsx`, and how we handle Safe Areas edge-to-edge.
-3. **UI, Components & Styling**: See `.agents/UI_AND_STYLES.md` for rules on using `className` vs `style`, how to use the RNR components in `components/ui/`, and how the CSS variables theme works.
+3. **UI, Components & Styling**: See `.agents/UI_AND_STYLES.md` for rules on using `className` vs `style`, how to use the RNR components in `components/ui/`, how the CSS variables theme works, and the centralized palette in `lib/theme/`.
 4. **Data Fetching & State**: See `.agents/DATA_AND_STATE.md` for Axios interceptors, React Query usage rules, and Zustand store structures.
 5. **Forms & Validation**: See `.agents/FORMS.md` for the standard way to implement forms using Zod schemas and hookform resolvers.
 

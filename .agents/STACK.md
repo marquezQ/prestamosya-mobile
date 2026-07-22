@@ -19,8 +19,10 @@ We are using a bleeding-edge modern React Native stack. **Strict version adheren
 
 - `package.json`: Entry point is `"main": "expo-router/entry"`.
 - `app.json`: Uses `"scheme": "prestamosya"` for deep linking and enables `"typedRoutes": true` under experiments.
-- `tsconfig.json`: Defines the `@/*` alias mapping to `./*`.
+- `tsconfig.json`: Defines the `@/*` path alias → `./*`. **Do not use `baseUrl`** (deprecated in TypeScript 6.0+); paths must use explicit relative prefixes (e.g. `"./*"`).
+- `global.css`: Brand CSS variables (`--brand-*`) and semantic theme tokens for NativeWind/RNR.
+- `lib/theme/`: JS mirror of the theme for imperative APIs (React Navigation, Lucide `color`, `tabBarStyle`). See `.agents/UI_AND_STYLES.md`.
 - `metro.config.js`: Wrapped with `withNativeWind` for Tailwind support.
 - `babel.config.js`: Contains `babel-preset-expo`.
-- `tailwind.config.js`: Maps CSS variables (from `global.css`) to Tailwind color semantics (e.g., `background`, `primary`, `destructive`). Includes `tailwindcss-animate`.
+- `tailwind.config.js`: Maps CSS variables (from `global.css`) to Tailwind semantics (`background`, `primary`, `brand-celeste`, etc.). Includes `tailwindcss-animate`.
 - `components.json`: Configuration for the `@react-native-reusables/cli`. Tells the CLI where to drop new components (always in `components/ui`).
