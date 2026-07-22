@@ -11,6 +11,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        brand: {
+          celeste: "hsl(var(--brand-celeste))",
+          azul: "hsl(var(--brand-azul))",
+          verde: "hsl(var(--brand-verde))",
+          blanco: "hsl(var(--brand-blanco))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
