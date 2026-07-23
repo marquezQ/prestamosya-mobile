@@ -46,6 +46,10 @@ We do not write generic UI components (Buttons, Modals, Dropdowns) from scratch.
 - **Tabs / navegación:** usar `getThemeColors(colorScheme)` de `@/lib/theme`.
 - **Toggle de tema:** `useColorScheme()` de `nativewind` + `ThemeProvider` en `app/_layout.tsx` con `getNavigationTheme()`.
 
+**CRITICAL RULE for Text and RNR Components:**
+When working inside complex RNR components (like `DropdownMenu`, `Dialog`, etc.), they use a `TextClassContext` to automatically pass adaptive semantic colors (like `--popover-foreground` or `--destructive`) to child text.
+For this to work, you **must import `<Text>` from `@/components/ui/text`** instead of `react-native`. Using the default `react-native` Text component will ignore the context and texts might become invisible in Dark Mode.
+
 Do not hardcode colors like `className="bg-blue-500"` or `color="#6DB6EF"` for core UI.
 
 Use semantic classes:

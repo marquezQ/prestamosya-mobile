@@ -11,10 +11,28 @@ This app uses File-Based Routing via **Expo Router v3+**.
 3. **Layouts `_layout.tsx`**: These files wrap all screens in their folder. They define the navigator type (Stack, Tabs) and shared UI.
 
 ### App Structure:
-- `app/_layout.tsx`: The root layout. **Always** contains the `QueryClientProvider` and the `PortalHost` (which must be at the very end of the tree for modals/dropdowns to render on top).
+- `app/_layout.tsx`: The root layout. **Always** contains the `QueryClientProvider` and the `PortalHost` (which must be at the very end of the tree for modals/dropdowns to render on top). It also handles global route protection (Auth checks).
 - `app/(auth)/`: Unauthenticated screens (login). Uses a standard `Stack`.
 - `app/(app)/`: Authenticated screens.
 - `app/(app)/(tabs)/`: The main bottom navigation tabs. Shared chrome (header, tab bar) lives in `app/(app)/(tabs)/_layout.tsx`.
+
+## 🛡️ Route Protection (Authentication)
+
+Routing logic based on user authentication state is managed at the root level (`app/_layout.tsx`).
+
+**CRITICAL RULE**: Do not call `router.replace()` synchronously inside a `useEffect` during the initial rendering phase of layout groups. This will cause React Navigation state errors (e.g., trying to navigate before the navigator is fully mounted).
+Always wrap imperative routing in a `setTimeout`:
+```tsx
+useEffect(() => {
+  if (!isHydrated) return;
+  const inAuthGroup = segments[0] === "(auth)";
+
+  setTimeout(() => {
+    if (!isAuthenticated && !inAuthGroup) router.replace("/(auth)/login");
+    else if (isAuthenticated && inAuthGroup) router.replace("/(app)/(tabs)/home");
+  }, 0);
+}, [isAuthenticated, isHydrated, segments]);
+```
 
 ## 📱 Bottom Tab Bar (`app/(app)/(tabs)/_layout.tsx`)
 
