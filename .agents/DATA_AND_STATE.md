@@ -12,16 +12,23 @@ All server data fetching, caching, and mutations MUST be handled by **React Quer
 
 All HTTP requests must go through the centralized Axios instance located at `services/api.ts`.
 - It automatically uses the `EXPO_PUBLIC_API_URL` environment variable.
-- It has request interceptors ready to attach Auth tokens (pending storage definition, PED-8).
-- It has response interceptors to handle `401 Unauthorized` and `403 Forbidden` errors globally.
+- It has request interceptors ready to attach Auth tokens automatically by reading them from `lib/secureStorage.ts`.
+- It has response interceptors to handle `401 Unauthorized` globally. To avoid circular dependencies with Zustand (`authStore.ts`), it uses a Dependency Inversion pattern with a `setLogoutCallback` which is triggered upon receiving a 401.
+
+## 🔐 Secure Storage & Auth
+
+All authentication tokens MUST be saved securely using `expo-secure-store`.
+- The single source of truth for interacting with SecureStore is `lib/secureStorage.ts`.
+- This file includes a fallback for `Platform.OS === 'web'` using `localStorage` to prevent errors during browser development.
 
 ## 🧠 Client State: Zustand
 
 Global client state (e.g., current selected theme, UI toggles, non-persistent user preferences) is managed by **Zustand**.
 
 - Stores should be created in the `stores/` directory.
-- Barrel export them from `stores/index.ts`.
-- **CRITICAL**: Do NOT use `persist` middleware (like `createJSONStorage`) until the project explicitly defines a secure storage mechanism (like MMKV or SecureStore). This is tracked in tickets PED-8 and PED-13. Currently, all stores must be **in-memory only**.
+- Barrel export them from `stores/index.ts` if needed.
+- **CRITICAL**: Do NOT use `persist` middleware (like `createJSONStorage`) to persist secure tokens. Tokens live strictly in `lib/secureStorage.ts`.
+- For the authentication state (`authStore.ts`), the store should maintain ephemeral state (`user`, `isAuthenticated`, `isHydrated`). When the app loads, `hydrate()` is called to fetch the token from `secureStorage`, fetching the user profile if the token exists, and updating the state accordingly.
 
 **Rule of Thumb**:
 - Does it come from the database? -> React Query.
