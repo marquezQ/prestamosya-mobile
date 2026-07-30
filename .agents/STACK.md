@@ -20,6 +20,7 @@ We are using a bleeding-edge modern React Native stack. **Strict version adheren
 - `package.json`: Entry point is `"main": "expo-router/entry"`.
 - `app.json`: Uses `"scheme": "prestamosya"` for deep linking and enables `"typedRoutes": true` under experiments.
 - `tsconfig.json`: Defines the `@/*` path alias → `./*`. **Do not use `baseUrl`** (deprecated in TypeScript 6.0+); paths must use explicit relative prefixes (e.g. `"./*"`).
+- `.env` & `.env.example`: Environment variables (e.g., `EXPO_PUBLIC_API_URL`). The `.env` file is gitignored. Always use the `EXPO_PUBLIC_` prefix so Expo can inject them into the client bundle.
 - `global.css`: Brand CSS variables (`--brand-*`) and semantic theme tokens for NativeWind/RNR.
 - `lib/theme/`: JS mirror of the theme for imperative APIs (React Navigation, Lucide `color`, `tabBarStyle`). See `.agents/UI_AND_STYLES.md`.
 - `metro.config.js`: Wrapped with `withNativeWind` for Tailwind support.

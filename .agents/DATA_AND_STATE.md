@@ -20,6 +20,7 @@ All HTTP requests must go through the centralized Axios instance located at `ser
 All authentication tokens MUST be saved securely using `expo-secure-store`.
 - The single source of truth for interacting with SecureStore is `lib/secureStorage.ts`.
 - This file includes a fallback for `Platform.OS === 'web'` using `localStorage` to prevent errors during browser development.
+- **Backend Mapping**: Ensure the authentication payload mapping matches the backend. The NestJS backend returns `accessToken`, so `useAuth` correctly extracts `data.accessToken` (not `data.token`) to save it.
 
 ## 🧠 Client State: Zustand
 
