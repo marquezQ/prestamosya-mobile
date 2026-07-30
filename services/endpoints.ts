@@ -4,4 +4,7 @@ export const ENDPOINTS = {
     LOGOUT: '/auth/logout',
     ME: '/auth/me',
   },
+  CLIENTS: {
+    GET_ALL: '/clients',
+  }
 };

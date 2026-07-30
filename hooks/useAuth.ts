@@ -12,7 +12,7 @@ export const useLogin = () => {
   return useMutation<AuthResponse, ApiError, LoginCredentials>({
     mutationFn: (credentials) => authService.login(credentials),
     onSuccess: async (data) => {
-      await secureStorage.setToken(data.token);
+      await secureStorage.setToken(data.accessToken);
       setUser(data.user);
       queryClient.clear();
     },
