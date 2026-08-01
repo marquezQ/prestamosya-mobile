@@ -34,3 +34,40 @@ Global client state (e.g., current selected theme, UI toggles, non-persistent us
 **Rule of Thumb**:
 - Does it come from the database? -> React Query.
 - Is it a local UI toggle or temporary client state? -> Zustand.
+
+---
+
+## 📄 Client Detail Module — Data Layer
+
+### Services & Hooks
+| File | Responsibility |
+|---|---|
+| `services/endpoints.ts` | `CLIENTS.GET_ALL` and `CLIENTS.GET_BY_ID(id: string)` |
+| `services/clientService.ts` | `getClients()` and `getClientById(id)` |
+| `hooks/useClients.ts` | React Query hook for the clients list |
+| `hooks/useClientById.ts` | React Query hook for a single client. QueryKey: `['clients', id]` |
+
+### Backend Response Shape (GET /clients/:id)
+```json
+{
+  "data": {
+    "client": { ...Client },
+    "activeLoans": [],
+    "guarantees": [],
+    "financialSummary": []
+  }
+}
+```
+Mapped to `ClientDetailResponse` in `types/client.ts`.
+
+### Mock Data Strategy
+The fields `activeLoans`, `guarantees`, and `financialSummary` are **not yet fully populated by the backend**. While the backend returns empty arrays, the client detail view uses **hardcoded mock data** from `components/client-detail/constants.ts`.
+
+- `MOCK_ACTIVE_LOANS`: Array of `ActiveLoanSummary[]` — two sample loans.
+- `MOCK_COMPLETED_LOANS`: Array of `CompletedLoanSummary[]`.
+- `MOCK_CLIENT_STATS`: `ClientStats` with `totalPayments` and `punctualityPercentage`.
+
+**Migration path (when backend is ready)**:
+1. The `ClientDetailView` component already accepts the full `ClientDetailResponse['data']` shape.
+2. When the backend starts returning real loans/stats, pass them as props to `ClientDetailView` instead of importing constants.
+3. Remove the `constants.ts` imports from `ClientDetailView.tsx` — no other component needs to change.

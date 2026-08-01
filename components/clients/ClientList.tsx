@@ -5,6 +5,8 @@ import { Client } from '@/types/client';
 import { ClientCard } from './ClientCard';
 import { Users } from 'lucide-react-native';
 
+import { useRouter } from 'expo-router';
+
 interface ClientListProps {
   data: Client[] | undefined;
   isLoading: boolean;
@@ -20,6 +22,8 @@ export function ClientList({
   refetch,
   isRefetching,
 }: ClientListProps) {
+  const router = useRouter();
+
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center p-4">
@@ -50,7 +54,12 @@ export function ClientList({
       data={data}
       keyExtractor={(item) => item.id}
       contentContainerClassName="p-4"
-      renderItem={({ item }) => <ClientCard client={item} />}
+      renderItem={({ item }) => (
+        <ClientCard
+          client={item}
+          onPress={(client) => router.push(`/(app)/client/${client.id}`)}
+        />
+      )}
       showsVerticalScrollIndicator={false}
       onRefresh={refetch}
       refreshing={isRefetching}
