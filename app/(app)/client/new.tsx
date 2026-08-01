@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, ScrollView, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Pressable, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
+import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { ArrowLeft } from 'lucide-react-native';
 import { ClientForm } from '@/components/clients/ClientForm';
 
@@ -25,20 +26,19 @@ export default function NewClientScreen() {
         </Text>
       </View>
 
-      <KeyboardAvoidingView 
-        style={{ flex: 1 }} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+      <KeyboardAwareScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40 }}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
       >
-        <ScrollView 
-          className="flex-1"
-          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 40 }}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
-          <ClientForm onSuccess={() => router.back()} />
-        </ScrollView>
-      </KeyboardAvoidingView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View>
+            <ClientForm onSuccess={() => router.back()} />
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

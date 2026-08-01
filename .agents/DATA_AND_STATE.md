@@ -71,3 +71,16 @@ The fields `activeLoans`, `guarantees`, and `financialSummary` are **not yet ful
 1. The `ClientDetailView` component already accepts the full `ClientDetailResponse['data']` shape.
 2. When the backend starts returning real loans/stats, pass them as props to `ClientDetailView` instead of importing constants.
 3. Remove the `constants.ts` imports from `ClientDetailView.tsx` — no other component needs to change.
+
+## 📄 Client Create Module — Data Layer
+
+| File | Responsibility |
+|---|---|
+| `services/endpoints.ts` | `CLIENTS.CREATE` → `POST /clients` |
+| `services/clientService.ts` | `createClient(data)` via the centralized Axios instance |
+| `hooks/useCreateClient.ts` | React Query `useMutation`; invalidates queryKey `['clients']` on success |
+| `components/clients/ClientForm.tsx` | RHF + Zod form that calls `useCreateClient` |
+
+- Payload shape matches `ClientCreateInput` in `types/client.ts`; optional fields (`phoneAlt`, `address`, `latitude`, `longitude`, `notes`) are nullable.
+- **Backend constraint (NestJS)**: `latitude`/`longitude` are validated with `@IsNumber({ maxDecimalPlaces: 8 })`. Coordinates must stay ≤8 decimals — the app rounds to 6 in `LocationPicker`. See `.agents/FORMS.md`.
+- The backend returns **`409 Conflict`** on duplicate CI or phone — handled in `ClientForm` (shows a specific error message).

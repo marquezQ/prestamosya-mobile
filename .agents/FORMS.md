@@ -50,3 +50,20 @@ import { TextInput, Text } from "react-native";
   )}
 />
 ```
+
+## ⌨️ Keyboard Handling in Forms
+
+**CRITICAL**: SDK 54 runs with `edge-to-edge` enabled (forced on Android 15+). The OS no longer resizes the window when the keyboard opens, so React Native's built-in `KeyboardAvoidingView` is **unreliable on Android** — especially `behavior="height"` (known render-loop / input-covering bugs).
+
+**Standard**: use `react-native-keyboard-controller` (bundled in Expo Go SDK 54, no dev build needed):
+- `KeyboardProvider` must wrap the app — **already mounted in `app/_layout.tsx`**. Without it, `KeyboardAwareScrollView` logs `Couldn't find real values for KeyboardContext` and silently does nothing.
+- Wrap scrollable forms in `KeyboardAwareScrollView` from `@/components/ui/KeyboardAwareScrollView` (has a `.web.tsx` fallback). It auto-scrolls the focused input above the keyboard with a native-synchronized animation on both platforms.
+- Keep `keyboardShouldPersistTaps="handled"` so taps on buttons/dropdowns work while the keyboard is open.
+- Tap-outside-to-dismiss: wrap the form in `TouchableWithoutFeedback onPress={Keyboard.dismiss}`.
+- Do NOT use `KeyboardAvoidingView` with `behavior="height"` on Android.
+
+## 🗺️ Location Fields (latitude/longitude)
+
+- `LocationPicker` (`components/ui/LocationPicker.tsx`) sets these fields via `onLocationSelect`.
+- **Always round coordinates to 6 decimals before submitting** (`roundCoord` helper inside `LocationPicker`). The NestJS backend validates `@IsNumber({ maxDecimalPlaces: 8 })` on both `latitude` and `longitude`; raw map-tap coordinates have ~14 decimals and get rejected with HTTP 400.
+- Reverse geocoding (`Location.reverseGeocodeAsync`) autofills the "Dirección de Cobro" address field via the `onAddressFound` callback — keep that wiring in `ClientForm`.

@@ -91,6 +91,23 @@ All components for the client profile detail screen live in `components/client-d
 - **Lucide icons that need an explicit color (e.g., inside Buttons, or cross-platform)**: pass the `color` prop with a hex value from `palette` or a hardcoded utility color (e.g., `color="#22c55e"` for green-500, `color="#ffffff"` for white).
 - This avoids dark mode rendering issues where `className` text color may not propagate correctly through the RNR `TextClassContext`.
 
+## 🗂️ New Client Module — Components
+
+The "Nuevo Cliente" screen (`app/(app)/client/new.tsx`) renders the form from `components/clients/`.
+
+| Component | Responsibility |
+|---|---|
+| `components/clients/ClientForm.tsx` | RHF + Zod form. Submits via `useCreateClient`, wires the map's `onAddressFound` autofill into the address field. |
+| `components/ui/LocationPicker.tsx` | Interactive `MapView` (tap-to-set marker) + "Ir a mi ubicación" button (expo-location). Rounds coords to 6 decimals (see FORMS.md). |
+| `components/ui/LocationPicker.web.tsx` | Web fallback — no `MapView`, only the locate button. |
+| `components/ui/KeyboardAwareScrollView.tsx` / `.web.tsx` | Cross-platform scroll that keeps focused inputs above the keyboard. See FORMS.md + STACK.md. |
+
+### "Ir a mi ubicación" flow (LocationPicker)
+- Checks `Location.hasServicesEnabledAsync()` → warns if GPS is off.
+- Requests foreground permission; on denial offers "Abrir ajustes" (`Linking.openSettings()`).
+- Uses `getCurrentPositionAsync({ accuracy: Balanced })`, rounds coords, reverse-geocodes to autofill the address, then `animateToRegion` on the map ref.
+- Map height: `h-80`. The button is a full-width `secondary` variant below the map.
+
 ### CI (Carnet de Identidad) Display Convention
 - The field `client.idNumber` is the Bolivian ID card number (CI).
 - Always display it as: `CI: {client.idNumber}` — never transform, slice, or build a synthetic ID from initials.

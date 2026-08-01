@@ -185,6 +185,9 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
           setValue('latitude', lat, { shouldValidate: true });
           setValue('longitude', lng, { shouldValidate: true });
         }}
+        onAddressFound={(address) => {
+          setValue('address', address, { shouldValidate: true });
+        }}
         error={errors.latitude?.message || errors.longitude?.message}
       />
 
