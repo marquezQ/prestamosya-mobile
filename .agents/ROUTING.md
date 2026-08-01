@@ -13,8 +13,18 @@ This app uses File-Based Routing via **Expo Router v3+**.
 ### App Structure:
 - `app/_layout.tsx`: The root layout. **Always** contains the `QueryClientProvider` and the `PortalHost` (which must be at the very end of the tree for modals/dropdowns to render on top). It also handles global route protection (Auth checks).
 - `app/(auth)/`: Unauthenticated screens (login). Uses a standard `Stack`.
-- `app/(app)/`: Authenticated screens.
+- `app/(app)/`: Authenticated screens. Uses a `Stack` that wraps both the tabs group and full-screen detail screens.
 - `app/(app)/(tabs)/`: The main bottom navigation tabs. Shared chrome (header, tab bar) lives in `app/(app)/(tabs)/_layout.tsx`.
+- `app/(app)/client/[id].tsx`: **Client detail screen.** Dynamic route accessed via `router.push('/(app)/client/${id}')`. Registered as `<Stack.Screen name="client/[id]" />` in `app/(app)/_layout.tsx`. Lives outside `(tabs)` so the tab bar is not shown. Uses its own custom header with an `ArrowLeft` back button.
+
+## 📱 Full-screen Detail Pattern (outside Tabs)
+
+For screens that should NOT show the bottom tab bar (e.g., client detail, loan detail):
+
+1. Create the file at `app/(app)/[feature]/[param].tsx` (e.g., `app/(app)/client/[id].tsx`).
+2. Register it in `app/(app)/_layout.tsx` as a `<Stack.Screen name="[feature]/[param]" />`.
+3. Set `headerShown: false` (default on the Stack) and render your own header with `useSafeAreaInsets()` for `paddingTop`.
+4. Navigate with `router.push('/(app)/[feature]/${param}')` and go back with `router.back()`.
 
 ## 🛡️ Route Protection (Authentication)
 

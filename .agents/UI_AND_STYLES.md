@@ -66,3 +66,31 @@ Use semantic classes:
 
 Components like `Dialog`, `Select`, and `DropdownMenu` require a `<PortalHost />` to render over native elements.
 **The `<PortalHost />` is already mounted at the very bottom of `app/_layout.tsx`. Do not move it or mount duplicates.**
+
+---
+
+## 🗂️ Client Detail Module — Components
+
+All components for the client profile detail screen live in `components/client-detail/`.
+
+| Component | Responsibility |
+|---|---|
+| `ClientDetailView.tsx` | Orchestrator. Renders a `ScrollView` with all sections. Injects mock data from `constants.ts`. |
+| `ClientProfileHeader.tsx` | Large avatar, name, `CI: {idNumber}` (Carnet de Identidad), member-since date, Llamar + WhatsApp buttons. |
+| `ActiveLoanCard.tsx` | Main active loan card with progress bar, next payment grid and "Registrar pago" CTA. |
+| `LoanProgressBar.tsx` | Reusable horizontal progress bar (paid/total). |
+| `ClientStatsRow.tsx` | Two stat cards side by side (Historial + Puntualidad). |
+| `ClientAddressMap.tsx` | Native `MapView` (react-native-maps) with hardcoded fallback coords. |
+| `ClientAddressMap.web.tsx` | Web fallback — no MapView, shows a placeholder. |
+| `OtherActiveLoansSection.tsx` | List of secondary active loans (mocked). |
+| `CompletedLoansSection.tsx` | List of completed loans with green checkmark badge. |
+| `constants.ts` | All mock loan/stats data — replace with real props when backend is ready. |
+
+### Icon Color Convention (Lucide)
+- **Lucide icons inside NativeWind components**: prefer `className="text-*"` for color.
+- **Lucide icons that need an explicit color (e.g., inside Buttons, or cross-platform)**: pass the `color` prop with a hex value from `palette` or a hardcoded utility color (e.g., `color="#22c55e"` for green-500, `color="#ffffff"` for white).
+- This avoids dark mode rendering issues where `className` text color may not propagate correctly through the RNR `TextClassContext`.
+
+### CI (Carnet de Identidad) Display Convention
+- The field `client.idNumber` is the Bolivian ID card number (CI).
+- Always display it as: `CI: {client.idNumber}` — never transform, slice, or build a synthetic ID from initials.

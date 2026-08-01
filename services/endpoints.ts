@@ -6,5 +6,6 @@ export const ENDPOINTS = {
   },
   CLIENTS: {
     GET_ALL: '/clients',
+    GET_BY_ID: (id: string) => `/clients/${id}`,
   }
 };
