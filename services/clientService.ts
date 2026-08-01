@@ -1,5 +1,5 @@
 import { api } from './api';
-import { ClientListResponse, ClientDetailResponse } from '@/types/client';
+import { ClientListResponse, ClientDetailResponse, ClientCreateInput, Client } from '@/types/client';
 import { ENDPOINTS } from './endpoints';
 
 export const clientService = {
@@ -16,6 +16,14 @@ export const clientService = {
    */
   getClientById: async (id: string): Promise<ClientDetailResponse> => {
     const response = await api.get<ClientDetailResponse>(ENDPOINTS.CLIENTS.GET_BY_ID(id));
+    return response.data;
+  },
+
+  /**
+   * Crea un nuevo cliente.
+   */
+  createClient: async (data: ClientCreateInput): Promise<{ data: Client }> => {
+    const response = await api.post<{ data: Client }>(ENDPOINTS.CLIENTS.CREATE, data);
     return response.data;
   },
 };

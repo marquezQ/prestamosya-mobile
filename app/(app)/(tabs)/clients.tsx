@@ -1,5 +1,6 @@
 import { View, Pressable } from "react-native";
 import { useState, useMemo } from "react";
+import { useRouter } from "expo-router";
 import { useClients } from "@/hooks/useClients";
 import { ClientFilters } from "@/components/clients/ClientFilters";
 import { ClientList } from "@/components/clients/ClientList";
@@ -7,6 +8,7 @@ import { Text } from "@/components/ui/text";
 import { Plus } from "lucide-react-native";
 
 export default function ClientsScreen() {
+  const router = useRouter();
   const { data, isLoading, isError, refetch, isRefetching } = useClients();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'UP_TO_DATE' | 'OVERDUE'>('ALL');
@@ -56,6 +58,7 @@ export default function ClientsScreen() {
       {/* Floating Action Button */}
       <Pressable 
         className="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-2xl items-center justify-center shadow-lg active:scale-95"
+        onPress={() => router.push('/(app)/client/new')}
       >
         <Plus size={28} className="text-primary-foreground" />
       </Pressable>

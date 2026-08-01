@@ -13,6 +13,17 @@ export interface Client {
   updatedAt: string;
 }
 
+export interface ClientCreateInput {
+  fullName: string;
+  phone: string;
+  idNumber: string;
+  phoneAlt: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  notes: string | null;
+}
+
 export interface ClientListResponse {
   data: Client[];
 }
