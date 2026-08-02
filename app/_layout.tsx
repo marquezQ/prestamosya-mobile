@@ -9,6 +9,7 @@ import { useColorScheme } from "nativewind";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "@react-navigation/native";
+import { KeyboardProvider } from "@/components/ui/KeyboardProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { View, ActivityIndicator } from "react-native";
 
@@ -38,12 +39,14 @@ function RootLayoutNav() {
   }
   
   return (
-    <ThemeProvider value={getNavigationTheme(colorScheme)}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(app)" />
-      </Stack>
-    </ThemeProvider>
+    <KeyboardProvider>
+      <ThemeProvider value={getNavigationTheme(colorScheme)}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(app)" />
+        </Stack>
+      </ThemeProvider>
+    </KeyboardProvider>
   );
 }
 
