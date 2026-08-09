@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, TouchableWithoutFeedback, Keyboard, ActivityIndicator } from "react-native";
+import { View, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Platform } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -51,6 +51,113 @@ export default function LoginScreen() {
     });
   };
 
+  const formContent = (
+    <View className="py-4">
+      {/* Contenedor tipo Tarjeta (Card) */}
+      <View className="bg-card border border-border/50 rounded-3xl p-6 sm:p-8 shadow-sm">
+        
+        {/* Header con Ícono y Textos */}
+        <View className="items-center mb-8">
+          <View className="w-20 h-20 rounded-full bg-primary/15 items-center justify-center mb-5">
+            <Icon as={Banknote} className="text-primary" size={40} />
+          </View>
+          <Text className="text-3xl font-extrabold text-foreground tracking-tight">
+            PrestamosYA
+          </Text>
+          <Text className="text-muted-foreground mt-2 text-center text-sm leading-5">
+            Ingresa tus credenciales para acceder a tu panel de gestión y cobros.
+          </Text>
+        </View>
+
+        {/* Formulario */}
+        <View className="gap-5">
+          {/* Mensaje de Error */}
+          {errorMessage && (
+            <View className="bg-destructive/15 px-4 py-3 rounded-xl border border-destructive/30">
+              <Text className="text-destructive text-center text-sm font-semibold">
+                {errorMessage}
+              </Text>
+            </View>
+          )}
+
+          <View className="gap-2.5">
+            <Label nativeID="username" className="text-foreground ml-1">
+              Nombre de usuario
+            </Label>
+            <Controller
+              control={control}
+              name="username"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <Input
+                    placeholder="Ej. admin"
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!isPending}
+                    aria-labelledby="username"
+                    className="bg-background"
+                  />
+                  {errors.username && (
+                    <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
+                      {errors.username.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+
+          <View className="gap-2.5">
+            <Label nativeID="password" className="text-foreground ml-1">
+              Contraseña
+            </Label>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View>
+                  <Input
+                    placeholder="••••••••"
+                    secureTextEntry
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    editable={!isPending}
+                    aria-labelledby="password"
+                    className="bg-background"
+                  />
+                  {errors.password && (
+                    <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
+                      {errors.password.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
+
+          <Button 
+            onPress={handleSubmit(onSubmit)} 
+            disabled={isPending}
+            className="mt-6 bg-primary rounded-xl h-12 shadow-sm"
+          >
+            {isPending ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-primary-foreground font-bold text-base">
+                Iniciar Sesión
+              </Text>
+            )}
+          </Button>
+        </View>
+        
+      </View>
+    </View>
+  );
+
   return (
     <>
       <KeyboardAwareScrollView
@@ -58,112 +165,13 @@ export default function LoginScreen() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View className="py-4">
-            {/* Contenedor tipo Tarjeta (Card) */}
-            <View className="bg-card border border-border/50 rounded-3xl p-6 sm:p-8 shadow-sm">
-              
-              {/* Header con Ícono y Textos */}
-              <View className="items-center mb-8">
-                <View className="w-20 h-20 rounded-full bg-primary/15 items-center justify-center mb-5">
-                  <Icon as={Banknote} className="text-primary" size={40} />
-                </View>
-                <Text className="text-3xl font-extrabold text-foreground tracking-tight">
-                  PrestamosYA
-                </Text>
-                <Text className="text-muted-foreground mt-2 text-center text-sm leading-5">
-                  Ingresa tus credenciales para acceder a tu panel de gestión y cobros.
-                </Text>
-              </View>
-
-              {/* Formulario */}
-              <View className="gap-5">
-                {/* Mensaje de Error */}
-                {errorMessage && (
-                  <View className="bg-destructive/15 px-4 py-3 rounded-xl border border-destructive/30">
-                    <Text className="text-destructive text-center text-sm font-semibold">
-                      {errorMessage}
-                    </Text>
-                  </View>
-                )}
-
-                <View className="gap-2.5">
-                  <Label nativeID="username" className="text-foreground ml-1">
-                    Nombre de usuario
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="username"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View>
-                        <Input
-                          placeholder="Ej. admin"
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          value={value}
-                          autoCapitalize="none"
-                          autoCorrect={false}
-                          editable={!isPending}
-                          aria-labelledby="username"
-                          className="bg-background"
-                        />
-                        {errors.username && (
-                          <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
-                            {errors.username.message}
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  />
-                </View>
-
-                <View className="gap-2.5">
-                  <Label nativeID="password" className="text-foreground ml-1">
-                    Contraseña
-                  </Label>
-                  <Controller
-                    control={control}
-                    name="password"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                      <View>
-                        <Input
-                          placeholder="••••••••"
-                          secureTextEntry
-                          onBlur={onBlur}
-                          onChangeText={onChange}
-                          value={value}
-                          editable={!isPending}
-                          aria-labelledby="password"
-                          className="bg-background"
-                        />
-                        {errors.password && (
-                          <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
-                            {errors.password.message}
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  />
-                </View>
-
-                <Button 
-                  onPress={handleSubmit(onSubmit)} 
-                  disabled={isPending}
-                  className="mt-6 bg-primary rounded-xl h-12 shadow-sm"
-                >
-                  {isPending ? (
-                    <ActivityIndicator color="white" />
-                  ) : (
-                    <Text className="text-primary-foreground font-bold text-base">
-                      Iniciar Sesión
-                    </Text>
-                  )}
-                </Button>
-              </View>
-              
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+        {Platform.OS === 'web' ? (
+          formContent
+        ) : (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            {formContent}
+          </TouchableWithoutFeedback>
+        )}
       </KeyboardAwareScrollView>
     </>
   );
