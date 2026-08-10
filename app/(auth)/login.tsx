@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Platform } from "react-native";
+import { View, TouchableWithoutFeedback, Keyboard, ActivityIndicator, Platform, Pressable } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Text } from "@/components/ui/text";
 import { KeyboardAwareScrollView } from "@/components/ui/KeyboardAwareScrollView";
-import { Banknote } from "lucide-react-native";
+import { Banknote, Eye, EyeOff } from "lucide-react-native";
 import { Icon } from "@/components/ui/icon";
 
 // Esquema de validación usando Zod con límite de 15 caracteres
@@ -27,6 +27,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { mutate: login, isPending } = useLogin();
 
@@ -64,7 +65,7 @@ export default function LoginScreen() {
           <Text className="text-3xl font-extrabold text-foreground tracking-tight">
             PrestamosYA
           </Text>
-          <Text className="text-muted-foreground mt-2 text-center text-sm leading-5">
+          <Text className="text-muted-foreground mt-2 text-center text-base leading-5">
             Ingresa tus credenciales para acceder a tu panel de gestión y cobros.
           </Text>
         </View>
@@ -101,7 +102,7 @@ export default function LoginScreen() {
                     className="bg-background"
                   />
                   {errors.username && (
-                    <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
+                    <Text className="text-destructive text-sm mt-1.5 ml-1 font-medium">
                       {errors.username.message}
                     </Text>
                   )}
@@ -119,18 +120,30 @@ export default function LoginScreen() {
               name="password"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <Input
-                    placeholder="••••••••"
-                    secureTextEntry
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                    editable={!isPending}
-                    aria-labelledby="password"
-                    className="bg-background"
-                  />
+                  <View className="relative">
+                    <Input
+                      placeholder="••••••••"
+                      secureTextEntry={!showPassword}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                      value={value}
+                      editable={!isPending}
+                      aria-labelledby="password"
+                      className="bg-background pr-12"
+                    />
+                    <Pressable
+                      onPress={() => setShowPassword(!showPassword)}
+                      className="absolute right-0 top-0 bottom-0 px-3 justify-center"
+                    >
+                      {showPassword ? (
+                        <Icon as={EyeOff} size={20} className="text-muted-foreground" />
+                      ) : (
+                        <Icon as={Eye} size={20} className="text-muted-foreground" />
+                      )}
+                    </Pressable>
+                  </View>
                   {errors.password && (
-                    <Text className="text-destructive text-xs mt-1.5 ml-1 font-medium">
+                    <Text className="text-destructive text-sm mt-1.5 ml-1 font-medium">
                       {errors.password.message}
                     </Text>
                   )}
@@ -142,12 +155,12 @@ export default function LoginScreen() {
           <Button 
             onPress={handleSubmit(onSubmit)} 
             disabled={isPending}
-            className="mt-6 bg-primary rounded-xl h-12 shadow-sm"
+            className="mt-6 bg-primary rounded-xl h-14 shadow-sm"
           >
             {isPending ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-primary-foreground font-bold text-base">
+              <Text className="text-primary-foreground font-bold text-lg">
                 Iniciar Sesión
               </Text>
             )}

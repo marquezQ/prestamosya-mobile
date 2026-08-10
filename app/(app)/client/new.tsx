@@ -21,7 +21,7 @@ export default function NewClientScreen() {
         >
           <ArrowLeft size={24} className="text-foreground" />
         </Pressable>
-        <Text className="font-bold text-lg text-foreground ml-2">
+        <Text className="font-bold text-xl text-foreground ml-2">
           Nuevo Cliente
         </Text>
       </View>

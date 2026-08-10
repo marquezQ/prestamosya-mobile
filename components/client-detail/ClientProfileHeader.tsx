@@ -53,9 +53,9 @@ export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
     <View className="items-center px-4 py-6">
       {/* Avatar Section */}
       <View className="relative mb-4">
-        <Avatar alt={client.fullName} className="h-20 w-20 bg-primary/20 items-center justify-center">
+        <Avatar alt={client.fullName} className="h-24 w-24 bg-primary/20 items-center justify-center">
           <AvatarFallback>
-            <Text className="text-primary font-bold text-3xl">
+            <Text className="text-primary font-bold text-4xl">
               {getInitials(client.fullName)}
             </Text>
           </AvatarFallback>
@@ -66,10 +66,10 @@ export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
       </View>
 
       {/* Name and ID Section */}
-      <Text className="text-2xl font-bold text-foreground text-center mb-1">
+      <Text className="text-3xl font-bold text-foreground text-center mb-1">
         {client.fullName}
       </Text>
-      <Text className="text-muted-foreground text-sm text-center mb-6">
+      <Text className="text-muted-foreground text-base text-center mb-6">
         Cliente desde {formattedMemberSince} • CI: {client.idNumber}
       </Text>
 
@@ -77,20 +77,20 @@ export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
       <View className="flex-row w-full gap-4">
         <Button
           variant="outline"
-          className="flex-1 flex-row items-center justify-center gap-2"
+          className="flex-1 flex-row items-center justify-center gap-2 h-12"
           onPress={handleCall}
           disabled={!client.phone}
         >
-          <Phone size={18} className="text-foreground" />
-          <Text className="font-semibold text-foreground">Llamar</Text>
+          <Phone size={20} className="text-foreground" />
+          <Text className="font-semibold text-foreground text-base">Llamar</Text>
         </Button>
         <Button
-          className="flex-1 flex-row items-center justify-center gap-2 bg-accent active:bg-accent/80"
+          className="flex-1 flex-row items-center justify-center gap-2 bg-accent active:bg-accent/80 h-12"
           onPress={handleWhatsApp}
           disabled={!client.phone}
         >
-          <MessageCircle size={18} className="text-accent-foreground" />
-          <Text className="font-semibold text-accent-foreground">WhatsApp</Text>
+          <MessageCircle size={20} className="text-accent-foreground" />
+          <Text className="font-semibold text-accent-foreground text-base">WhatsApp</Text>
         </Button>
       </View>
     </View>

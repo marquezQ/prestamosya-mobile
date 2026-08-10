@@ -21,19 +21,19 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-muted/50">
         <View className="flex-row items-center gap-2">
-          <CalendarDays size={18} className="text-primary" />
-          <Text className="text-foreground font-bold text-sm">Cronograma de Pagos</Text>
+          <CalendarDays size={20} className="text-primary" />
+          <Text className="text-foreground font-bold text-base">Cronograma de Pagos</Text>
         </View>
         <View className="bg-primary/10 px-2.5 py-0.5 rounded-full">
-          <Text className="text-primary text-xs font-bold">{schedule.length} cuotas</Text>
+          <Text className="text-primary text-sm font-bold">{schedule.length} cuotas</Text>
         </View>
       </View>
 
       {/* Encabezado de columnas */}
       <View className="flex-row px-4 py-2 border-b border-border bg-muted/30">
-        <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider w-8">#</Text>
-        <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider flex-1">Fecha</Text>
-        <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider text-right w-24">Monto</Text>
+        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider w-10">#</Text>
+        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider flex-1">Fecha</Text>
+        <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider text-right w-24">Monto</Text>
       </View>
 
       {/* Lista de cuotas */}
@@ -50,11 +50,11 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
           return (
             <View
               key={item.number}
-              className={`flex-row items-center px-4 py-2.5 ${!isLast ? 'border-b border-border/50' : ''}`}
+              className={`flex-row items-center px-4 py-3 ${!isLast ? 'border-b border-border/50' : ''}`}
             >
-              <Text className="text-muted-foreground text-sm font-medium w-8">{item.number}</Text>
-              <Text className="text-foreground text-sm flex-1">{formattedDate}</Text>
-              <Text className="text-foreground text-sm font-bold text-right w-24">
+              <Text className="text-muted-foreground text-base font-medium w-10">{item.number}</Text>
+              <Text className="text-foreground text-base flex-1">{formattedDate}</Text>
+              <Text className="text-foreground text-base font-bold text-right w-24">
                 {item.totalAmount.toFixed(2)} Bs
               </Text>
             </View>
@@ -63,14 +63,14 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
       </View>
 
       {/* Totales */}
-      <View className="border-t border-border px-4 py-3 bg-muted/30">
+      <View className="border-t border-border px-4 py-4 bg-muted/30">
         <View className="flex-row justify-between mb-1">
-          <Text className="text-muted-foreground text-xs">Total intereses:</Text>
-          <Text className="text-muted-foreground text-xs font-bold">{totalInterest.toFixed(2)} Bs</Text>
+          <Text className="text-muted-foreground text-sm">Total intereses:</Text>
+          <Text className="text-muted-foreground text-sm font-bold">{totalInterest.toFixed(2)} Bs</Text>
         </View>
-        <View className="flex-row justify-between">
-          <Text className="text-foreground text-sm font-bold">Total a pagar:</Text>
-          <Text className="text-primary text-base font-bold">{totalAmount.toFixed(2)} Bs</Text>
+        <View className="flex-row justify-between mt-1">
+          <Text className="text-foreground text-base font-bold">Total a pagar:</Text>
+          <Text className="text-primary text-xl font-bold">{totalAmount.toFixed(2)} Bs</Text>
         </View>
       </View>
     </View>

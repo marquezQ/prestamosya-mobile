@@ -68,6 +68,26 @@ The middle tab is a **floating action button** style icon, visually elevated abo
 
 When adding new tabs or changing the FAB, keep brand colors from `@/lib/theme` — never hardcode hex values.
 
+### Custom Interception Pattern (Center FAB "+")
+If a tab button needs to launch a full-screen layout (like our Loan Wizard) instead of switching to a standard tab view:
+1. Add a dummy screen file in the tab group (e.g., `app/(app)/(tabs)/new.tsx`) that simply returns `null` (this prevents blank pages/flickers).
+2. Intercept the navigation press inside `app/(app)/(tabs)/_layout.tsx` using layout listeners:
+   ```tsx
+   <Tabs.Screen
+     name="new"
+     listeners={({ navigation }) => ({
+       tabPress: (e) => {
+         e.preventDefault(); // Prevent switching to the dummy tab
+         router.push('/(app)/loan/new'); // Redirect to fullscreen screen
+       },
+     })}
+     // ... options
+   />
+   ```
+3. Ensure the target fullscreen route has clear navigation back controls (using `router.back()`) to prevent the user from getting stuck.
+
+---
+
 ## 📱 Safe Areas & Viewports
 
 **CRITICAL RULE**: Do not use hardcoded paddings to avoid the system navigation bar (Android buttons) or iOS home indicator. Modern devices draw edge-to-edge.

@@ -68,7 +68,7 @@ export function ManualLoanForm() {
           </View>
           <Input
             id="manualCapitalAmount"
-            placeholder="Ej. 1000"
+            placeholder="0"
             keyboardType="numeric"
             value={manualCapitalAmount}
             onChangeText={setManualCapitalAmount}
@@ -116,12 +116,12 @@ export function ManualLoanForm() {
           </Text>
         </View>
         {totalSum < capital && capital > 0 && (
-          <Text className="text-[10px] text-destructive mt-1 text-right">
+          <Text className="text-xs text-destructive mt-1 text-right">
             La suma debe ser al menos igual al capital prestado
           </Text>
         )}
         {!allDatesFilled && capital > 0 && (
-          <Text className="text-[10px] text-destructive mt-1 text-right">
+          <Text className="text-xs text-destructive mt-1 text-right">
             Todas las cuotas deben tener una fecha de pago
           </Text>
         )}

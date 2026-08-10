@@ -111,3 +111,59 @@ The "Nuevo Cliente" screen (`app/(app)/client/new.tsx`) renders the form from `c
 ### CI (Carnet de Identidad) Display Convention
 - The field `client.idNumber` is the Bolivian ID card number (CI).
 - Always display it as: `CI: {client.idNumber}` — never transform, slice, or build a synthetic ID from initials.
+
+---
+
+## 📐 Typography Standards (Mobile-First)
+
+> **Context:** Physical mobile screens have very high pixel density. Text that looks legible in a browser's responsive emulator will appear much smaller on a real device. All font sizes were scaled up as of August 2026 to ensure comfortable readability on physical Android/iOS devices.
+
+**CRITICAL RULE: Never use `text-[10px]` or `text-[11px]` in new code. Those sizes are reserved for nothing — they are too small for any mobile UI element.** If you catch them in existing code, replace with `text-xs` minimum.
+
+### Base Scale Reference
+
+| Role | Class | px equivalent | Example usage |
+|------|-------|---------------|---------------|
+| **Screen Titles** | `text-xl` | 20px | Step titles ("Seleccionar Cliente"), Screen headers ("Nuevo Cliente") |
+| **Card / Section Titles** | `text-lg` | 18px | Card headers ("Préstamo Activo"), Client name in lists |
+| **Body / Reading text** | `text-base` | 16px | Subtitles, descriptions, input field content |
+| **Secondary / Labels** | `text-sm` | 14px | Field labels (via `<Label>`), CI numbers, badges, helper text |
+| **Tertiary / Captions** | `text-xs` | 12px | Column headers in tables, uppercase tracking labels (e.g., "SALDO PENDIENTE") |
+| **Hero / KPI numbers** | `text-2xl` – `text-4xl` | 24–36px | Big monetary values (debt totals, stats counters) |
+
+### Primitive Components (source of truth)
+
+These components were modified at the source — all new forms/screens automatically inherit these sizes:
+
+- **`components/ui/input.tsx`** → `text-lg` (18px), height `h-12` (48px touch target)
+- **`components/ui/label.tsx`** → `text-base` (16px)
+
+### Action Buttons (touch targets)
+
+All primary CTA buttons must have a minimum height of `h-14` (56px) for comfortable thumb tapping.
+- Primary buttons: `h-14`, button text `text-lg font-bold`
+- Secondary / ghost buttons: `h-12`, button text `text-base font-semibold`
+- Icon-only action buttons (Phone, WhatsApp): `h-12 w-12`
+
+### Form Validation Errors
+
+Validation error messages below inputs use `text-sm text-destructive mt-1`. Never use `text-xs` for errors.
+
+### Placeholders
+
+Input placeholders must be simple and minimal. Use plain `"0"` for numeric fields. Do NOT write "Ej. 1000", "Ej. 10%", etc.
+
+### Dos and Don'ts
+
+```
+✅ DO
+  <Text className="text-foreground font-bold text-xl">Seleccionar Cliente</Text>   // Screen title
+  <Text className="text-muted-foreground text-base">Subtítulo descriptivo</Text>   // Subtitle
+  <Text className="text-muted-foreground text-xs font-bold uppercase">SALDO</Text> // Table header
+
+❌ DON'T
+  <Text className="text-[10px]">...</Text>   // Too small, forbidden
+  <Text className="text-[11px]">...</Text>   // Too small, forbidden
+  <Text className="text-sm">Error message</Text> // Use text-sm, not text-xs for errors
+  placeholder="Ej. 1000"                     // Use "0" for numeric inputs
+```

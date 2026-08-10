@@ -31,19 +31,19 @@ export function ClientPickerCard({
       {/* Avatar */}
       <Avatar
         alt={fullName}
-        className="h-10 w-10 bg-primary/20 items-center justify-center shrink-0"
+        className="h-12 w-12 bg-primary/20 items-center justify-center shrink-0"
       >
         <AvatarFallback>
-          <Text className="text-primary font-bold text-sm">{initials}</Text>
+          <Text className="text-primary font-bold text-lg">{initials}</Text>
         </AvatarFallback>
       </Avatar>
 
       {/* Info */}
       <View className="flex-1 ml-3">
-        <Text className="text-foreground font-bold text-base leading-snug">
+        <Text className="text-foreground font-bold text-lg leading-snug">
           {fullName}
         </Text>
-        <Text className="text-muted-foreground text-xs font-medium mt-0.5">
+        <Text className="text-muted-foreground text-sm font-medium mt-0.5">
           CI: {idNumber}
         </Text>
       </View>

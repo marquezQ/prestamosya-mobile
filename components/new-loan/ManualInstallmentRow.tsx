@@ -27,7 +27,7 @@ export function ManualInstallmentRow({
   return (
     <View className="flex-row items-center gap-2 mb-3">
       {/* Número de cuota */}
-      <View className="w-8 h-10 items-center justify-center bg-muted rounded-md">
+      <View className="w-8 h-12 items-center justify-center bg-muted rounded-md">
         <Text className="text-muted-foreground text-xs font-bold">{index + 1}</Text>
       </View>
 

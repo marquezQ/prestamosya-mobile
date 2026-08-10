@@ -99,7 +99,7 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
             />
           )}
         />
-        {errors.fullName && <Text className="text-destructive text-xs mt-1">{errors.fullName.message}</Text>}
+        {errors.fullName && <Text className="text-destructive text-sm mt-1">{errors.fullName.message}</Text>}
       </View>
 
       <View>
@@ -118,7 +118,7 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
             />
           )}
         />
-        {errors.idNumber && <Text className="text-destructive text-xs mt-1">{errors.idNumber.message}</Text>}
+        {errors.idNumber && <Text className="text-destructive text-sm mt-1">{errors.idNumber.message}</Text>}
       </View>
 
       <View className="flex-row gap-4">
@@ -139,7 +139,7 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
               />
             )}
           />
-          {errors.phone && <Text className="text-destructive text-xs mt-1">{errors.phone.message}</Text>}
+          {errors.phone && <Text className="text-destructive text-sm mt-1">{errors.phone.message}</Text>}
         </View>
 
         <View className="flex-1">
@@ -215,12 +215,12 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
       <Button 
         onPress={handleSubmit(onSubmit)} 
         disabled={isPending}
-        className="mt-4"
+        className="mt-4 h-14"
       >
         {isPending ? (
           <ActivityIndicator color="#ffffff" className="mr-2" />
         ) : null}
-        <Text className="text-primary-foreground font-bold text-base">
+        <Text className="text-primary-foreground font-bold text-lg">
           {isPending ? 'Guardando...' : 'Guardar Cliente'}
         </Text>
       </Button>

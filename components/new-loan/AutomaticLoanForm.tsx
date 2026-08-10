@@ -58,7 +58,7 @@ export function AutomaticLoanForm() {
           </View>
           <Input
             id="capitalAmount"
-            placeholder="Ej. 1000"
+            placeholder="0"
             keyboardType="numeric"
             value={capitalAmount}
             onChangeText={(v) => setAutoField('capitalAmount', v)}
@@ -78,7 +78,7 @@ export function AutomaticLoanForm() {
           </View>
           <Input
             id="interestRate"
-            placeholder="Ej. 10"
+            placeholder="0"
             keyboardType="numeric"
             value={interestRate}
             onChangeText={(v) => setAutoField('interestRate', v)}
@@ -128,7 +128,7 @@ export function AutomaticLoanForm() {
           </View>
           <Input
             id="totalInstallments"
-            placeholder="Ej. 12"
+            placeholder="0"
             keyboardType="numeric"
             value={totalInstallments}
             onChangeText={(v) => setAutoField('totalInstallments', v)}

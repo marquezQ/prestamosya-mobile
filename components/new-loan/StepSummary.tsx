@@ -55,50 +55,50 @@ export function StepSummary() {
     <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
       {/* Título */}
       <View className="pt-2 pb-4">
-        <Text className="text-foreground font-bold text-lg">Resumen Final</Text>
-        <Text className="text-muted-foreground text-sm mt-0.5">
+        <Text className="text-foreground font-bold text-xl">Resumen Final</Text>
+        <Text className="text-muted-foreground text-base mt-0.5">
           Verifica los datos antes de confirmar el préstamo
         </Text>
       </View>
 
       {/* Datos del Cliente */}
       <View className="bg-card border border-border rounded-xl p-4 mb-4">
-        <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
+        <Text className="text-muted-foreground text-sm font-bold uppercase tracking-wider mb-2">
           Cliente Seleccionado
         </Text>
-        <Text className="text-foreground font-bold text-base">
+        <Text className="text-foreground font-bold text-lg">
           {selectedClient?.fullName}
         </Text>
-        <Text className="text-muted-foreground text-xs mt-1">
+        <Text className="text-muted-foreground text-sm mt-1">
           CI: {selectedClient?.idNumber}
         </Text>
       </View>
 
       {/* Datos del Préstamo */}
       <View className="bg-card border border-border rounded-xl p-4 mb-4">
-        <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-2">
+        <Text className="text-muted-foreground text-sm font-bold uppercase tracking-wider mb-2">
           Detalles del Préstamo ({loanMode === 'automatic' ? 'Automático' : 'Manual'})
         </Text>
         
         <View className="flex-row flex-wrap mt-1">
-          <View className="w-1/2 mb-3">
-            <Text className="text-muted-foreground text-xs">Monto Capital</Text>
-            <Text className="text-foreground font-bold">{currentCapital} Bs</Text>
+          <View className="w-1/2 mb-4">
+            <Text className="text-muted-foreground text-sm mb-1">Monto Capital</Text>
+            <Text className="text-foreground font-bold text-base">{currentCapital} Bs</Text>
           </View>
           
           {loanMode === 'automatic' && (
             <>
-              <View className="w-1/2 mb-3">
-                <Text className="text-muted-foreground text-xs">Tasa de Interés</Text>
-                <Text className="text-foreground font-bold">{interestRate}%</Text>
+              <View className="w-1/2 mb-4">
+                <Text className="text-muted-foreground text-sm mb-1">Tasa de Interés</Text>
+                <Text className="text-foreground font-bold text-base">{interestRate}%</Text>
               </View>
-              <View className="w-1/2 mb-1">
-                <Text className="text-muted-foreground text-xs">Frecuencia</Text>
-                <Text className="text-foreground font-bold">{currentPeriodLabel}</Text>
+              <View className="w-1/2 mb-2">
+                <Text className="text-muted-foreground text-sm mb-1">Frecuencia</Text>
+                <Text className="text-foreground font-bold text-base">{currentPeriodLabel}</Text>
               </View>
-              <View className="w-1/2 mb-1">
-                <Text className="text-muted-foreground text-xs">Total Cuotas</Text>
-                <Text className="text-foreground font-bold">{totalInstallments}</Text>
+              <View className="w-1/2 mb-2">
+                <Text className="text-muted-foreground text-sm mb-1">Total Cuotas</Text>
+                <Text className="text-foreground font-bold text-base">{totalInstallments}</Text>
               </View>
             </>
           )}
@@ -114,13 +114,12 @@ export function StepSummary() {
       <Button
         onPress={handleConfirm}
         disabled={isSubmitting || schedule.length === 0}
-        className="mb-8"
-        size="lg"
+        className="mb-8 h-14"
       >
         {isSubmitting ? (
           <ActivityIndicator color="#ffffff" className="mr-2" />
         ) : null}
-        <Text className="text-primary-foreground font-bold text-base">
+        <Text className="text-primary-foreground font-bold text-lg">
           {isSubmitting ? 'Confirmando...' : 'Confirmar Préstamo'}
         </Text>
       </Button>

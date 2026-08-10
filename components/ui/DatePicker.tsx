@@ -30,13 +30,13 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
 
   if (Platform.OS === 'ios') {
     return (
-      <View className={`h-10 justify-center border border-input rounded-md bg-background px-1 ${className || ''}`}>
+      <View className={`h-12 justify-center border border-input rounded-md bg-background px-1 ${className || ''}`}>
         <DateTimePicker
           value={dateValue}
           mode="date"
           display="compact"
           onChange={handleDateChange}
-          style={{ height: 38 }}
+          style={{ height: 46 }}
         />
       </View>
     );
@@ -47,9 +47,9 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
     <View className={className}>
       <Pressable
         onPress={() => setShow(true)}
-        className="h-10 border border-input bg-background rounded-md px-3 justify-center"
+        className="h-12 border border-input bg-background rounded-md px-3 justify-center"
       >
-        <Text className={value ? 'text-foreground text-sm' : 'text-muted-foreground text-sm'}>
+        <Text className={value ? 'text-foreground text-base' : 'text-muted-foreground text-base'}>
           {formatted}
         </Text>
       </Pressable>

@@ -53,10 +53,10 @@ export function StepSelectClient() {
     <View className="flex-1">
       {/* Título */}
       <View className="px-4 pt-2 pb-1">
-        <Text className="text-foreground font-bold text-lg">
+        <Text className="text-foreground font-bold text-xl">
           Seleccionar Cliente
         </Text>
-        <Text className="text-muted-foreground text-sm mt-0.5">
+        <Text className="text-muted-foreground text-base mt-0.5">
           Elige el cliente al que deseas otorgar el préstamo
         </Text>
       </View>
@@ -99,13 +99,13 @@ export function StepSelectClient() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View className="items-center justify-center py-10 mt-6">
-            <View className="h-16 w-16 bg-muted rounded-full items-center justify-center mb-4">
-              <Users size={32} className="text-muted-foreground" />
+            <View className="h-20 w-20 bg-muted rounded-full items-center justify-center mb-4">
+              <Users size={36} className="text-muted-foreground" />
             </View>
-            <Text className="text-foreground font-bold text-lg">
+            <Text className="text-foreground font-bold text-xl">
               No se encontraron clientes
             </Text>
-            <Text className="text-muted-foreground text-center mt-2">
+            <Text className="text-muted-foreground text-center text-base mt-2">
               {searchQuery
                 ? 'Intenta con otro término de búsqueda.'
                 : 'Aún no tienes clientes registrados.'}

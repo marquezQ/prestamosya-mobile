@@ -21,7 +21,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           }
         }}
         style={{
-          height: 40,
+          height: 48,
           width: '100%',
           borderWidth: 1,
           borderColor: 'hsl(var(--border))',
@@ -30,7 +30,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
           paddingRight: 12,
           backgroundColor: 'hsl(var(--background))',
           color: 'hsl(var(--foreground))',
-          fontSize: 14,
+          fontSize: 16,
           outline: 'none',
         }}
       />

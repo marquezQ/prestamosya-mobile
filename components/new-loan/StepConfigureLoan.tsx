@@ -13,10 +13,10 @@ export function StepConfigureLoan() {
     <View className="flex-1">
       {/* Título */}
       <View className="px-4 pt-2 pb-3">
-        <Text className="text-foreground font-bold text-lg">
+        <Text className="text-foreground font-bold text-xl">
           Configurar Préstamo
         </Text>
-        <Text className="text-muted-foreground text-sm mt-0.5">
+        <Text className="text-muted-foreground text-base mt-0.5">
           Define los términos y el cronograma de pagos
         </Text>
       </View>
