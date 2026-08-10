@@ -2,22 +2,22 @@ import React from 'react';
 import { View } from 'react-native';
 
 interface DatePickerProps {
-  value: string;
+  value: string | null;
   onChange: (date: string) => void;
   className?: string;
 }
 
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
-  // Use a native HTML date input on web to avoid native module crashes
+  // Use a native HTML date input on web to avoid native module crashes.
+  // Mismo contrato que nativo: 'yyyy-MM-dd' (fecha de calendario).
   return (
     <View className={className}>
       <input
         type="date"
-        value={value ? value.split('T')[0] : ''}
+        value={value || ''}
         onChange={(e) => {
           if (e.target.value) {
-            // Convierte el valor local 'YYYY-MM-DD' a un ISO Date
-            onChange(new Date(e.target.value + 'T00:00:00').toISOString());
+            onChange(e.target.value);
           }
         }}
         style={{

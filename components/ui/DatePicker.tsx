@@ -2,37 +2,47 @@ import React, { useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@/components/ui/text';
-import { format } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 
 interface DatePickerProps {
-  value: string;
+  value: string | null;
   onChange: (date: string) => void;
   className?: string;
 }
 
+/**
+ * Selector de fecha de calendario.
+ *
+ * Contrato: el valor emitido/recibido es SIEMPRE una fecha de calendario
+ * 'yyyy-MM-dd' (sin hora ni zona horaria). Evita el corrimiento de un día
+ * que ocurría al guardar instantes UTC. El backend interpreta la fecha en
+ * America/La_Paz (Bolivia).
+ */
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const [show, setShow] = useState(false);
-  const dateValue = value ? new Date(value) : new Date();
+  const parsed = value ? parse(value, 'yyyy-MM-dd', new Date()) : new Date();
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     // En Android, ocultamos el modal inmediatamente
     if (Platform.OS !== 'ios') {
       setShow(false);
     }
-    
+
     // event.type === 'set' ocurre al presionar OK en Android
     if (selectedDate && (Platform.OS === 'ios' || event.type === 'set')) {
-      onChange(selectedDate.toISOString());
+      onChange(format(selectedDate, 'yyyy-MM-dd'));
     }
   };
 
-  const formatted = value ? format(dateValue, 'dd/MM/yyyy') : 'Fecha';
+  const displayValue = value && isValid(parse(value, 'yyyy-MM-dd', new Date()))
+    ? format(parse(value, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy')
+    : '';
 
   if (Platform.OS === 'ios') {
     return (
       <View className={`h-12 justify-center border border-input rounded-md bg-background px-1 ${className || ''}`}>
         <DateTimePicker
-          value={dateValue}
+          value={parsed}
           mode="date"
           display="compact"
           onChange={handleDateChange}
@@ -50,13 +60,13 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
         className="h-12 border border-input bg-background rounded-md px-3 justify-center"
       >
         <Text className={value ? 'text-foreground text-base' : 'text-muted-foreground text-base'}>
-          {formatted}
+          {displayValue || 'Fecha'}
         </Text>
       </Pressable>
-      
+
       {show && (
         <DateTimePicker
-          value={dateValue}
+          value={parsed}
           mode="date"
           display="default"
           onChange={handleDateChange}

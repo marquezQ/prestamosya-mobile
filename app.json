@@ -39,7 +39,8 @@
         {
           "locationWhenInUsePermission": "Permitir que PrestamosYA acceda a tu ubicación para fijar la dirección de cobro."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ]
   }
 }

@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { Resolver } from 'react-hook-form';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useNewLoanStore } from '@/stores/newLoanStore';
+import { createLoanFormDefaultValues, loanFormSchema, type LoanFormValues } from '@/lib/schemas/loanForm';
 import { StepIndicator } from './StepIndicator';
 import { StepSelectClient } from './StepSelectClient';
 import { StepConfigureLoan } from './StepConfigureLoan';
@@ -12,7 +17,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function NewLoanWizard() {
   const insets = useSafeAreaInsets();
-  const { currentStep, reset, selectedClient, schedule, prevStep, nextStep } = useNewLoanStore();
+  const { currentStep, selectedClient, schedule, reset, prevStep, nextStep } = useNewLoanStore();
+
+  // El formulario vive a nivel del wizard para persistir entre pasos.
+  const form = useForm<LoanFormValues>({
+    resolver: zodResolver(loanFormSchema) as unknown as Resolver<LoanFormValues>,
+    mode: 'onChange',
+    defaultValues: createLoanFormDefaultValues(format(new Date(), 'yyyy-MM-dd')),
+  });
 
   // Limpiar el store al montar el wizard
   useEffect(() => {
@@ -21,8 +33,20 @@ export function NewLoanWizard() {
 
   const canGoNext = () => {
     if (currentStep === 1) return selectedClient !== null;
+    // El paso 2 solo permite avanzar con un cronograma ya calculado.
     if (currentStep === 2) return schedule.length > 0;
     return false;
+  };
+
+  const handleNext = async () => {
+    // Paso 1 no tiene campos que validar (la elección del cliente es por
+    // FlatList); validar acá bloquearía el avance con falsos negativos.
+    if (currentStep === 1) {
+      nextStep();
+      return;
+    }
+    const isValid = await form.trigger();
+    if (isValid) nextStep();
   };
 
   return (
@@ -31,20 +55,20 @@ export function NewLoanWizard() {
       <StepIndicator currentStep={currentStep} />
 
       {/* Contenido principal (Scrollable o Flex) */}
-      {currentStep === 1 ? (
-        <View className="flex-1">
+      <FormProvider {...form}>
+        {currentStep === 1 ? (
           <StepSelectClient />
-        </View>
-      ) : (
-        <KeyboardAwareScrollView 
-          className="flex-1"
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {currentStep === 2 && <StepConfigureLoan />}
-          {currentStep === 3 && <StepSummary />}
-        </KeyboardAwareScrollView>
-      )}
+        ) : (
+          <KeyboardAwareScrollView
+            className="flex-1"
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+          >
+            {currentStep === 2 && <StepConfigureLoan />}
+            {currentStep === 3 && <StepSummary />}
+          </KeyboardAwareScrollView>
+        )}
+      </FormProvider>
 
       {/* Barra de navegación inferior */}
       <View className="flex-row justify-between px-4 py-3 border-t border-border bg-background">
@@ -60,7 +84,7 @@ export function NewLoanWizard() {
         {currentStep < 3 && (
           <Button
             variant="default"
-            onPress={nextStep}
+            onPress={handleNext}
             disabled={!canGoNext()}
             className="flex-1 ml-2"
           >

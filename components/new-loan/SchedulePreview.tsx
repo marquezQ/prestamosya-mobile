@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { format, parseISO } from 'date-fns';
+import { format, isValid, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import type { ScheduleInstallment } from '@/types/loan';
 import { CalendarDays } from 'lucide-react-native';
@@ -41,9 +41,10 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
         {schedule.map((item, index) => {
           const isLast = index === schedule.length - 1;
           let formattedDate: string;
-          try {
-            formattedDate = format(parseISO(item.dueDate), 'dd MMM yyyy', { locale: es });
-          } catch {
+          const parsedDate = parse(item.dueDate, 'yyyy-MM-dd', new Date());
+          if (isValid(parsedDate)) {
+            formattedDate = format(parsedDate, 'dd MMM yyyy', { locale: es });
+          } else {
             formattedDate = item.dueDate;
           }
 

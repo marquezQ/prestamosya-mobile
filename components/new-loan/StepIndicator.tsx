@@ -48,7 +48,7 @@ export function StepIndicator({ currentStep }: StepIndicatorProps) {
                 )}
               </View>
               <Text
-                className={`text-[11px] mt-1.5 font-medium ${
+                className={`text-xs mt-1.5 font-medium ${
                   isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >

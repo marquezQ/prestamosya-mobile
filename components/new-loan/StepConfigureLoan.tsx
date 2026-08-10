@@ -3,11 +3,20 @@ import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNewLoanStore } from '@/stores/newLoanStore';
+import { useFormContext } from 'react-hook-form';
+import type { LoanFormValues } from '@/lib/schemas/loanForm';
 import { AutomaticLoanForm } from './AutomaticLoanForm';
 import { ManualLoanForm } from './ManualLoanForm';
 
 export function StepConfigureLoan() {
   const { loanMode, setLoanMode } = useNewLoanStore();
+  const { setValue } = useFormContext<LoanFormValues>();
+
+  const handleModeChange = (value: string) => {
+    const mode = value as 'automatic' | 'manual';
+    setLoanMode(mode);
+    setValue('loanMode', mode, { shouldValidate: true, shouldDirty: true });
+  };
 
   return (
     <View className="flex-1">
@@ -23,7 +32,7 @@ export function StepConfigureLoan() {
 
       <Tabs
         value={loanMode}
-        onValueChange={(val) => setLoanMode(val as 'automatic' | 'manual')}
+        onValueChange={handleModeChange}
         className="flex-1 px-4"
       >
         <TabsList className="mb-4">

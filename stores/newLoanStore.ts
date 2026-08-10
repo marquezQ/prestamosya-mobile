@@ -1,17 +1,11 @@
 import { create } from 'zustand';
 import type { Client } from '@/types/client';
-import type { LoanMode, PeriodType, ScheduleInstallment } from '@/types/loan';
+import type { LoanMode, ScheduleInstallment } from '@/types/loan';
 
 // ─── Tipos del store ─────────────────────────────────────────
 
 /** Datos mínimos del cliente para el wizard */
 export type SelectedClient = Pick<Client, 'id' | 'fullName' | 'idNumber'>;
-
-/** Fila de cuota manual */
-export interface ManualInstallmentEntry {
-  dueDate: string;
-  totalAmount: string;
-}
 
 interface NewLoanState {
   // Navegación
@@ -20,20 +14,11 @@ interface NewLoanState {
   // Paso 1 — Cliente seleccionado
   selectedClient: SelectedClient | null;
 
-  // Paso 2 — Configuración
+  // Paso 2 — Configuración (los campos del formulario viven en RHF)
   loanMode: LoanMode;
 
-  // Modo automático
-  capitalAmount: string;
-  interestRate: string;
-  periodType: PeriodType;
-  totalInstallments: string;
-
-  // Modo manual
-  manualCapitalAmount: string;
-  manualInstallments: ManualInstallmentEntry[];
-
-  // Cronograma generado (ambos modos)
+  // Cronograma calculado de forma explícita (botón "Calcular Cronograma").
+  // Se limpia cada vez que cambia algún input del paso 2.
   schedule: ScheduleInstallment[];
 }
 
@@ -46,21 +31,9 @@ interface NewLoanActions {
 
   setLoanMode: (mode: LoanMode) => void;
 
-  // Modo automático
-  setAutoField: <K extends 'capitalAmount' | 'interestRate' | 'totalInstallments'>(
-    field: K,
-    value: string,
-  ) => void;
-  setPeriodType: (periodType: PeriodType) => void;
-
-  // Modo manual
-  setManualCapitalAmount: (value: string) => void;
-  updateManualInstallment: (index: number, field: keyof ManualInstallmentEntry, value: string) => void;
-  addManualInstallment: () => void;
-  removeManualInstallment: (index: number) => void;
-
   // Cronograma
   setSchedule: (schedule: ScheduleInstallment[]) => void;
+  clearSchedule: () => void;
 
   // Reset completo
   reset: () => void;
@@ -68,22 +41,10 @@ interface NewLoanActions {
 
 // ─── Estado inicial ──────────────────────────────────────────
 
-const createInitialManualInstallments = (): ManualInstallmentEntry[] => [
-  { dueDate: '', totalAmount: '' },
-  { dueDate: '', totalAmount: '' },
-  { dueDate: '', totalAmount: '' },
-];
-
 const initialState: NewLoanState = {
   currentStep: 1,
   selectedClient: null,
   loanMode: 'automatic',
-  capitalAmount: '',
-  interestRate: '',
-  periodType: 'monthly',
-  totalInstallments: '',
-  manualCapitalAmount: '',
-  manualInstallments: createInitialManualInstallments(),
   schedule: [],
 };
 
@@ -106,26 +67,8 @@ export const useNewLoanStore = create<NewLoanState & NewLoanActions>()((set) => 
 
   setLoanMode: (mode) => set({ loanMode: mode, schedule: [] }),
 
-  setAutoField: (field, value) => set({ [field]: value }),
-  setPeriodType: (periodType) => set({ periodType }),
-
-  setManualCapitalAmount: (value) => set({ manualCapitalAmount: value }),
-  updateManualInstallment: (index, field, value) =>
-    set((s) => {
-      const updated = [...s.manualInstallments];
-      updated[index] = { ...updated[index], [field]: value };
-      return { manualInstallments: updated };
-    }),
-  addManualInstallment: () =>
-    set((s) => ({
-      manualInstallments: [...s.manualInstallments, { dueDate: '', totalAmount: '' }],
-    })),
-  removeManualInstallment: (index) =>
-    set((s) => ({
-      manualInstallments: s.manualInstallments.filter((_, i) => i !== index),
-    })),
-
   setSchedule: (schedule) => set({ schedule }),
+  clearSchedule: () => set({ schedule: [] }),
 
-  reset: () => set({ ...initialState, manualInstallments: createInitialManualInstallments() }),
+  reset: () => set({ ...initialState }),
 }));

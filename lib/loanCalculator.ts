@@ -1,10 +1,15 @@
-import { addDays, addWeeks, addMonths } from 'date-fns';
-import type { PeriodType, ScheduleInstallment } from '@/types/loan';
+import { addDays, addWeeks, addMonths, parse } from 'date-fns';
+import type {
+  LoanMode,
+  ManualInstallmentRow,
+  PeriodType,
+  ScheduleInstallment,
+} from '@/types/loan';
 
 /**
  * Calcula el cronograma de pagos en modo automático.
  *
- * Fórmula (interés fijo sobre capital, alineada con BUSINESS_RULES.md):
+ * Fórmula (interés fijo sobre capital):
  *   interés por cuota = capital × tasa
  *   capital por cuota  = capital / n_cuotas
  *   cuota total        = capital_por_cuota + interés_por_cuota
@@ -47,10 +52,79 @@ export function calculateAutomaticSchedule(params: {
 
     schedule.push({
       number: i,
-      dueDate: dueDate.toISOString(),
+      dueDate: formatDate(dueDate),
       capitalAmount: thisCapital,
       interestAmount: interestPerInstallment,
       totalAmount: round2(thisCapital + interestPerInstallment),
+    });
+  }
+
+  return schedule;
+}
+
+// ─── Derivación del cronograma desde el estado del formulario ─
+
+interface DeriveScheduleParams {
+  loanMode: LoanMode;
+  capitalAmount?: string;
+  interestRate?: string;
+  periodType?: PeriodType;
+  totalInstallments?: string;
+  startDate?: string;
+  manualInstallments?: ManualInstallmentRow[];
+}
+
+/**
+ * Valor derivado (no estado): calcula el cronograma a partir de los
+ * campos del formulario. Devuelve `[]` si los datos aún son inválidos,
+ * por lo que el preview y el resumen nunca muestran datos desactualizados.
+ */
+export function deriveSchedule(params: DeriveScheduleParams): ScheduleInstallment[] {
+  if (params.loanMode === 'automatic') {
+    const capital = Number(params.capitalAmount);
+    const rate = Number(params.interestRate);
+    const installments = Number(params.totalInstallments);
+    const startDate = params.startDate ? parse(params.startDate, 'yyyy-MM-dd', new Date()) : null;
+
+    if (
+      !isFinite(capital) || capital <= 0 ||
+      !isFinite(rate) || rate < 0 ||
+      !isFinite(installments) || !Number.isInteger(installments) || installments < 1 ||
+      !startDate || isNaN(startDate.getTime())
+    ) {
+      return [];
+    }
+
+    return calculateAutomaticSchedule({
+      capitalAmount: capital,
+      interestRate: rate,
+      periodType: params.periodType ?? 'monthly',
+      totalInstallments: installments,
+      startDate,
+    });
+  }
+
+  // ── Manual: cada fila es una cuota (el interés va incluido en el monto) ──
+  if (!params.manualInstallments || params.manualInstallments.length === 0) return [];
+
+  const schedule: ScheduleInstallment[] = [];
+  for (let i = 0; i < params.manualInstallments.length; i++) {
+    const row = params.manualInstallments[i];
+    const dueDate = row.dueDate ? row.dueDate.trim() : '';
+    const total = Number(row.totalAmount);
+    const parsedDate = parse(dueDate, 'yyyy-MM-dd', new Date());
+
+    // Cualquier fila inválida invalida el cronograma completo.
+    if (!dueDate || isNaN(parsedDate.getTime()) || !isFinite(total) || total <= 0) {
+      return [];
+    }
+
+    schedule.push({
+      number: i + 1,
+      dueDate: formatDate(parsedDate),
+      capitalAmount: round2(total),
+      interestAmount: 0,
+      totalAmount: round2(total),
     });
   }
 
@@ -67,10 +141,16 @@ function getNextDueDate(startDate: Date, periodType: PeriodType, installmentNumb
       return addWeeks(startDate, installmentNumber);
     case 'monthly':
       return addMonths(startDate, installmentNumber);
-    case 'custom':
-      // Usado para "Quincenal" (2 semanas) en la UI
-      return addWeeks(startDate, installmentNumber * 2);
+    case 'biweekly':
+      // Quincenal = exactamente cada 15 días
+      return addDays(startDate, installmentNumber * 15);
   }
+}
+
+/** Serializa una fecha de calendario como 'yyyy-MM-dd' (sin zona horaria). */
+function formatDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 function round2(n: number): number {
