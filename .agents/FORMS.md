@@ -67,3 +67,39 @@ import { TextInput, Text } from "react-native";
 - `LocationPicker` (`components/ui/LocationPicker.tsx`) sets these fields via `onLocationSelect`.
 - **Always round coordinates to 6 decimals before submitting** (`roundCoord` helper inside `LocationPicker`). The NestJS backend validates `@IsNumber({ maxDecimalPlaces: 8 })` on both `latitude` and `longitude`; raw map-tap coordinates have ~14 decimals and get rejected with HTTP 400.
 - Reverse geocoding (`Location.reverseGeocodeAsync`) autofills the "Dirección de Cobro" address field via the `onAddressFound` callback — keep that wiring in `ClientForm`.
+
+## 🌐 Web Compatibility & Click Interception
+When using `TouchableWithoutFeedback` with `Keyboard.dismiss` to allow tapping outside to close the software keyboard on mobile:
+- **Warning**: In web browsers, wrapping input containers with a root `TouchableWithoutFeedback` can sometimes capture and prevent standard browser focus click events, making inputs seem unclickable/unfocusable on Web.
+- **Resolution**: Use platforms checks (`Platform.OS !== 'web'`) or ensure inputs are positioned on top of the press event layers, or write separate layouts if web forms exhibit focus bugs.
+
+## 👁️ Password Input Pattern (Eye Toggle)
+Password inputs should always feature an option to view or hide the text (especially useful on mobile to prevent typos).
+- **Implementation**: Wrap the `Input` and a toggle button in a `<View className="relative">`.
+- Set `secureTextEntry={!showPassword}` on the `Input`.
+- Position the trigger button absolutely at the right end of the input box:
+  ```tsx
+  <View className="relative">
+    <Input
+      placeholder="••••••••"
+      secureTextEntry={!showPassword}
+      className="bg-background pr-12"
+    />
+    <Pressable
+      onPress={() => setShowPassword(!showPassword)}
+      className="absolute right-0 top-0 bottom-0 px-3 justify-center"
+    >
+      {showPassword ? (
+        <Icon as={EyeOff} size={20} className="text-muted-foreground" />
+      ) : (
+        <Icon as={Eye} size={20} className="text-muted-foreground" />
+      )}
+    </Pressable>
+  </View>
+  ```
+
+## 📅 Manual Date/Calendar Defaults & Validation
+For forms requiring manual date picker inputs (e.g. customized installments):
+- **Rule**: Initialize empty/unsaved date states as `null` rather than a blank string (`""`) or auto-populating "today's date".
+- Using `null` forces React Hook Form and Zod to flag the field as incomplete, ensuring the user is explicitly required to interact with the date picker component and choose a date.
+- Validate that all dynamic entries (like a list of installment dates) are non-null before enabling next/submit buttons.

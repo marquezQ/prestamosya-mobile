@@ -1,4 +1,4 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { Home, Users, Banknote, BarChart2 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColorScheme } from "nativewind";
@@ -9,6 +9,7 @@ import { HeaderActions } from "@/components/navigation/HeaderActions";
 import { TabBarFAB } from "@/components/navigation/TabBarFAB";
 
 export default function TabsLayout() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const colors = getThemeColors(colorScheme);
@@ -54,6 +55,12 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="new"
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push("/(app)/loan/new");
+          },
+        }}
         options={{
           title: "Nuevo",
           tabBarIcon: ({ size }) => <TabBarFAB size={size} />,

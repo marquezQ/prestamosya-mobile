@@ -28,7 +28,7 @@ export function ClientList({
     return (
       <View className="flex-1 items-center justify-center p-4">
         <ActivityIndicator size="large" className="text-primary" />
-        <Text className="text-muted-foreground mt-4 font-medium">
+        <Text className="text-muted-foreground mt-4 text-base font-medium">
           Cargando clientes...
         </Text>
       </View>
@@ -38,10 +38,10 @@ export function ClientList({
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center p-4">
-        <Text className="text-destructive font-bold text-lg mb-2">
+        <Text className="text-destructive font-bold text-xl mb-2">
           Error al cargar
         </Text>
-        <Text className="text-muted-foreground text-center">
+        <Text className="text-muted-foreground text-center text-base">
           Ocurrió un problema al obtener los clientes. Por favor intenta
           nuevamente.
         </Text>
@@ -65,13 +65,13 @@ export function ClientList({
       refreshing={isRefetching}
       ListEmptyComponent={
         <View className="flex-1 items-center justify-center py-10 mt-10">
-          <View className="h-16 w-16 bg-muted rounded-full items-center justify-center mb-4">
-            <Users size={32} className="text-muted-foreground" />
+          <View className="h-20 w-20 bg-muted rounded-full items-center justify-center mb-4">
+            <Users size={36} className="text-muted-foreground" />
           </View>
-          <Text className="text-foreground font-bold text-lg">
+          <Text className="text-foreground font-bold text-xl">
             No hay clientes
           </Text>
-          <Text className="text-muted-foreground text-center mt-2">
+          <Text className="text-muted-foreground text-center text-base mt-2">
             Aún no tienes clientes registrados.
           </Text>
         </View>
