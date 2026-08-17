@@ -84,3 +84,26 @@ The fields `activeLoans`, `guarantees`, and `financialSummary` are **not yet ful
 - Payload shape matches `ClientCreateInput` in `types/client.ts`; optional fields (`phoneAlt`, `address`, `latitude`, `longitude`, `notes`) are nullable.
 - **Backend constraint (NestJS)**: `latitude`/`longitude` are validated with `@IsNumber({ maxDecimalPlaces: 8 })`. Coordinates must stay ≤8 decimals — the app rounds to 6 in `LocationPicker`. See `.agents/FORMS.md`.
 - The backend returns **`409 Conflict`** on duplicate CI or phone — handled in `ClientForm` (shows a specific error message).
+
+---
+
+## 📄 Loans Module — Simulation & Creation Data Layer
+
+### Services & Hooks
+| File | Responsibility |
+|---|---|
+| `services/endpoints.ts` | `LOANS.SIMULATE` (`POST /loans/simulate`) and `LOANS.CREATE` (`POST /loans`) |
+| `services/loanService.ts` | `simulateLoan(params)` and `createLoan(data)` via central Axios instance |
+| `hooks/useSimulateLoan.ts` | React Query `useMutation` for `/loans/simulate` (calculates projected schedule without DB persistence) |
+| `hooks/useCreateLoan.ts` | React Query `useMutation` for `/loans`; invalidates queryKey `['clients']` on success |
+| `stores/newLoanStore.ts` | Zustand store maintaining `loanMode` ('automatic' \| 'manual') and `schedule` state |
+
+### UI Component Architecture (SOLID & Single Responsibility)
+- `StepConfigureLoan.tsx`: Clean parent container managing the mode selection `<Tabs>`.
+- `AutomaticLoanForm.tsx`: Dedicated form for automatic loan parameters. Calls `useSimulateLoan` sending `firstDueDate = startDate` (single date picker).
+- `ManualLoanForm.tsx`: Dedicated form for manual loan parameters and dynamic custom installment rows array using `useFieldArray`.
+- `ManualInstallmentRow.tsx`: Small reusable component for individual manual installment row rendering.
+- `SchedulePreview.tsx`: Clean read-only schedule presentation table.
+- `StepSummary.tsx`: Final confirmation view with badge `Cronograma calculado: Automático` or `Cronograma calculado: Manual`.
+
+

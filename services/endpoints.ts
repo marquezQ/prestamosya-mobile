@@ -8,5 +8,9 @@ export const ENDPOINTS = {
     GET_ALL: '/clients',
     GET_BY_ID: (id: string) => `/clients/${id}`,
     CREATE: '/clients',
-  }
+  },
+  LOANS: {
+    SIMULATE: '/loans/simulate',
+    CREATE: '/loans',
+  },
 };

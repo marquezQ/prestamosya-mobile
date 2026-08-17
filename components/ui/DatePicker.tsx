@@ -20,7 +20,14 @@ interface DatePickerProps {
  */
 export function DatePicker({ value, onChange, className }: DatePickerProps) {
   const [show, setShow] = useState(false);
-  const parsed = value ? parse(value, 'yyyy-MM-dd', new Date()) : new Date();
+
+  let parsed = new Date();
+  if (value) {
+    const d = parse(value, 'yyyy-MM-dd', new Date());
+    if (isValid(d)) {
+      parsed = d;
+    }
+  }
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     // En Android, ocultamos el modal inmediatamente

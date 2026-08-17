@@ -3,11 +3,10 @@ import { View } from 'react-native';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
-import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
 import { useNewLoanStore } from '@/stores/newLoanStore';
-import { createLoanFormDefaultValues, loanFormSchema, type LoanFormValues } from '@/lib/schemas/loanForm';
+import { createDefaultLoanFormValues, loanFormSchema, type LoanFormValues } from '@/lib/schemas/loanForm';
 import { StepIndicator } from './StepIndicator';
 import { StepSelectClient } from './StepSelectClient';
 import { StepConfigureLoan } from './StepConfigureLoan';
@@ -23,7 +22,7 @@ export function NewLoanWizard() {
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanFormSchema) as unknown as Resolver<LoanFormValues>,
     mode: 'onChange',
-    defaultValues: createLoanFormDefaultValues(format(new Date(), 'yyyy-MM-dd')),
+    defaultValues: createDefaultLoanFormValues(),
   });
 
   // Limpiar el store al montar el wizard

@@ -1,7 +1,6 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNewLoanStore } from '@/stores/newLoanStore';
 import { useFormContext } from 'react-hook-form';
 import type { LoanFormValues } from '@/lib/schemas/loanForm';
@@ -9,19 +8,23 @@ import { AutomaticLoanForm } from './AutomaticLoanForm';
 import { ManualLoanForm } from './ManualLoanForm';
 
 export function StepConfigureLoan() {
-  const { loanMode, setLoanMode } = useNewLoanStore();
-  const { setValue } = useFormContext<LoanFormValues>();
+  const { watch, setValue, clearErrors } = useFormContext<LoanFormValues>();
+  const { schedule, clearSchedule } = useNewLoanStore();
+  const loanMode = watch('loanMode') || 'automatic';
 
-  const handleModeChange = (value: string) => {
-    const mode = value as 'automatic' | 'manual';
-    setLoanMode(mode);
-    setValue('loanMode', mode, { shouldValidate: true, shouldDirty: true });
+  const handleModeChange = (mode: 'automatic' | 'manual') => {
+    if (loanMode === mode) return;
+    clearErrors();
+    if (schedule.length > 0) {
+      clearSchedule();
+    }
+    setValue('loanMode', mode, { shouldValidate: false, shouldDirty: true });
   };
 
   return (
-    <View className="flex-1">
-      {/* Título */}
-      <View className="px-4 pt-2 pb-3">
+    <View className="flex-1 px-4">
+      {/* Encabezado */}
+      <View className="pt-2 pb-3">
         <Text className="text-foreground font-bold text-xl">
           Configurar Préstamo
         </Text>
@@ -30,28 +33,52 @@ export function StepConfigureLoan() {
         </Text>
       </View>
 
-      <Tabs
-        value={loanMode}
-        onValueChange={handleModeChange}
-        className="flex-1 px-4"
-      >
-        <TabsList className="mb-4">
-          <TabsTrigger value="automatic" className="flex-1">
-            <Text>Automático</Text>
-          </TabsTrigger>
-          <TabsTrigger value="manual" className="flex-1">
-            <Text>Manual</Text>
-          </TabsTrigger>
-        </TabsList>
+      {/* Tabs Selector de Alto Contraste */}
+      <View className="flex-row bg-muted p-1.5 rounded-xl border border-border mb-4 h-14">
+        <Pressable
+          onPress={() => handleModeChange('automatic')}
+          className={`flex-1 items-center justify-center rounded-lg shadow-none ${
+            loanMode === 'automatic' ? 'bg-primary shadow-sm' : 'bg-transparent'
+          }`}
+        >
+          <Text
+            className={`text-base font-bold ${
+              loanMode === 'automatic'
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground'
+            }`}
+          >
+            Automático
+          </Text>
+        </Pressable>
 
-        <TabsContent value="automatic" className="flex-1 pb-4">
+        <Pressable
+          onPress={() => handleModeChange('manual')}
+          className={`flex-1 items-center justify-center rounded-lg shadow-none ${
+            loanMode === 'manual' ? 'bg-primary shadow-sm' : 'bg-transparent'
+          }`}
+        >
+          <Text
+            className={`text-base font-bold ${
+              loanMode === 'manual'
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground'
+            }`}
+          >
+            Manual
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Contenido de Modos (Montados de forma persistente para evitar desmontajes y perdida de contexto) */}
+      <View className="flex-1">
+        <View style={{ display: loanMode === 'automatic' ? 'flex' : 'none' }} className="flex-1">
           <AutomaticLoanForm />
-        </TabsContent>
-
-        <TabsContent value="manual" className="flex-1 pb-4">
+        </View>
+        <View style={{ display: loanMode === 'manual' ? 'flex' : 'none' }} className="flex-1">
           <ManualLoanForm />
-        </TabsContent>
-      </Tabs>
+        </View>
+      </View>
     </View>
   );
 }
