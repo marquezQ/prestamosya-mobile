@@ -40,7 +40,6 @@ export function StepSummary() {
       interestRate: Number(values.interestRate) || 0,
       periodType: values.periodType || 'monthly',
       startDate: values.startDate,
-      firstDueDate: values.startDate,
     };
 
     if (loanMode === 'manual') {

@@ -73,8 +73,11 @@ export const loanFormSchema = z
     loanMode: z.enum(['automatic', 'manual']),
     capitalAmount: positiveAmount,
     currency: z.enum(['BOB', 'USD']),
-    interestRate: nonNegativeRate.optional(),
-    periodType: z.enum(['daily', 'weekly', 'biweekly', 'monthly']).optional(),
+    // En modo manual el interés se deriva de los montos de cada cuota y no hay
+    // input para la tasa. '' no es undefined, así que .optional() lo rechazaría;
+    // se tolera string vacío y el superRefine exige la tasa solo en automático.
+    interestRate: z.union([nonNegativeRate, z.literal('')]).optional(),
+    periodType: z.enum(['daily', 'weekly', 'fortnightly', 'monthly']).optional(),
     totalInstallments: positiveInt,
     startDate: requiredDateField,
     // Las cuotas manuales solo aplican en modo manual; en automático el

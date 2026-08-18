@@ -31,15 +31,16 @@ export function ManualLoanForm() {
   const { schedule, setSchedule, clearSchedule } = useNewLoanStore();
 
   const handleValidateManual = async () => {
+    const values = getValues();
+    const rows = values.installments || [];
+
+    // Sincronizar totalInstallments ANTES de validar para que trigger() no
+    // rechace el formulario por un campo vacío.
+    setValue('totalInstallments', String(rows.length), { shouldDirty: true });
+
     const isValid = await trigger();
     if (!isValid) return;
 
-    const values = getValues();
-    const rows = values.installments || [];
-    // El número de cuotas manuales es la longitud del arreglo construido por el
-    // usuario. Mantener totalInstallments sincronizado evita que el backend
-    // reciba un valor desfasado respecto a las cuotas realmente enviadas.
-    setValue('totalInstallments', String(rows.length), { shouldDirty: true });
     setSchedule(buildManualSchedule(rows, Number(values.capitalAmount)));
   };
 

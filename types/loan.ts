@@ -2,9 +2,8 @@
 
 export type LoanMode = 'automatic' | 'manual';
 
-// TODO(PED-20): confirmar el valor exacto del enum del backend.
-// Actualmente se envía 'biweekly' para la modalidad "Quincenal" (cada 15 días).
-export type PeriodType = 'daily' | 'weekly' | 'monthly' | 'biweekly';
+// Valores válidos: daily, weekly, fortnightly (+15 días), monthly, custom.
+export type PeriodType = 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'custom';
 
 export type Currency = 'BOB' | 'USD';
 
@@ -52,8 +51,8 @@ export interface LoanSimulateParams {
   interestRate: number;
   periodType: PeriodType;
   totalInstallments: number;
-  /** Fecha de vencimiento de la 1ra cuota (YYYY-MM-DD) */
-  firstDueDate: string;
+  /** Fecha de desembolso (YYYY-MM-DD). El backend calcula firstDueDate = startDate + 1 período */
+  startDate: string;
 }
 
 // ─── Inputs para crear préstamo (POST /loans) ─────────────────
@@ -68,8 +67,6 @@ export interface CreateAutomaticLoanInput {
   totalInstallments: number;
   /** Fecha de desembolso (YYYY-MM-DD) */
   startDate: string;
-  /** Fecha de vencimiento de la 1ra cuota (YYYY-MM-DD) */
-  firstDueDate: string;
   notes?: string;
 }
 
@@ -89,8 +86,8 @@ export interface CreateManualLoanInput {
   interestRate: number;
   periodType: PeriodType;
   totalInstallments: number;
+  /** Fecha de desembolso (YYYY-MM-DD) */
   startDate: string;
-  firstDueDate: string;
   notes?: string;
   manualInstallments: ManualInstallmentInput[];
 }
@@ -138,6 +135,6 @@ export interface EditableInstallmentRow {
 export const PERIOD_OPTIONS: { label: string; value: PeriodType }[] = [
   { label: 'Diario', value: 'daily' },
   { label: 'Semanal', value: 'weekly' },
-  { label: 'Quincenal', value: 'biweekly' },
+  { label: 'Quincenal', value: 'fortnightly' },
   { label: 'Mensual', value: 'monthly' },
 ];

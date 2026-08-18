@@ -44,7 +44,7 @@ export function AutomaticLoanForm() {
         interestRate: Number(values.interestRate),
         periodType: values.periodType || 'monthly',
         totalInstallments: Number(values.totalInstallments),
-        firstDueDate: values.startDate!, // Backend recibe primera fecha de vencimiento igual a startDate
+        startDate: values.startDate!,
       },
       {
         onSuccess: (res) => {
