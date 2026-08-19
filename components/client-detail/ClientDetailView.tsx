@@ -1,14 +1,12 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 import { Client } from '@/types/client';
 
 import { ClientProfileHeader } from './ClientProfileHeader';
-import { ActiveLoanCard } from './ActiveLoanCard';
-import { ClientStatsRow } from './ClientStatsRow';
-import { ClientAddressMap } from './ClientAddressMap';
-import { OtherActiveLoansSection } from './OtherActiveLoansSection';
-import { CompletedLoansSection } from './CompletedLoansSection';
+import { ClientProfileTabs, type ClientProfileTab } from './ClientProfileTabs';
+import { CreditsTab } from './tabs/CreditsTab';
+import { GuaranteesTab } from './tabs/GuaranteesTab';
+import { LocationTab } from './tabs/LocationTab';
 
 // Mock Data (will be replaced by actual backend data via props later)
 import { MOCK_ACTIVE_LOANS, MOCK_COMPLETED_LOANS, MOCK_CLIENT_STATS } from './constants';
@@ -19,39 +17,37 @@ interface ClientDetailViewProps {
 }
 
 export function ClientDetailView({ client }: ClientDetailViewProps) {
-  const insets = useSafeAreaInsets();
-  
+  const [activeTab, setActiveTab] = useState<ClientProfileTab>('credits');
+
   // En el futuro, estos datos vendrán de la prop client (de la respuesta del backend)
   const activeLoans = MOCK_ACTIVE_LOANS;
   const completedLoans = MOCK_COMPLETED_LOANS;
   const stats = MOCK_CLIENT_STATS;
 
-  const mainActiveLoan = activeLoans.length > 0 ? activeLoans[0] : null;
-  const otherActiveLoans = activeLoans.slice(1);
-
   return (
-    <ScrollView 
-      className="flex-1 bg-background"
-      contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <View className="flex-1 bg-background">
+      {/* Hero / Header — siempre visible */}
       <ClientProfileHeader client={client} />
-      
-      {mainActiveLoan && (
-        <ActiveLoanCard loan={mainActiveLoan} />
+
+      {/* Barra de pestañas persistente */}
+      <ClientProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Contenido de la pestaña activa */}
+      {activeTab === 'credits' && (
+        <CreditsTab
+          activeLoans={activeLoans}
+          completedLoans={completedLoans}
+          stats={stats}
+        />
       )}
-
-      <ClientStatsRow stats={stats} />
-      
-      <ClientAddressMap 
-        address={client.address} 
-        latitude={client.latitude} 
-        longitude={client.longitude} 
-      />
-
-      <OtherActiveLoansSection loans={otherActiveLoans} />
-      
-      <CompletedLoansSection loans={completedLoans} />
-    </ScrollView>
+      {activeTab === 'guarantees' && <GuaranteesTab />}
+      {activeTab === 'location' && (
+        <LocationTab
+          address={client.address}
+          latitude={client.latitude}
+          longitude={client.longitude}
+        />
+      )}
+    </View>
   );
 }
