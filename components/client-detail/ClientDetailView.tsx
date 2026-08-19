@@ -8,20 +8,24 @@ import { CreditsTab } from './tabs/CreditsTab';
 import { GuaranteesTab } from './tabs/GuaranteesTab';
 import { LocationTab } from './tabs/LocationTab';
 
-// Mock Data (will be replaced by actual backend data via props later)
-import { MOCK_ACTIVE_LOANS, MOCK_COMPLETED_LOANS } from './constants';
+
+
+import { ClientLoanSummary, ClientGuaranteeSummary } from '@/types/client';
 
 interface ClientDetailViewProps {
   client: Client;
-  // TODO: Add activeLoans, completedLoans, stats, etc. when backend is ready
+  activeLoans?: ClientLoanSummary[];
+  completedLoans?: ClientLoanSummary[];
+  guarantees?: ClientGuaranteeSummary[];
 }
 
-export function ClientDetailView({ client }: ClientDetailViewProps) {
+export function ClientDetailView({
+  client,
+  activeLoans = [],
+  completedLoans = [],
+  guarantees = [],
+}: ClientDetailViewProps) {
   const [activeTab, setActiveTab] = useState<ClientProfileTab>('credits');
-
-  // En el futuro, estos datos vendrán de la prop client (de la respuesta del backend)
-  const activeLoans = MOCK_ACTIVE_LOANS;
-  const completedLoans = MOCK_COMPLETED_LOANS;
 
   return (
     <View className="flex-1 bg-background">
@@ -38,7 +42,7 @@ export function ClientDetailView({ client }: ClientDetailViewProps) {
           completedLoans={completedLoans}
         />
       )}
-      {activeTab === 'guarantees' && <GuaranteesTab />}
+      {activeTab === 'guarantees' && <GuaranteesTab guarantees={guarantees} />}
       {activeTab === 'location' && (
         <LocationTab
           address={client.address}

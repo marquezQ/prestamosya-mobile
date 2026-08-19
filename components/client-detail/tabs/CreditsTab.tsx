@@ -5,12 +5,12 @@ import { Text } from '@/components/ui/text';
 import { TrendingUp, CheckCircle2 } from 'lucide-react-native';
 import { LoanAccordionCard } from '../LoanAccordionCard';
 import { CompletedLoanAccordionCard } from '../CompletedLoanAccordionCard';
-import { ActiveLoanSummary, CompletedLoanSummary } from '@/types/client';
+import { ClientLoanSummary } from '@/types/client';
 import { palette } from '@/lib/theme/colors';
 
 interface CreditsTabProps {
-  activeLoans: ActiveLoanSummary[];
-  completedLoans: CompletedLoanSummary[];
+  activeLoans: ClientLoanSummary[];
+  completedLoans: ClientLoanSummary[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

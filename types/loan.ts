@@ -138,3 +138,72 @@ export const PERIOD_OPTIONS: { label: string; value: PeriodType }[] = [
   { label: 'Quincenal', value: 'fortnightly' },
   { label: 'Mensual', value: 'monthly' },
 ];
+
+// ─── Respuesta de GET /loans/:id ────────────────────────────
+
+export interface LoanInstallmentItem {
+  id: string;
+  installmentNumber: number;
+  dueDate: string;
+  capitalAmount: number;
+  interestAmount: number;
+  totalAmount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  status: 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL' | string;
+  daysOverdue: number;
+  paidAt: string | null;
+}
+
+export interface LoanGuaranteeItem {
+  linkId: string;
+  id: string;
+  type: string;
+  description: string;
+  estimatedValue: number;
+  status: string;
+}
+
+export interface LoanPaymentItem {
+  id: string;
+  amount: number;
+  paymentDate: string;
+  method: string;
+  notes: string | null;
+  voided: boolean;
+  voidedAt: string | null;
+  voidReason: string | null;
+  createdAt: string;
+}
+
+export interface LoanDetailData {
+  loan: {
+    id: string;
+    clientId: string;
+    clientName: string;
+    clientIdNumber: string;
+    createdBy: string;
+    mode: string;
+    capitalAmount: number;
+    currency: string;
+    interestRate: number;
+    periodType: string;
+    totalInstallments: number;
+    totalAmount: number;
+    totalPaid: number;
+    outstandingBalance: number;
+    status: string;
+    startDate: string;
+    firstDueDate: string;
+    notes: string | null;
+    createdAt: string;
+  };
+  installments: LoanInstallmentItem[];
+  guarantees: LoanGuaranteeItem[];
+  payments: LoanPaymentItem[];
+}
+
+export interface LoanDetailResponse {
+  data: LoanDetailData;
+  message?: string;
+}

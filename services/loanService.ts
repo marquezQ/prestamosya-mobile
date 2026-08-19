@@ -6,6 +6,7 @@ import type {
   CreateAutomaticLoanInput,
   CreateManualLoanInput,
   CreateLoanResponse,
+  LoanDetailResponse,
 } from '@/types/loan';
 
 export const loanService = {
@@ -34,6 +35,17 @@ export const loanService = {
     const response = await api.post<CreateLoanResponse>(
       ENDPOINTS.LOANS.CREATE,
       data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Obtiene el detalle de un préstamo por ID (incluyendo cuotas, pagos y garantías).
+   * GET /loans/:id
+   */
+  getLoanById: async (id: string): Promise<LoanDetailResponse> => {
+    const response = await api.get<LoanDetailResponse>(
+      ENDPOINTS.LOANS.GET_BY_ID(id),
     );
     return response.data;
   },
