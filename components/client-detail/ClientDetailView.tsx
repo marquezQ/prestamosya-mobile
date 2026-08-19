@@ -9,7 +9,7 @@ import { GuaranteesTab } from './tabs/GuaranteesTab';
 import { LocationTab } from './tabs/LocationTab';
 
 // Mock Data (will be replaced by actual backend data via props later)
-import { MOCK_ACTIVE_LOANS, MOCK_COMPLETED_LOANS, MOCK_CLIENT_STATS } from './constants';
+import { MOCK_ACTIVE_LOANS, MOCK_COMPLETED_LOANS } from './constants';
 
 interface ClientDetailViewProps {
   client: Client;
@@ -22,7 +22,6 @@ export function ClientDetailView({ client }: ClientDetailViewProps) {
   // En el futuro, estos datos vendrán de la prop client (de la respuesta del backend)
   const activeLoans = MOCK_ACTIVE_LOANS;
   const completedLoans = MOCK_COMPLETED_LOANS;
-  const stats = MOCK_CLIENT_STATS;
 
   return (
     <View className="flex-1 bg-background">
@@ -37,7 +36,6 @@ export function ClientDetailView({ client }: ClientDetailViewProps) {
         <CreditsTab
           activeLoans={activeLoans}
           completedLoans={completedLoans}
-          stats={stats}
         />
       )}
       {activeTab === 'guarantees' && <GuaranteesTab />}
