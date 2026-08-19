@@ -75,16 +75,19 @@ All components for the client profile detail screen live in `components/client-d
 
 | Component | Responsibility |
 |---|---|
-| `ClientDetailView.tsx` | Orchestrator. Renders a `ScrollView` with all sections. Injects mock data from `constants.ts`. |
-| `ClientProfileHeader.tsx` | Large avatar, name, `CI: {idNumber}` (Carnet de Identidad), member-since date, Llamar + WhatsApp buttons. |
-| `ActiveLoanCard.tsx` | Main active loan card with progress bar, next payment grid and "Registrar pago" CTA. |
-| `LoanProgressBar.tsx` | Reusable horizontal progress bar (paid/total). |
-| `ClientStatsRow.tsx` | Two stat cards side by side (Historial + Puntualidad). |
-| `ClientAddressMap.tsx` | Native `MapView` (react-native-maps) with hardcoded fallback coords. |
-| `ClientAddressMap.web.tsx` | Web fallback — no MapView, shows a placeholder. |
-| `OtherActiveLoansSection.tsx` | List of secondary active loans (mocked). |
-| `CompletedLoansSection.tsx` | List of completed loans with green checkmark badge. |
-| `constants.ts` | All mock loan/stats data — replace with real props when backend is ready. |
+| `ClientDetailView.tsx` | Main orchestrator with persistent 3-tab view (**Créditos**, **Garantías**, **Ubicación**). |
+| `ClientProfileHeader.tsx` | Compact hero header (h-16 avatar, `CI: {idNumber}`, member-since date, Llamar + WhatsApp green button). |
+| `ClientProfileTabs.tsx` | Persistent top tab bar with active indicator. |
+| `LoanAccordionCard.tsx` | Accordion dropdown card for active loans. Triggers `GET /loans/:id` on expand, showing loading spinner and full schedule table (`Bs.- {monto}`). |
+| `CompletedLoanAccordionCard.tsx` | Accordion dropdown card for completed loans. Triggers `GET /loans/:id` on expand. |
+| `LoanProgressBar.tsx` | Reusable horizontal progress bar (`h-3`). |
+| `ClientAddressMap.tsx` | Vertical `MapView` (`h-96`) + address card + "Abrir en Maps" (`Linking.openURL`) & "Compartir" (`Share.share`). |
+| `ClientAddressMap.web.tsx` | Web fallback — placeholder map + "Abrir en Maps" & clipboard copy link fallback. |
+| `tabs/CreditsTab.tsx` | Holds the two loan sections: **Préstamos Activos** and **Préstamos Finalizados**. |
+| `tabs/GuaranteesTab.tsx` | Client guarantees list view with "+ Nueva Garantía" header button, status pills, and Edit/Delete actions. |
+| `tabs/LocationTab.tsx` | Location tab view hosting `ClientAddressMap`. |
+| `guarantees/GuaranteeFormModal.tsx` | Modal dialog built with RHF + Zod for creating and editing guarantees. |
+| `guarantees/DeleteGuaranteeDialog.tsx` | Confirmation modal for soft delete with `IN_USE` warning validation. |
 
 ### Icon Color Convention (Lucide)
 - **Lucide icons inside NativeWind components**: prefer `className="text-*"` for color.
