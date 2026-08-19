@@ -42,7 +42,9 @@ export function ClientDetailView({
           completedLoans={completedLoans}
         />
       )}
-      {activeTab === 'guarantees' && <GuaranteesTab guarantees={guarantees} />}
+      {activeTab === 'guarantees' && (
+        <GuaranteesTab clientId={client.id} initialGuarantees={guarantees} />
+      )}
       {activeTab === 'location' && (
         <LocationTab
           address={client.address}
