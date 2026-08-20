@@ -103,3 +103,68 @@ For forms requiring manual date picker inputs (e.g. customized installments):
 - **Rule**: Initialize empty/unsaved date states as `null` rather than a blank string (`""`) or auto-populating "today's date".
 - Using `null` forces React Hook Form and Zod to flag the field as incomplete, ensuring the user is explicitly required to interact with the date picker component and choose a date.
 - Validate that all dynamic entries (like a list of installment dates) are non-null before enabling next/submit buttons.
+
+---
+
+## 📋 Guarantee Form Pattern (Modal with Chip Selector)
+
+The guarantee create/edit form (`components/client-detail/guarantees/GuaranteeFormModal.tsx`) demonstrates the pattern for quick-action forms rendered inside a **`Dialog`** modal instead of a full screen.
+
+### When to use a modal form (vs. full screen)
+- Use a modal when the entity has ≤ 4 fields and no complex nested data.
+- Use a full screen (Expo Router push) for multi-step or complex flows.
+
+### Chip Selector for Enum Fields
+When a form field maps to a small fixed enum (e.g. `GuaranteeType`), prefer a **chip/pill selector** over a `<Select>` dropdown, as it is more intuitive on mobile:
+
+```tsx
+<Controller
+  control={control}
+  name="type"
+  render={({ field: { value, onChange } }) => (
+    <View className="flex-row flex-wrap gap-2">
+      {OPTIONS.map((opt) => {
+        const isSelected = value === opt.value;
+        return (
+          <Pressable
+            key={opt.value}
+            onPress={() => onChange(opt.value)}
+            className={`px-3 py-2 rounded-xl border ${
+              isSelected
+                ? 'bg-secondary border-secondary'
+                : 'bg-muted/50 border-border active:bg-muted'
+            }`}
+          >
+            <Text className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-foreground'}`}>
+              {opt.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  )}
+/>
+```
+
+### Zod enum compatibility (Zod v4)
+In Zod v4, `z.enum()` no longer accepts `required_error` in its options object. Pass the values tuple directly:
+```ts
+// ✅ Correct
+type: z.enum(['VEHICLE', 'REAL_ESTATE', 'FURNITURE', 'OTHER']),
+
+// ❌ Will throw TS error in Zod v4
+type: z.enum(['VEHICLE', ...], { required_error: 'Select a type' }),
+```
+
+### Re-setting form values on modal open (create vs. edit)
+Use a `useEffect` watching `[guaranteeToEdit, isOpen, reset]` to distinguish create mode (empty fields) from edit mode (pre-filled fields):
+```ts
+useEffect(() => {
+  if (guaranteeToEdit) {
+    reset({ type: guaranteeToEdit.type, description: guaranteeToEdit.description, ... });
+  } else {
+    reset({ type: 'VEHICLE', description: '', estimatedValue: '' });
+  }
+}, [guaranteeToEdit, isOpen, reset]);
+```
+

@@ -39,3 +39,49 @@ React Native needs to manage memory by "windowing" (only rendering items current
    - In Step 1, render the `FlatList` directly inside a simple `<View>` wrapper.
    - Wrap *only* the specific steps (e.g., Step 2, Step 3) in local `<ScrollView>` elements.
 3. **Never wrap the root container in a ScrollView** if any of its possible children contain a `FlatList` or dynamic tables.
+
+---
+
+## 🌙 Lucide Icon Invisible in Dark Mode (className doesn't apply color)
+
+**Symptom**: A Lucide icon rendered as `<ArrowLeft size={24} className="text-foreground" />` appears black/invisible in Dark Mode because the `color` prop of the SVG is not updated by the NativeWind class.
+
+**Why it happens**: On native platforms, some Lucide icon wrappers don't process NativeWind's `className` for the `color` prop. The icon falls back to its default black color (`#000000`), which becomes invisible on a dark background.
+
+**How to fix it** (the standard for all navigation back buttons and theme-aware icons):
+```tsx
+import { useColorScheme } from 'nativewind';
+import { getThemeColors } from '@/lib/theme/colors';
+
+const { colorScheme } = useColorScheme();
+const colors = getThemeColors(colorScheme);
+
+// ✅ Correct — always visible in both themes
+<ArrowLeft size={24} color={colors.foreground} />
+
+// ❌ Unreliable on native
+<ArrowLeft size={24} className="text-foreground" />
+```
+
+**Rule**: For `className` on Lucide icons to work reliably, the icon must be inside a component that provides `TextClassContext` (e.g., RNR's `<Icon as={...} />`). For standalone icons outside RNR contexts, always use the explicit `color` prop with a value from `getThemeColors()` or `palette`.
+
+---
+
+## 🔁 Accordion `onValueChange` TypeScript Error (`string | undefined`)
+
+**Symptom**: Using `onValueChange={(val: string) => ...}` inside `@rn-primitives/accordion` produces:
+```
+TS2322: Type '(val: string) => void' is not assignable to type '(value: string | undefined) => void'
+```
+
+**Why it happens**: `@rn-primitives/accordion` types `onValueChange` as `(value: string | undefined) => void` because when a collapsible accordion closes, it emits `undefined`.
+
+**How to fix it**:
+```ts
+// ✅ Correct — accept undefined
+onValueChange={(val?: string) => setIsOpen(val === item.id)}
+
+// ❌ Wrong — rejects undefined
+onValueChange={(val: string) => setIsOpen(val === item.id)}
+```
+

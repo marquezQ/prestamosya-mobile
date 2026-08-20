@@ -12,5 +12,10 @@ export const ENDPOINTS = {
   LOANS: {
     SIMULATE: '/loans/simulate',
     CREATE: '/loans',
+    GET_BY_ID: (id: string) => `/loans/${id}`,
+  },
+  GUARANTEES: {
+    BASE: '/guarantees',
+    GET_BY_ID: (id: string) => `/guarantees/${id}`,
   },
 };

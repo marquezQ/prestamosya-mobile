@@ -7,11 +7,16 @@ import { useClientById } from '@/hooks/useClientById';
 import { ClientDetailView } from '@/components/client-detail/ClientDetailView';
 import { ArrowLeft } from 'lucide-react-native';
 
+import { useColorScheme } from 'nativewind';
+import { getThemeColors } from '@/lib/theme/colors';
+
 export default function ClientProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  
+  const { colorScheme } = useColorScheme();
+  const colors = getThemeColors(colorScheme);
+
   const { data, isLoading, isError } = useClientById(id as string);
 
   return (
@@ -22,7 +27,7 @@ export default function ClientProfileScreen() {
           onPress={() => router.back()}
           className="h-10 w-10 items-center justify-center -ml-2 rounded-full active:bg-muted"
         >
-          <ArrowLeft size={24} className="text-foreground" />
+          <ArrowLeft size={24} color={colors.foreground} />
         </Pressable>
         <Text className="font-bold text-lg text-foreground ml-2">
           Perfil de Cliente
@@ -47,7 +52,12 @@ export default function ClientProfileScreen() {
           </Text>
         </View>
       ) : (
-        <ClientDetailView client={data.client} />
+        <ClientDetailView
+          client={data.client}
+          activeLoans={data.activeLoans}
+          completedLoans={data.completedLoans}
+          guarantees={data.guarantees}
+        />
       )}
     </View>
   );

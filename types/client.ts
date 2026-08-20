@@ -7,10 +7,11 @@ export interface Client {
   address: string | null;
   latitude: number | null;
   longitude: number | null;
-  status: 'NO_LOAN' | 'WITH_LOAN' | 'OVERDUE' | string;
+  status: 'CURRENT' | 'OVERDUE' | 'NO_LOAN' | string;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  activeLoanCount?: number;
 }
 
 export interface ClientCreateInput {
@@ -28,42 +29,42 @@ export interface ClientListResponse {
   data: Client[];
 }
 
-/** Loan status union */
-export type LoanStatus = 'IN_PROGRESS' | 'OVERDUE' | 'COMPLETED';
+/** Client loan summary in GET /api/clients/:id */
+export interface ClientLoanSummary {
+  id: string;
+  currency: string;
+  mode: string;
+  capitalAmount: number;
+  interestRate: number;
+  periodType: string;
+  totalInstallments: number;
+  totalAmount: number;
+  totalPaid: number;
+  outstandingBalance: number;
+  status: string; // 'ACTIVE', 'COMPLETED', 'DEFAULTED', 'REFINANCED'
+  startDate: string;
+  createdAt: string;
+}
 
-/** Active loan summary for the client detail view */
-export interface ActiveLoanSummary {
+/** Client guarantee summary in GET /api/clients/:id */
+export interface ClientGuaranteeSummary {
   id: string;
   type: string;
-  status: LoanStatus;
-  totalAmount: number;
-  totalDebt: number;
-  paidInstallments: number;
-  totalInstallments: number;
-  nextPaymentDate: string;
-  installmentAmount: number;
-  frequency: string;
+  description: string;
+  estimatedValue: number;
+  status: string;
+  createdAt: string;
 }
 
-/** Completed loan summary */
-export interface CompletedLoanSummary {
-  id: string;
-  totalAmount: number;
-  completedDate: string;
-}
 
-/** Stats for the client profile */
-export interface ClientStats {
-  totalPayments: number;
-  punctualityPercentage: number;
-}
 
-/** Backend response for GET /clients/:id */
+/** Backend response for GET /api/clients/:id */
 export interface ClientDetailResponse {
   data: {
     client: Client;
-    activeLoans: any[];
-    guarantees: any[];
-    financialSummary: any[];
+    activeLoans: ClientLoanSummary[];
+    completedLoans: ClientLoanSummary[];
+    guarantees: ClientGuaranteeSummary[];
   };
 }
+
