@@ -12,6 +12,15 @@ import { ThemeProvider } from "@react-navigation/native";
 import { KeyboardProvider } from "@/components/ui/KeyboardProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { View, ActivityIndicator } from "react-native";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
+
+// Desactiva el warning de 'strict mode' de Reanimated en desarrollo causado por componentes primitivos de UI
+if (__DEV__) {
+  configureReanimatedLogger({
+    level: ReanimatedLogLevel.warn,
+    strict: false,
+  });
+}
 
 // QueryClient configurado una sola vez a nivel raíz
 const queryClient = new QueryClient({
@@ -45,6 +54,11 @@ function RootLayoutNav() {
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />
         </Stack>
+        {/* PortalHost MUST be inside ThemeProvider/NavigationContainer so that
+            Dialog/Sheet content rendered via Portal has access to the navigation
+            context. Placing it outside (at root level) causes crashes when any
+            hook inside a portal tries to access NavigationContainer context. */}
+        <PortalHost />
       </ThemeProvider>
     </KeyboardProvider>
   );
@@ -87,7 +101,6 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <RootLayoutNav />
       <StatusBar style="auto" />
-      <PortalHost />
     </QueryClientProvider>
   );
 }

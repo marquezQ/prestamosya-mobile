@@ -65,7 +65,7 @@ Use semantic classes:
 ## 🪟 The PortalHost
 
 Components like `Dialog`, `Select`, and `DropdownMenu` require a `<PortalHost />` to render over native elements.
-**The `<PortalHost />` is already mounted at the very bottom of `app/_layout.tsx`. Do not move it or mount duplicates.**
+**The `<PortalHost />` must be mounted INSIDE `ThemeProvider`/navigation context in `app/_layout.tsx`** (inside `RootLayoutNav`, as the last child of `ThemeProvider`). Do NOT place it at the root level outside the navigation container: any hook inside a portal that reads NavigationContainer context will crash or misbehave when it is mounted there. Do not mount duplicates either.
 
 ---
 
@@ -93,6 +93,34 @@ All components for the client profile detail screen live in `components/client-d
 - **Lucide icons inside NativeWind components**: prefer `className="text-*"` for color.
 - **Lucide icons that need an explicit color (e.g., inside Buttons, or cross-platform)**: pass the `color` prop with a hex value from `palette` or a hardcoded utility color (e.g., `color="#22c55e"` for green-500, `color="#ffffff"` for white).
 - This avoids dark mode rendering issues where `className` text color may not propagate correctly through the RNR `TextClassContext`.
+
+## 🗂️ Collections Module — Components
+
+All components for the Cobros (collections) tab and the payment flow live in `components/collections/`.
+
+| Component | Responsibility |
+|---|---|
+| `CollectionsView.tsx` | Orchestrator for the Cobros tab: header, `DateCarousel`, `DailyProgressCard` and the three installment sections. Currently fed by mock data. |
+| `DateCarousel.tsx` | Horizontal 11-day window selector (5 before, today, 5 after) with auto-scroll to the selected day. |
+| `DailyProgressCard.tsx` | Daily collection progress card (`Bs.-` amounts + progress bar). |
+| `InstallmentCard.tsx` | Card for today's due installments and paid ones, with status badge from `installmentStatus`. |
+| `OverdueInstallmentCard.tsx` | Red-highlighted card for overdue installments with days-overdue caption. |
+| `installmentStatus.tsx` | **Single source of truth** for installment status badges (`getInstallmentStatusConfig`) — labels, Tailwind classes, icons. Consumed by all cards/tables in this module. |
+| `loan-detail/LoanClientHeaderCard.tsx` | Client hero on loan detail (name, CI, phone actions). |
+| `loan-detail/LoanMetricsCard.tsx` | Debt metrics + reuses `LoanProgressBar` from client-detail. |
+| `loan-detail/LoanScheduleTable.tsx` | Installments table (#, Fecha, Monto, Estado). |
+| `loan-detail/LoanPaymentHistoryList.tsx` | Payment history list. |
+| `RegisterPaymentModal.tsx` | RHF + Zod form inside RNR `Dialog` for registering a payment. Mock submit via `setTimeout`; replace with a React Query mutation when wiring the backend. |
+| `modal/PaymentMethodSelector.tsx` | Chip selector for `cash` / `transfer`. **'Transferencia' intentionally uses the QrCode icon** — transfers in Bolivia are mostly done via QR. |
+| `modal/PaymentClientSummary.tsx` | Read-only client summary inside the modal. |
+| `modal/PendingInstallmentsSummary.tsx` | First 2 pending installments preview inside the modal. |
+
+### Route & data flow
+- Tab screen: `app/(app)/(tabs)/collections.tsx` → renders `<CollectionsView />`.
+- Detail: `app/(app)/loan/[id].tsx`, registered as `<Stack.Screen name="loan/[id]" />` in `app/(app)/_layout.tsx`. Client **name and CI always come from `loanDetail.loan`** (never from props defaults) to avoid cross-client data mismatches; only `clientPhone` travels as a route param.
+- Shared formatting helpers (`formatBs`, `formatDateBO`, `getInitials`, `getTodayISO`) live in `lib/format.ts` — do not duplicate them locally.
+
+---
 
 ## 🗂️ New Client Module — Components
 

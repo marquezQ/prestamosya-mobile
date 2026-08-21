@@ -1,9 +1,6 @@
-import { View, Text } from "react-native";
+import React from 'react';
+import { CollectionsView } from '@/components/collections/CollectionsView';
 
 export default function CollectionsScreen() {
-  return (
-    <View className="flex-1 justify-center items-center bg-background">
-      <Text className="text-2xl font-bold text-foreground">Cobros</Text>
-    </View>
-  );
+  return <CollectionsView />;
 }
