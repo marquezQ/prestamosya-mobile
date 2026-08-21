@@ -117,4 +117,28 @@ Global client state (e.g., current selected theme, UI toggles, non-persistent us
 - `SchedulePreview.tsx`: Clean read-only schedule presentation table.
 - `StepSummary.tsx`: Final confirmation view with badge `Cronograma calculado: Automático` or `Cronograma calculado: Manual`.
 
+---
+
+## 📄 Collections & Payments Module — Data Layer (⚠️ MOCK PHASE)
+
+El tab Cobros y el flujo de registro de pagos son **solo interfaz**: todos los datos provienen de `components/collections/mockPaymentData.ts`. Al conectar el backend, reemplazar según esta tabla — los componentes NO deben necesitar cambios más allá de swappear la fuente de datos:
+
+| Actual (mock) | Objetivo (backend) |
+|---|---|
+| Constante `MOCK_DASHBOARD_TODAY` en `CollectionsView` | Hook `usePaymentDashboard(date)` → `GET /payments/dashboard?date=YYYY-MM-DD` devolviendo `PaymentDashboardData` |
+| Fallback `MOCK_LOAN_DETAILS_MAP[id] ?? MOCK_LOAN_DETAILS_MAP['uuid-loan-1']` en `app/(app)/loan/[id].tsx` | `useLoanById(id)` (hook existente, queryKey `['loans', id]`) + estado de loading/error real |
+| `setTimeout(400)` simulando submit en `RegisterPaymentModal.onSubmit` | Mutación `useRegisterPayment()` → `POST /payments` con `RegisterPaymentInput`; invalidar `['loans', id]` y la query del dashboard |
+
+### Types (`types/payment.ts`)
+- `PaymentDashboardData`: `{ metadata, dueToday[], overdue[], paidToday[] }` de `DashboardInstallmentItem`.
+- `RegisterPaymentInput`: `{ loanId, amount, method, paymentDate, notes? }`. La respuesta envuelve `affectedInstallments[]`, `loanStatus` y `outstandingBalance`.
+- **`PaymentMethod = 'cash' | 'transfer'`** — NO existe método `'qr'`: en Bolivia los pagos QR SON transferencias. El chip "Transferencia / QR" usa icono `QrCode` intencionalmente.
+
+### Convenciones establecidas en este módulo
+- Nombre y CI del cliente en el detalle de préstamo SIEMPRE desde `loanDetail.loan.clientName/clientIdNumber` — nunca desde params de ruta ni defaults de props.
+- Config única de badges de estado: `getInstallmentStatusConfig()` en `components/collections/installmentStatus.tsx`.
+- Helpers de formato compartidos en `lib/format.ts` (`formatBs`, `formatDateBO`, `getTodayISO`, `getInitials`) — no duplicar localmente.
+- El modal de pago usa RNR `Dialog` (patrón `GuaranteeFormModal`). Si se agregan campos, mantener `ScrollView` con `keyboardShouldPersistTaps="handled"` dentro de `DialogContent`.
+
+
 

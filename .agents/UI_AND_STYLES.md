@@ -69,6 +69,41 @@ Components like `Dialog`, `Select`, and `DropdownMenu` require a `<PortalHost />
 
 ---
 
+## 🪟 Dialog Width Gotcha (Yoga shrink-to-fit)
+
+`DialogContent` usa `w-full`, que se resuelve contra el ancho de su padre. Dentro de `DialogOverlay` hay DOS wrappers `NativeOnlyAnimatedView` (animaciones de fade). Si no tienen ancho explícito, Yoga los mide por contenido intrínseco (*shrink-to-fit*) y el diálogo colapsa al ancho de su hijo más ancho (~mitad de pantalla) en vez de llenar el display.
+
+**Fix aplicado en la fuente** (`components/ui/dialog.tsx`): ambos wrappers llevan `className="w-full"` (el interior además `items-center` para mantener el centrado cuando aplica `max-w-*`).
+
+**CRITICAL**: No eliminar esas clases al editar los primitivos del diálogo. Los consumidores controlan el ancho final SOLO con clases `max-w-*` (ej. `max-w-md`, `max-w-lg`) junto a `w-full`. En web estos wrappers no se renderizan (no afecta).
+
+Este bug afectaba a TODOS los dialogs (se descubrió con `RegisterPaymentModal`); quedó corregido globalmente.
+
+## 💰 Money & Date Formatting Convention
+
+Todo monto monetario y fecha de calendario mostrado en UI DEBE pasar por los helpers compartidos de `lib/format.ts`:
+
+| Helper | Uso |
+|---|---|
+| `formatBs(amount)` | `Bs.- 1.500` — nunca concatenar `'Bs.- '` manualmente ni llamar `toLocaleString` inline |
+| `formatDateBO(dateStr, pattern?)` | Fechas `'yyyy-MM-dd'` → `'dd MMM yyyy'` (locale es). Acepta patrón alternativo (ej. `'dd/MM/yyyy'`) |
+| `getInitials(name)` | Iniciales para avatares (fallback `'CL'`) |
+| `getTodayISO()` | Hoy como `'yyyy-MM-dd'` en zona horaria LOCAL |
+
+```
+❌ <Text>Bs.- {amount.toLocaleString('es-BO')}</Text>
+✅ <Text>{formatBs(amount)}</Text>
+
+❌ function getInitials(name) { ... } // duplicado local
+✅ import { getInitials } from '@/lib/format'
+```
+
+### Status Badges de Cuotas (fuente única)
+
+Las etiquetas/colores/iconos de estado de cuota (**Pagada / Parcial / Vencida / Pendiente**) viven en un solo lugar: `getInstallmentStatusConfig(status)` en `components/collections/installmentStatus.tsx`. Consumido por `InstallmentCard`, `LoanScheduleTable` y `PendingInstallmentsSummary`. Nunca duplicar configs de badges por componente.
+
+---
+
 ## 🗂️ Client Detail Module — Components
 
 All components for the client profile detail screen live in `components/client-detail/`.

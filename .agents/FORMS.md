@@ -103,6 +103,7 @@ For forms requiring manual date picker inputs (e.g. customized installments):
 - **Rule**: Initialize empty/unsaved date states as `null` rather than a blank string (`""`) or auto-populating "today's date".
 - Using `null` forces React Hook Form and Zod to flag the field as incomplete, ensuring the user is explicitly required to interact with the date picker component and choose a date.
 - Validate that all dynamic entries (like a list of installment dates) are non-null before enabling next/submit buttons.
+- **Cuando SÍ se necesite inicializar con "hoy"** (ej. fecha de pago por defecto): usar `getTodayISO()` de `@/lib/format` (zona horaria local). NUNCA usar `new Date().toISOString().split('T')[0]` — la conversión UTC retrocede un día antes de las 04:00 en Bolivia (America/La_Paz, UTC-4), enviando fechas incorrectas al backend.
 
 ---
 
@@ -113,6 +114,7 @@ The guarantee create/edit form (`components/client-detail/guarantees/GuaranteeFo
 ### When to use a modal form (vs. full screen)
 - Use a modal when the entity has ≤ 4 fields and no complex nested data.
 - Use a full screen (Expo Router push) for multi-step or complex flows.
+- Para forms que necesitan scroll dentro del `DialogContent` (ej. `RegisterPaymentModal`), envolver el cuerpo en un `<ScrollView keyboardShouldPersistTaps="handled">` — NO usar `KeyboardAwareScrollView` dentro de portales.
 
 ### Chip Selector for Enum Fields
 When a form field maps to a small fixed enum (e.g. `GuaranteeType`), prefer a **chip/pill selector** over a `<Select>` dropdown, as it is more intuitive on mobile:
