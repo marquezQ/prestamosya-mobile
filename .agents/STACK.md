@@ -53,3 +53,5 @@ Do NOT use `Platform.OS === 'web'` conditional inside a single file to guard nat
 - `babel.config.js`: Contains `babel-preset-expo`.
 - `tailwind.config.js`: Maps CSS variables (from `global.css`) to Tailwind semantics (`background`, `primary`, `brand-celeste`, etc.). Includes `tailwindcss-animate`.
 - `components.json`: Configuration for the `@react-native-reusables/cli`. Tells the CLI where to drop new components (always in `components/ui`).
+- `lib/format.ts`: Shared formatting utilities (`formatBs`, `formatDateBO`, `getInitials`, `getTodayISO`). Single source of truth for money/date display across ALL modules — do not duplicate these helpers locally or inline.
+- `app/_layout.tsx`: Mounts `QueryClientProvider`, `KeyboardProvider`, auth hydration and route protection. The `<PortalHost />` lives INSIDE `ThemeProvider` (see UI_AND_STYLES.md). The Reanimated logger is configured ONLY under `__DEV__` (silences strict-mode warnings caused by `@rn-primitives` primitives; never runs in production builds).

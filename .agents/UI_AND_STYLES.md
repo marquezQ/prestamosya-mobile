@@ -65,7 +65,54 @@ Use semantic classes:
 ## 🪟 The PortalHost
 
 Components like `Dialog`, `Select`, and `DropdownMenu` require a `<PortalHost />` to render over native elements.
-**The `<PortalHost />` is already mounted at the very bottom of `app/_layout.tsx`. Do not move it or mount duplicates.**
+**The `<PortalHost />` must be mounted INSIDE `ThemeProvider`/navigation context in `app/_layout.tsx`** (inside `RootLayoutNav`, as the last child of `ThemeProvider`). Do NOT place it at the root level outside the navigation container: any hook inside a portal that reads NavigationContainer context will crash or misbehave when it is mounted there. Do not mount duplicates either.
+
+---
+
+## 🪟 Dialog Width Gotcha (Yoga shrink-to-fit)
+
+`DialogContent` usa `w-full`, que se resuelve contra el ancho de su padre. Dentro de `DialogOverlay` hay DOS wrappers `NativeOnlyAnimatedView` (animaciones de fade). Si no tienen ancho explícito, Yoga los mide por contenido intrínseco (*shrink-to-fit*) y el diálogo colapsa al ancho de su hijo más ancho (~mitad de pantalla) en vez de llenar el display.
+
+**Fix aplicado en la fuente** (`components/ui/dialog.tsx`): ambos wrappers llevan `className="w-full"` (el interior además `items-center` para mantener el centrado cuando aplica `max-w-*`).
+
+**CRITICAL**: No eliminar esas clases al editar los primitivos del diálogo. Los consumidores controlan el ancho final SOLO con clases `max-w-*` (ej. `max-w-md`, `max-w-lg`) junto a `w-full`. En web estos wrappers no se renderizan (no afecta).
+
+Este bug afectaba a TODOS los dialogs (se descubrió con `RegisterPaymentModal`); quedó corregido globalmente.
+
+## 💰 Money & Date Formatting Convention
+
+Todo monto monetario y fecha de calendario mostrado en UI DEBE pasar por los helpers compartidos de `lib/format.ts`:
+
+| Helper | Uso |
+|---|---|
+| `formatBs(amount)` | `Bs.- 1.500` — nunca concatenar `'Bs.- '` manualmente ni llamar `toLocaleString` inline |
+| `formatDateBO(dateStr, pattern?)` | Fechas `'yyyy-MM-dd'` → `'dd MMM yyyy'` (locale es). Acepta patrón alternativo (ej. `'dd/MM/yyyy'`) |
+| `getInitials(name)` | Iniciales para avatares (fallback `'CL'`) |
+| `getTodayISO()` | Hoy como `'yyyy-MM-dd'` en zona horaria LOCAL |
+
+```
+❌ <Text>Bs.- {amount.toLocaleString('es-BO')}</Text>
+✅ <Text>{formatBs(amount)}</Text>
+
+❌ function getInitials(name) { ... } // duplicado local
+✅ import { getInitials } from '@/lib/format'
+```
+
+**CRITICAL — Parseo de fechas de calendario (`'yyyy-MM-dd'`):**
+NUNCA uses `new Date('yyyy-MM-dd')` para fechas de calendario. Por spec ECMAScript, un string solo-de-fecha se interpreta como **medianoche UTC**, y en Bolivia (UTC-4, sin DST) eso es `20:00` del día anterior → el día renderizado retrocede **-1** (bug real: el cronograma del perfil de cliente mostraba "20 ago" cuando la cuota vencía el 21). El backend envía la fecha correcta; el error era de render.
+
+```
+❌ format(new Date(dueDate), 'd MMM')            // UTC midnight → -1 día en Bolivia
+✅ formatDateBO(dueDate)                          // parse local 'yyyy-MM-dd' → día exacto
+✅ formatDateBO(dueDate, "d 'de' MMM, yyyy")      // patrón personalizado
+✅ format(parseISO(createdAt), 'MMMM yyyy')       // timestamps ISO completos (con hora)
+```
+
+La regla de oro: las fechas de calendario son **absolutas por contrato** — `'yyyy-MM-dd'` entra y sale sin tocar zonas horarias ni medianoches. Solo los instantes reales (`paidAt`, `createdAt`, `voidedAt`) llevan hora y se parsean con `parseISO`.
+
+### Status Badges de Cuotas (fuente única)
+
+Las etiquetas/colores/iconos de estado de cuota (**Pagada / Parcial / Vencida / Pendiente**) viven en un solo lugar: `getInstallmentStatusConfig(status)` en `components/collections/installmentStatus.tsx`. Consumido por `InstallmentCard`, `LoanScheduleTable` y `PendingInstallmentsSummary`. Nunca duplicar configs de badges por componente.
 
 ---
 
@@ -93,6 +140,34 @@ All components for the client profile detail screen live in `components/client-d
 - **Lucide icons inside NativeWind components**: prefer `className="text-*"` for color.
 - **Lucide icons that need an explicit color (e.g., inside Buttons, or cross-platform)**: pass the `color` prop with a hex value from `palette` or a hardcoded utility color (e.g., `color="#22c55e"` for green-500, `color="#ffffff"` for white).
 - This avoids dark mode rendering issues where `className` text color may not propagate correctly through the RNR `TextClassContext`.
+
+## 🗂️ Collections Module — Components
+
+All components for the Cobros (collections) tab and the payment flow live in `components/collections/`.
+
+| Component | Responsibility |
+|---|---|
+| `CollectionsView.tsx` | Orchestrator for the Cobros tab: header, `DateCarousel`, `DailyProgressCard` and the three installment sections. Wired to `usePaymentDashboard(selectedDate)` with loading/error/retry states. |
+| `DateCarousel.tsx` | Horizontal 11-day window selector (5 before, today, 5 after) with auto-scroll to the selected day. |
+| `DailyProgressCard.tsx` | Daily collection progress card (`Bs.-` amounts + progress bar). |
+| `InstallmentCard.tsx` | Card for today's due installments and paid ones, with status badge from `installmentStatus`. |
+| `OverdueInstallmentCard.tsx` | Red-highlighted card for overdue installments with days-overdue caption. |
+| `installmentStatus.tsx` | **Single source of truth** for installment status badges (`getInstallmentStatusConfig`) — labels, Tailwind classes, icons. Consumed by all cards/tables in this module. |
+| `loan-detail/LoanClientHeaderCard.tsx` | Client hero on loan detail (name, CI, phone actions). |
+| `loan-detail/LoanMetricsCard.tsx` | Debt metrics + reuses `LoanProgressBar` from client-detail. |
+| `loan-detail/LoanScheduleTable.tsx` | Installments table (#, Fecha, Monto, Estado). |
+| `loan-detail/LoanPaymentHistoryList.tsx` | Payment history list. |
+| `RegisterPaymentModal.tsx` | RHF + Zod form inside RNR `Dialog` for registering a payment. Wired to `useRegisterPayment` (POST /payments) with inline backend error display. |
+| `modal/PaymentMethodSelector.tsx` | Chip selector for `cash` / `transfer`. **'Transferencia' intentionally uses the QrCode icon** — transfers in Bolivia are mostly done via QR. |
+| `modal/PaymentClientSummary.tsx` | Read-only client summary inside the modal. |
+| `modal/PendingInstallmentsSummary.tsx` | First 2 pending installments preview inside the modal. |
+
+### Route & data flow
+- Tab screen: `app/(app)/(tabs)/collections.tsx` → renders `<CollectionsView />`.
+- Detail: `app/(app)/loan/[id].tsx`, registered as `<Stack.Screen name="loan/[id]" />` in `app/(app)/_layout.tsx`. Client **name and CI always come from `loanDetail.loan`** (never from props defaults) to avoid cross-client data mismatches; only `clientPhone` travels as a route param.
+- Shared formatting helpers (`formatBs`, `formatDateBO`, `getInitials`, `getTodayISO`) live in `lib/format.ts` — do not duplicate them locally.
+
+---
 
 ## 🗂️ New Client Module — Components
 

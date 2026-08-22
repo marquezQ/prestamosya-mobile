@@ -12,8 +12,7 @@ import { ClientLoanSummary } from '@/types/client';
 import { useLoanById } from '@/hooks/useLoanById';
 import { Button } from '@/components/ui/button';
 import { palette } from '@/lib/theme/colors';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatDateBO } from '@/lib/format';
 
 interface CompletedLoanAccordionCardProps {
   loan: ClientLoanSummary;
@@ -29,7 +28,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
   const { data: loanDetail, isLoading, isError, refetch } = useLoanById(loan.id, isOpen);
 
   const formattedDate = loan.startDate
-    ? format(new Date(loan.startDate), "d 'de' MMMM, yyyy", { locale: es })
+    ? formatDateBO(loan.startDate, "d 'de' MMMM, yyyy")
     : 'Finalizado';
 
   return (

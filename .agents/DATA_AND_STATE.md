@@ -117,4 +117,37 @@ Global client state (e.g., current selected theme, UI toggles, non-persistent us
 - `SchedulePreview.tsx`: Clean read-only schedule presentation table.
 - `StepSummary.tsx`: Final confirmation view with badge `Cronograma calculado: Automático` or `Cronograma calculado: Manual`.
 
+---
+
+## 📄 Collections & Payments Module — Data Layer
+
+El tab Cobros y el flujo de pagos están conectados al backend real.
+
+### Services & Hooks
+| File | Responsibility |
+|---|---|
+| `services/endpoints.ts` | `PAYMENTS.BASE` (`/payments`), `PAYMENTS.DASHBOARD`, `PAYMENTS.REGISTER` |
+| `services/paymentService.ts` | `getPaymentDashboard(date?)` y `registerPayment(data)` vía Axios central |
+| `hooks/usePaymentDashboard.ts` | React Query hook. QueryKey: `['payments', 'dashboard', date]`. Recibe la fecha del carrusel en `'yyyy-MM-dd'` |
+| `hooks/useRegisterPayment.ts` | Mutación `POST /payments`. Invalida `['payments']`, `['loans', loanId]` y `['clients']` al éxito |
+
+### Endpoints del backend
+1. **GET /payments/dashboard?date=YYYY-MM-DD** → `{ metadata: { targetDate, serverToday }, dueToday[], overdue[], paidToday[] }` de `DashboardInstallmentItem`.
+2. **POST /payments** → body `RegisterPaymentInput`; el backend distribuye el monto FIFO sobre cuotas pendientes. Respuesta incluye `affectedInstallments[]`, `loanStatus` y `outstandingBalance` (usados en el banner de éxito de `LoanDetailPaymentView`).
+3. **DELETE /payments/:id** con body `{ reason }` → ⚠️ **pendiente de UI** (anulación de pagos). No hay servicio ni hook todavía.
+4. **GET /loans/:id** → detalle usado por `app/(app)/loan/[id].tsx` vía `useLoanById(id, true)` con estados de loading/error/retry propios de la pantalla.
+
+### Tipos (`types/payment.ts`)
+- **`PaymentMethod = 'cash' | 'transfer'`** — decisión de producto: NO se envía 'qr' aunque el enum del backend lo acepte; los pagos QR van como 'transfer' y el chip "Transferencia / QR" usa icono QrCode intencionalmente.
+- El backend NO devuelve `scheduledTime` en el dashboard — no renderizarlo.
+- Errores HTTP se muestran inline con `getApiErrorMessage()` (exportado en `services/api.ts`; NestJS puede devolver `message` como string o string[]).
+
+### Convenciones establecidas en este módulo
+- Nombre y CI del cliente en el detalle de préstamo SIEMPRE desde `loanDetail.loan.clientName/clientIdNumber` — nunca desde params de ruta ni defaults de props.
+- Labels dinámicos: cuando `selectedDate !== metadata.serverToday`, los títulos dicen "Cuotas/Cobrados del {fecha}" en vez de "de hoy".
+- Config única de badges de estado: `getInstallmentStatusConfig()` en `components/collections/installmentStatus.tsx`.
+- Helpers de formato compartidos en `lib/format.ts` (`formatBs`, `formatDateBO`, `getTodayISO`, `getInitials`) — no duplicar localmente.
+- El modal de pago usa RNR `Dialog` (patrón `GuaranteeFormModal`). Si se agregan campos, mantener `ScrollView` con `keyboardShouldPersistTaps="handled"` dentro de `DialogContent`.
+
+
 

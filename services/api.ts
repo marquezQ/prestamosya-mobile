@@ -43,3 +43,16 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+/**
+ * Extrae el mensaje legible de un error de la API (NestJS devuelve
+ * `message` como string o array de strings en el body de la respuesta).
+ */
+export function getApiErrorMessage(error: unknown, fallback = 'Ocurrió un error inesperado'): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { message?: string | string[] } | undefined;
+    const message = Array.isArray(data?.message) ? data.message[0] : data?.message;
+    if (message) return message;
+  }
+  return fallback;
+}

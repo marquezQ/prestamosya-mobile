@@ -51,10 +51,15 @@ function DialogOverlay({
         <NativeOnlyAnimatedView
           entering={FadeIn.duration(200).reduceMotion(ReduceMotion.System)}
           exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
+          className="w-full"
           as="Pressable">
+          {/* w-full en ambos wrappers: sin ancho definido, Yoga los mide por
+              contenido intrínseco (shrink-to-fit) y el DialogContent con
+              w-full colapsa al ancho de su contenido en vez de llenar la pantalla. */}
           <NativeOnlyAnimatedView
             entering={FadeIn.delay(50).reduceMotion(ReduceMotion.System)}
-            exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}>
+            exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
+            className="w-full items-center">
             <>{children}</>
           </NativeOnlyAnimatedView>
         </NativeOnlyAnimatedView>
