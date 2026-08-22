@@ -9,8 +9,19 @@ export interface Guarantee {
   description: string;
   estimatedValue: number | null;
   status: GuaranteeStatus;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Imagen seleccionada desde la galería (expo-image-picker), desacoplada
+ * del tipo Asset de la librería para no filtrar dependencias al servicio.
+ */
+export interface GuaranteeImagePayload {
+  uri: string;
+  name: string;
+  mimeType?: string;
 }
 
 export interface CreateGuaranteeInput {
@@ -18,12 +29,14 @@ export interface CreateGuaranteeInput {
   type: GuaranteeType;
   description: string;
   estimatedValue?: number | null;
+  image?: GuaranteeImagePayload;
 }
 
 export interface UpdateGuaranteeInput {
   type?: GuaranteeType;
   description?: string;
   estimatedValue?: number | null;
+  image?: GuaranteeImagePayload;
 }
 
 export interface GuaranteeResponse {

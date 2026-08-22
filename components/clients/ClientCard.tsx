@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, Linking } from 'react-native';
+import { View, Pressable, Linking, GestureResponderEvent } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Client } from '@/types/client';
 import { Phone, MessageSquare } from 'lucide-react-native';
@@ -49,14 +49,14 @@ export function ClientCard({ client, onPress }: ClientCardProps) {
 
   const statusConfig = getClientStatusConfig(client.status);
 
-  const handleCall = (e: any) => {
+  const handleCall = (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (client.phone) {
       Linking.openURL(`tel:${client.phone}`);
     }
   };
 
-  const handleWhatsApp = (e: any) => {
+  const handleWhatsApp = (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (client.phone) {
       const phone = client.phone.replace(/\D/g, '');

@@ -15,6 +15,11 @@ interface ManualInstallmentRowProps {
   canRemove: boolean;
 }
 
+type InstallmentRowError = {
+  dueDate?: { message?: string };
+  totalAmount?: { message?: string };
+};
+
 export function ManualInstallmentRow({
   index,
   control,
@@ -22,7 +27,11 @@ export function ManualInstallmentRow({
   onRemove,
   canRemove,
 }: ManualInstallmentRowProps) {
-  const rowError = (errors.installments as any)?.[index];
+  // RHF tipa errors.installments como Merge<FieldError, lista>; afinamos a la
+  // lista por fila para poder indexar sin recurrir a `any`.
+  const rowError = (
+    errors.installments as unknown as (InstallmentRowError | undefined)[]
+  )?.[index];
 
   return (
     <View className="flex-row items-center gap-2 mb-3 bg-card border border-border rounded-xl p-3">

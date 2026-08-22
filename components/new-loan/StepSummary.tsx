@@ -15,6 +15,7 @@ import { buildManualInstallmentsInput } from '@/lib/manualSchedule';
 import { useRouter } from 'expo-router';
 import { format, isValid, parse } from 'date-fns';
 import { useCreateLoan } from '@/hooks/useCreateLoan';
+import { getApiErrorMessage } from '@/services/api';
 
 export function StepSummary() {
   const router = useRouter();
@@ -87,18 +88,12 @@ export function StepSummary() {
         reset();
         router.back();
       },
-      onError: (err: any) => {
-        const errorMsg =
-          err?.response?.data?.message ||
-          err?.message ||
-          'Hubo un problema al registrar el préstamo.';
+      onError: (err: unknown) => {
+        const errorMsg = getApiErrorMessage(err, 'Hubo un problema al registrar el préstamo.');
         if (Platform.OS === 'web') {
-          window.alert(Array.isArray(errorMsg) ? errorMsg.join('\n') : errorMsg);
+          window.alert(errorMsg);
         } else {
-          Alert.alert(
-            'Error al Crear Préstamo',
-            Array.isArray(errorMsg) ? errorMsg.join('\n') : errorMsg,
-          );
+          Alert.alert('Error al Crear Préstamo', errorMsg);
         }
       },
     });

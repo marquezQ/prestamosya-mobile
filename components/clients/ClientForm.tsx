@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Alert, ActivityIndicator, Platform } from 'react-native';
+import axios from 'axios';
 import { z } from 'zod';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -61,8 +62,8 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
           { text: 'OK', onPress: onSuccess },
         ]);
       }
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
         if (Platform.OS === 'web') {
           window.alert('Ya existe un cliente con ese CI o teléfono.');
         } else {

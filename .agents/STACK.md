@@ -16,6 +16,7 @@ We are using a bleeding-edge modern React Native stack. **Strict version adheren
 - `lucide-react-native`: For iconography
 - `react-native-maps`: Native map rendering (Google Maps on Android, Apple Maps on iOS). Installed via `npx expo install react-native-maps`. **Does NOT support web** — see Platform Extensions below.
 - `expo-location` (~19.x): Native location — foreground permissions, GPS position, reverse geocoding. Installed via `npx expo install expo-location`. Config plugin in `app.json` sets the permission message (Spanish). Bundled in Expo Go.
+- `expo-image-picker` (~17.x): Media library access for guarantee photos. Installed via `npx expo install expo-image-picker`. Config plugin in `app.json` sets the Spanish `photoPermission` message. Gallery-only (no camera). Bundled in Expo Go; works on web too (file input fallback), so no `.web.tsx` split needed.
 - `react-native-keyboard-controller` (1.18.5): Modern keyboard handling (smooth, native-feeling scroll-to-focused-input). **Bundled in Expo Go since SDK 54** (`inExpoGo: true`). **Does NOT support web** — see Platform Extensions below.
 - `date-fns`: Date formatting utility. Used for displaying human-readable dates in Spanish locale (`date-fns/locale/es`).
 
