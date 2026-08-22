@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Platform, Pressable, View } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Text } from '@/components/ui/text';
 import { format, isValid, parse } from 'date-fns';
 
@@ -29,7 +29,7 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
     }
   }
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     // En Android, ocultamos el modal inmediatamente
     if (Platform.OS !== 'ios') {
       setShow(false);

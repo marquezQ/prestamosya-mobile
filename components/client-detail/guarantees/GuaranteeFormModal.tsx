@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,9 +16,11 @@ import {
 } from '@/components/ui/dialog';
 import {
   Guarantee,
+  GuaranteeImagePayload,
   GUARANTEE_TYPE_OPTIONS,
 } from '@/types/guarantee';
 import { useCreateGuarantee, useUpdateGuarantee } from '@/hooks/useGuarantees';
+import { GuaranteePhotoPicker } from './GuaranteePhotoPicker';
 
 const guaranteeSchema = z.object({
   type: z.enum(['VEHICLE', 'REAL_ESTATE', 'FURNITURE', 'OTHER']),
@@ -46,6 +48,10 @@ export function GuaranteeFormModal({
   const createMutation = useCreateGuarantee();
   const updateMutation = useUpdateGuarantee(clientId);
 
+  // La imagen vive fuera del schema Zod: no es texto validable y su
+  // preview depende del modo (nueva selección vs foto existente).
+  const [selectedImage, setSelectedImage] = useState<GuaranteeImagePayload | null>(null);
+
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   const {
@@ -63,6 +69,7 @@ export function GuaranteeFormModal({
   });
 
   useEffect(() => {
+    setSelectedImage(null);
     if (guaranteeToEdit) {
       reset({
         type: guaranteeToEdit.type,
@@ -91,6 +98,7 @@ export function GuaranteeFormModal({
             type: data.type,
             description: data.description.trim(),
             estimatedValue: numericValue,
+            image: selectedImage ?? undefined,
           },
         },
         {
@@ -106,6 +114,7 @@ export function GuaranteeFormModal({
           type: data.type,
           description: data.description.trim(),
           estimatedValue: numericValue,
+          image: selectedImage ?? undefined,
         },
         {
           onSuccess: () => {
@@ -222,6 +231,18 @@ export function GuaranteeFormModal({
                 {errors.estimatedValue.message}
               </Text>
             )}
+          </View>
+
+          {/* Foto de la Garantía */}
+          <View>
+            <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-2">
+              Foto de la Garantía
+            </Text>
+            <GuaranteePhotoPicker
+              value={selectedImage}
+              existingUrl={guaranteeToEdit?.imageUrl ?? null}
+              onChange={setSelectedImage}
+            />
           </View>
         </View>
 

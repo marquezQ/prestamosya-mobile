@@ -20,6 +20,9 @@ function NativeOnlyAnimatedView(
   if (Platform.OS === 'web') {
     return <>{props.children as React.ReactNode}</>;
   } else {
+    // Vendido desde React Native Reusables: la unión de props de Reanimated
+    // no es asignable entre ramas tras extraer `as`; upstream usa `as any`.
+    // No modificar sin actualizar el componente desde la librería.
     if (as === "Pressable"){
       return <AnimatedPressable {...(rest as any)} />;
     }

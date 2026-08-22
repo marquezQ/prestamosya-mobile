@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { Shield, Car, Home, Package, Armchair, Plus, Pencil, Trash2 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ClientGuaranteeSummary } from '@/types/client';
-import { Guarantee } from '@/types/guarantee';
+import {
+  Guarantee,
+  GuaranteeStatus,
+  GuaranteeType,
+} from '@/types/guarantee';
 import { useGuaranteesByClientId } from '@/hooks/useGuarantees';
 import { GuaranteeFormModal } from '../guarantees/GuaranteeFormModal';
 import { DeleteGuaranteeDialog } from '../guarantees/DeleteGuaranteeDialog';
+import { GuaranteeImageViewer } from '../guarantees/GuaranteeImageViewer';
 import { palette, getThemeColors } from '@/lib/theme/colors';
 import { useColorScheme } from 'nativewind';
 
@@ -55,6 +60,24 @@ function getGuaranteeStatusConfig(status: string) {
   }
 }
 
+/**
+ * Adapta el resumen de garantía del perfil (GET /api/clients/:id) a la forma
+ * completa que consumen los cards, mientras responde la query dedicada.
+ */
+function toCardGuarantee(summary: ClientGuaranteeSummary): Guarantee {
+  return {
+    id: summary.id,
+    clientId: '',
+    type: summary.type.toUpperCase() as GuaranteeType,
+    description: summary.description,
+    estimatedValue: Number(summary.estimatedValue),
+    status: summary.status.toUpperCase() as GuaranteeStatus,
+    imageUrl: summary.imageUrl ?? null,
+    createdAt: summary.createdAt,
+    updatedAt: summary.createdAt,
+  };
+}
+
 export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProps) {
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
@@ -63,8 +86,8 @@ export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProp
   // Fetch guarantees from backend
   const { data: queryGuarantees, isLoading, isError } = useGuaranteesByClientId(clientId);
 
-  // Fallback to query guarantees or initial guarantees passed from client detail
-  const guaranteesList = (queryGuarantees as unknown as Guarantee[]) || (initialGuarantees as unknown as Guarantee[]) || [];
+  // Fallback: mientras carga la query, usamos las garantías precargadas del perfil
+  const guaranteesList = queryGuarantees ?? (initialGuarantees ? initialGuarantees.map(toCardGuarantee) : []);
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -72,6 +95,11 @@ export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProp
 
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [guaranteeToDelete, setGuaranteeToDelete] = useState<Guarantee | null>(null);
+
+  // Visor fullscreen de la foto de garantía
+  const [viewerImage, setViewerImage] = useState<{ url: string; description: string } | null>(
+    null,
+  );
 
   const handleCreate = () => {
     setGuaranteeToEdit(null);
@@ -153,6 +181,7 @@ export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProp
         {guaranteesList.map((item) => {
           const Icon = getGuaranteeIcon(item.type);
           const sc = getGuaranteeStatusConfig(item.status);
+          const imageUrl = item.imageUrl;
 
           return (
             <View
@@ -160,9 +189,22 @@ export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProp
               className="mx-4 mb-3 rounded-2xl bg-card border border-border p-4 shadow-sm"
             >
               <View className="flex-row items-start gap-3">
-                <View className="bg-primary/15 p-3 rounded-xl">
-                  <Icon size={22} color={palette.azul} />
-                </View>
+                {imageUrl ? (
+                  <Pressable
+                    onPress={() => setViewerImage({ url: imageUrl, description: item.description })}
+                    className="active:opacity-80"
+                  >
+                    <Image
+                      source={{ uri: imageUrl }}
+                      className="w-14 h-14 rounded-xl bg-muted border border-border"
+                      resizeMode="cover"
+                    />
+                  </Pressable>
+                ) : (
+                  <View className="bg-primary/15 p-3 rounded-xl">
+                    <Icon size={22} color={palette.azul} />
+                  </View>
+                )}
 
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between mb-1">
@@ -224,6 +266,14 @@ export function GuaranteesTab({ clientId, initialGuarantees }: GuaranteesTabProp
         onClose={() => setIsDeleteOpen(false)}
         clientId={clientId}
         guarantee={guaranteeToDelete}
+      />
+
+      {/* Fullscreen Photo Viewer */}
+      <GuaranteeImageViewer
+        isOpen={!!viewerImage}
+        onClose={() => setViewerImage(null)}
+        imageUrl={viewerImage?.url ?? null}
+        description={viewerImage?.description}
       />
     </View>
   );

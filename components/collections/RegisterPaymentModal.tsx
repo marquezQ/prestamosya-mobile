@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -119,7 +120,7 @@ export function RegisterPaymentModal({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollView
+        <KeyboardAwareScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           contentContainerClassName="gap-4 py-2"
@@ -211,7 +212,7 @@ export function RegisterPaymentModal({
               </Text>
             </View>
           )}
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
         <DialogFooter className="mt-2 flex-row gap-3">
           <Button

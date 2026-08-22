@@ -40,6 +40,12 @@
           "locationWhenInUsePermission": "Permitir que PrestamosYA acceda a tu ubicación para fijar la dirección de cobro."
         }
       ],
+      [
+        "expo-image-picker",
+        {
+          "photoPermission": "Permitir que PrestamosYA acceda a tus fotos para adjuntar imágenes de las garantías."
+        }
+      ],
       "@react-native-community/datetimepicker"
     ]
   }

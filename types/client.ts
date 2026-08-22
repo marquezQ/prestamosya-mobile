@@ -53,6 +53,7 @@ export interface ClientGuaranteeSummary {
   description: string;
   estimatedValue: number;
   status: string;
+  imageUrl?: string | null;
   createdAt: string;
 }
 
