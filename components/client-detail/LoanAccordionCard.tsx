@@ -13,8 +13,7 @@ import { ClientLoanSummary } from '@/types/client';
 import { useLoanById } from '@/hooks/useLoanById';
 import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw } from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { formatDateBO } from '@/lib/format';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Period label translator
@@ -76,14 +75,6 @@ function getStatusConfig(status: string) {
 function formatLoanId(id: string): string {
   const numeric = id.replace(/\D/g, '');
   return numeric ? `#${numeric.slice(-4)}` : `#${id.slice(0, 6)}`;
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    return format(new Date(dateStr), "d 'de' MMM, yyyy", { locale: es });
-  } catch {
-    return dateStr;
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -281,7 +272,7 @@ export function LoanAccordionCard({ loan }: LoanAccordionCardProps) {
                               isPaid ? 'text-muted-foreground line-through' : 'text-foreground'
                             }`}
                           >
-                            {formatDate(inst.dueDate)}
+                            {formatDateBO(inst.dueDate, "d 'de' MMM, yyyy")}
                           </Text>
 
                           {/* Amount */}

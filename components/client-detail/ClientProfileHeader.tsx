@@ -5,7 +5,7 @@ import { Client } from '@/types/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Phone, MessageCircle, CheckCircle2 } from 'lucide-react-native';
 import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { palette, getThemeColors } from '@/lib/theme/colors';
 import { useColorScheme } from 'nativewind';
@@ -48,7 +48,9 @@ export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
     }
   };
 
-  const memberSince = format(new Date(client.createdAt), 'MMMM yyyy', { locale: es });
+  // parseISO maneja timestamps ISO completos; new Date() sobre strings de solo
+  // fecha los interpretaría como UTC y desplazaría el día en Bolivia (UTC-4).
+  const memberSince = format(parseISO(client.createdAt), 'MMMM yyyy', { locale: es });
   const formattedMemberSince = memberSince.charAt(0).toUpperCase() + memberSince.slice(1);
 
   return (

@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LoanDetailData } from '@/types/loan';
 import { RegisterPaymentModal } from './RegisterPaymentModal';
-import { RegisterPaymentInput } from '@/types/payment';
+import { RegisterPaymentResponseData } from '@/types/payment';
 import { formatBs } from '@/lib/format';
 import { LoanClientHeaderCard } from './loan-detail/LoanClientHeaderCard';
 import { LoanMetricsCard } from './loan-detail/LoanMetricsCard';
@@ -28,7 +28,10 @@ export function LoanDetailPaymentView({
   const insets = useSafeAreaInsets();
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [successBanner, setSuccessBanner] = useState<string | null>(null);
+  const [successBanner, setSuccessBanner] = useState<{
+    title: string;
+    detail: string;
+  } | null>(null);
 
   const { loan, installments, payments } = loanDetail;
 
@@ -39,11 +42,24 @@ export function LoanDetailPaymentView({
     ? nextPendingInstallment.totalAmount - nextPendingInstallment.paidAmount
     : loan.outstandingBalance;
 
-  const handlePaymentRegistered = (payload: RegisterPaymentInput) => {
-    setSuccessBanner(
-      `¡Pago de ${formatBs(payload.amount)} registrado correctamente!`
-    );
-    setTimeout(() => setSuccessBanner(null), 4000);
+  // El backend distribuye el pago FIFO y devuelve las cuotas afectadas.
+  const handlePaymentRegistered = (result: RegisterPaymentResponseData) => {
+    const appliedSummary = result.affectedInstallments
+      .map(
+        (ins) =>
+          `Cuota #${ins.installmentNumber} ${
+            ins.newStatus === 'PAID'
+              ? 'pagada'
+              : `parcial (${formatBs(ins.amountApplied)})`
+          }`
+      )
+      .join(' · ');
+
+    setSuccessBanner({
+      title: `¡Pago de ${formatBs(result.amount)} registrado!`,
+      detail: `${appliedSummary} — Saldo restante: ${formatBs(result.outstandingBalance)}`,
+    });
+    setTimeout(() => setSuccessBanner(null), 6000);
   };
 
   return (
@@ -68,11 +84,16 @@ export function LoanDetailPaymentView({
       >
         {/* Success Alert Banner */}
         {successBanner && (
-          <View className="mx-4 mt-3 bg-green-500/15 border border-green-500/30 rounded-2xl p-4 flex-row items-center gap-3">
+          <View className="mx-4 mt-3 bg-green-500/15 border border-green-500/30 rounded-2xl p-4 flex-row items-start gap-3">
             <CheckCircle2 size={20} color="#22c55e" />
-            <Text className="text-green-700 dark:text-green-300 font-bold text-sm flex-1">
-              {successBanner}
-            </Text>
+            <View className="flex-1">
+              <Text className="text-green-700 dark:text-green-300 font-bold text-sm">
+                {successBanner.title}
+              </Text>
+              <Text className="text-green-700 dark:text-green-300 text-xs font-medium mt-0.5">
+                {successBanner.detail}
+              </Text>
+            </View>
           </View>
         )}
 

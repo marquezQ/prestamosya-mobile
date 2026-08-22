@@ -18,4 +18,10 @@ export const ENDPOINTS = {
     BASE: '/guarantees',
     GET_BY_ID: (id: string) => `/guarantees/${id}`,
   },
+  PAYMENTS: {
+    BASE: '/payments',
+    DASHBOARD: '/payments/dashboard',
+    REGISTER: '/payments',
+    // VOID: '/payments/:id' — pendiente de UI (DELETE con body { reason })
+  },
 };

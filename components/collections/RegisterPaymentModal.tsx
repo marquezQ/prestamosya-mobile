@@ -15,10 +15,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/DatePicker';
-import { CheckCircle2 } from 'lucide-react-native';
-import { PaymentMethod, RegisterPaymentInput } from '@/types/payment';
+import { CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { PaymentMethod, RegisterPaymentInput, RegisterPaymentResponseData } from '@/types/payment';
 import { LoanInstallmentItem } from '@/types/loan';
 import { getTodayISO } from '@/lib/format';
+import { getApiErrorMessage } from '@/services/api';
+import { useRegisterPayment } from '@/hooks/useRegisterPayment';
 import { PaymentClientSummary } from './modal/PaymentClientSummary';
 import { PendingInstallmentsSummary } from './modal/PendingInstallmentsSummary';
 import { PaymentMethodSelector } from './modal/PaymentMethodSelector';
@@ -45,7 +47,7 @@ interface RegisterPaymentModalProps {
   clientPhone?: string;
   installments?: LoanInstallmentItem[];
   defaultAmount?: number;
-  onPaymentSuccess?: (input: RegisterPaymentInput) => void;
+  onPaymentSuccess?: (result: RegisterPaymentResponseData) => void;
 }
 
 export function RegisterPaymentModal({
@@ -58,6 +60,8 @@ export function RegisterPaymentModal({
   defaultAmount = 0,
   onPaymentSuccess,
 }: RegisterPaymentModalProps) {
+  const registerPayment = useRegisterPayment();
+
   const {
     control,
     handleSubmit,
@@ -81,11 +85,11 @@ export function RegisterPaymentModal({
         paymentDate: getTodayISO(),
         notes: '',
       });
+      registerPayment.reset();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, defaultAmount, reset]);
 
-  // Fase de interfaz: simulamos la latencia del POST /payments.
-  // Al conectar el backend esto se reemplaza por useRegisterPayment (React Query).
   const onSubmit = (data: PaymentFormData) => {
     const payload: RegisterPaymentInput = {
       loanId,
@@ -95,10 +99,12 @@ export function RegisterPaymentModal({
       notes: data.notes?.trim() || undefined,
     };
 
-    setTimeout(() => {
-      onPaymentSuccess?.(payload);
-      onClose();
-    }, 400);
+    registerPayment.mutate(payload, {
+      onSuccess: (result) => {
+        onPaymentSuccess?.(result);
+        onClose();
+      },
+    });
   };
 
   return (
@@ -195,12 +201,23 @@ export function RegisterPaymentModal({
               )}
             />
           </View>
+
+          {/* Backend error */}
+          {registerPayment.isError && (
+            <View className="flex-row items-center gap-2 bg-destructive/10 border border-destructive/30 rounded-xl p-3">
+              <AlertCircle size={18} color="#ef4444" />
+              <Text className="text-destructive text-sm font-semibold flex-1">
+                {getApiErrorMessage(registerPayment.error)}
+              </Text>
+            </View>
+          )}
         </ScrollView>
 
         <DialogFooter className="mt-2 flex-row gap-3">
           <Button
             variant="outline"
             onPress={onClose}
+            disabled={registerPayment.isPending}
             className="flex-1 h-12 rounded-xl"
           >
             <Text className="font-bold text-foreground text-base">Cancelar</Text>
@@ -208,10 +225,17 @@ export function RegisterPaymentModal({
 
           <Button
             onPress={handleSubmit(onSubmit)}
+            disabled={registerPayment.isPending}
             className="flex-1 h-12 rounded-xl bg-secondary active:bg-secondary/90 flex-row items-center justify-center gap-2"
           >
-            <CheckCircle2 size={18} color="#ffffff" />
-            <Text className="font-bold text-white text-base">Confirmar Pago</Text>
+            {registerPayment.isPending ? (
+              <ActivityIndicator size="small" color="#ffffff" />
+            ) : (
+              <>
+                <CheckCircle2 size={18} color="#ffffff" />
+                <Text className="font-bold text-white text-base">Confirmar Pago</Text>
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

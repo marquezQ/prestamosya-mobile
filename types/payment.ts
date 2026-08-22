@@ -20,7 +20,6 @@ export interface DashboardInstallmentItem {
   status: InstallmentStatus;
   daysOverdue: number;
   paidAt: string | null;
-  scheduledTime?: string; // HH:mm optional for UI display
 }
 
 export interface PaymentDashboardMetadata {
@@ -33,6 +32,11 @@ export interface PaymentDashboardData {
   dueToday: DashboardInstallmentItem[];
   overdue: DashboardInstallmentItem[];
   paidToday: DashboardInstallmentItem[];
+}
+
+export interface PaymentDashboardResponse {
+  data: PaymentDashboardData;
+  message?: string;
 }
 
 export interface RegisterPaymentInput {

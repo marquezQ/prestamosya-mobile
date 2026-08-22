@@ -98,6 +98,18 @@ Todo monto monetario y fecha de calendario mostrado en UI DEBE pasar por los hel
 ✅ import { getInitials } from '@/lib/format'
 ```
 
+**CRITICAL — Parseo de fechas de calendario (`'yyyy-MM-dd'`):**
+NUNCA uses `new Date('yyyy-MM-dd')` para fechas de calendario. Por spec ECMAScript, un string solo-de-fecha se interpreta como **medianoche UTC**, y en Bolivia (UTC-4, sin DST) eso es `20:00` del día anterior → el día renderizado retrocede **-1** (bug real: el cronograma del perfil de cliente mostraba "20 ago" cuando la cuota vencía el 21). El backend envía la fecha correcta; el error era de render.
+
+```
+❌ format(new Date(dueDate), 'd MMM')            // UTC midnight → -1 día en Bolivia
+✅ formatDateBO(dueDate)                          // parse local 'yyyy-MM-dd' → día exacto
+✅ formatDateBO(dueDate, "d 'de' MMM, yyyy")      // patrón personalizado
+✅ format(parseISO(createdAt), 'MMMM yyyy')       // timestamps ISO completos (con hora)
+```
+
+La regla de oro: las fechas de calendario son **absolutas por contrato** — `'yyyy-MM-dd'` entra y sale sin tocar zonas horarias ni medianoches. Solo los instantes reales (`paidAt`, `createdAt`, `voidedAt`) llevan hora y se parsean con `parseISO`.
+
 ### Status Badges de Cuotas (fuente única)
 
 Las etiquetas/colores/iconos de estado de cuota (**Pagada / Parcial / Vencida / Pendiente**) viven en un solo lugar: `getInstallmentStatusConfig(status)` en `components/collections/installmentStatus.tsx`. Consumido por `InstallmentCard`, `LoanScheduleTable` y `PendingInstallmentsSummary`. Nunca duplicar configs de badges por componente.
@@ -135,7 +147,7 @@ All components for the Cobros (collections) tab and the payment flow live in `co
 
 | Component | Responsibility |
 |---|---|
-| `CollectionsView.tsx` | Orchestrator for the Cobros tab: header, `DateCarousel`, `DailyProgressCard` and the three installment sections. Currently fed by mock data. |
+| `CollectionsView.tsx` | Orchestrator for the Cobros tab: header, `DateCarousel`, `DailyProgressCard` and the three installment sections. Wired to `usePaymentDashboard(selectedDate)` with loading/error/retry states. |
 | `DateCarousel.tsx` | Horizontal 11-day window selector (5 before, today, 5 after) with auto-scroll to the selected day. |
 | `DailyProgressCard.tsx` | Daily collection progress card (`Bs.-` amounts + progress bar). |
 | `InstallmentCard.tsx` | Card for today's due installments and paid ones, with status badge from `installmentStatus`. |
@@ -145,7 +157,7 @@ All components for the Cobros (collections) tab and the payment flow live in `co
 | `loan-detail/LoanMetricsCard.tsx` | Debt metrics + reuses `LoanProgressBar` from client-detail. |
 | `loan-detail/LoanScheduleTable.tsx` | Installments table (#, Fecha, Monto, Estado). |
 | `loan-detail/LoanPaymentHistoryList.tsx` | Payment history list. |
-| `RegisterPaymentModal.tsx` | RHF + Zod form inside RNR `Dialog` for registering a payment. Mock submit via `setTimeout`; replace with a React Query mutation when wiring the backend. |
+| `RegisterPaymentModal.tsx` | RHF + Zod form inside RNR `Dialog` for registering a payment. Wired to `useRegisterPayment` (POST /payments) with inline backend error display. |
 | `modal/PaymentMethodSelector.tsx` | Chip selector for `cash` / `transfer`. **'Transferencia' intentionally uses the QrCode icon** — transfers in Bolivia are mostly done via QR. |
 | `modal/PaymentClientSummary.tsx` | Read-only client summary inside the modal. |
 | `modal/PendingInstallmentsSummary.tsx` | First 2 pending installments preview inside the modal. |
