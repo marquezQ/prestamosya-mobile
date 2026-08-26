@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Alert, ActivityIndicator, Linking } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import { MapPin, LocateFixed } from 'lucide-react-native';
 import * as Location from 'expo-location';
+import { AppMapView } from '@/components/ui/AppMapView';
+import { roundCoord } from '@/lib/maps/config';
 
 interface LocationPickerProps {
   latitude: number | null;
@@ -14,21 +15,14 @@ interface LocationPickerProps {
   error?: string;
 }
 
-const ROUND_DECIMALS = 6;
-
-const roundCoord = (value: number) => Number(value.toFixed(ROUND_DECIMALS));
-
-export function LocationPicker({ latitude, longitude, onLocationSelect, onAddressFound, error }: LocationPickerProps) {
-  // Coordenadas por defecto (Cochabamba) si no hay lat/lng
-  const initialLat = -17.385381;
-  const initialLng = -66.147229;
-  const mapRef = useRef<MapView>(null);
+export function LocationPicker({
+  latitude,
+  longitude,
+  onLocationSelect,
+  onAddressFound,
+  error,
+}: LocationPickerProps) {
   const [locating, setLocating] = useState(false);
-
-  const handlePress = (e: MapPressEvent) => {
-    const { coordinate } = e.nativeEvent;
-    onLocationSelect(roundCoord(coordinate.latitude), roundCoord(coordinate.longitude));
-  };
 
   const fillAddress = async (lat: number, lng: number) => {
     if (!onAddressFound) return;
@@ -39,8 +33,15 @@ export function LocationPicker({ latitude, longitude, onLocationSelect, onAddres
       const address = parts.join(', ');
       if (address) onAddressFound(address);
     } catch {
-      // El geocoding inverso es opcional: si falla, no bloqueamos la selección.
+      // Geocoding inverso opcional
     }
+  };
+
+  const handleMapPress = (lat: number, lng: number) => {
+    const safeLat = roundCoord(lat);
+    const safeLng = roundCoord(lng);
+    onLocationSelect(safeLat, safeLng);
+    fillAddress(safeLat, safeLng);
   };
 
   const goToMyLocation = async () => {
@@ -49,7 +50,7 @@ export function LocationPicker({ latitude, longitude, onLocationSelect, onAddres
       if (!servicesEnabled) {
         Alert.alert(
           'Ubicación desactivada',
-          'Activa la ubicación desde los ajustes del dispositivo para poder usar esta función.'
+          'Activa la ubicación desde los ajustes del dispositivo para poder capturar las coordenadas.'
         );
         return;
       }
@@ -76,75 +77,70 @@ export function LocationPicker({ latitude, longitude, onLocationSelect, onAddres
 
       onLocationSelect(lat, lng);
       fillAddress(lat, lng);
-      mapRef.current?.animateToRegion({
-        latitude: lat,
-        longitude: lng,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      });
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo obtener tu ubicación. Inténtalo de nuevo.');
+    } catch {
+      Alert.alert('Error', 'No se pudo obtener tu ubicación por GPS. Inténtalo de nuevo.');
     } finally {
       setLocating(false);
     }
   };
 
-  const currentLat = latitude ?? initialLat;
-  const currentLng = longitude ?? initialLng;
-  const hasSelected = latitude !== null && longitude !== null;
+  const currentLat = latitude;
+  const currentLng = longitude;
+  const hasSelected = currentLat !== null && currentLng !== null;
 
   return (
     <View className="mb-4">
-      <View className="flex-row justify-between items-end mb-2">
-        <Text className="text-sm font-medium text-foreground">
-          Ubicación en el Mapa
-        </Text>
-        <Text className="text-xs text-muted-foreground">
-          Toca para fijar el marcador
-        </Text>
-      </View>
-      
-      <View className={`bg-card border rounded-2xl overflow-hidden shadow-sm ${error ? 'border-destructive' : 'border-border'}`}>
-        <View className="h-80 w-full bg-muted">
-          <MapView
-            ref={mapRef}
-            style={{ flex: 1 }}
-            initialRegion={{
-              latitude: currentLat,
-              longitude: currentLng,
-              latitudeDelta: 0.02,
-              longitudeDelta: 0.02,
-            }}
-            onPress={handlePress}
-          >
-            {hasSelected && (
-              <Marker
-                coordinate={{ latitude, longitude }}
-              />
-            )}
-          </MapView>
+      <Text className="text-sm font-medium text-foreground mb-2">
+        Ubicación de Cobro (GPS)
+      </Text>
+
+      <View
+        className={`bg-card border rounded-2xl overflow-hidden shadow-sm ${
+          error ? 'border-destructive' : 'border-border'
+        }`}
+      >
+        {/* Mapa interactivo */}
+        <AppMapView
+          latitude={currentLat}
+          longitude={currentLng}
+          interactive
+          showMarker={hasSelected}
+          onPress={handleMapPress}
+          className="h-80 w-full"
+        />
+
+        {/* Coordenadas capturadas */}
+        <View className="flex-row items-center gap-3 px-4 py-3 bg-muted/40 border-t border-border/50">
+          <View className="bg-primary/10 p-2.5 rounded-xl">
+            <MapPin size={20} className="text-primary" />
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
+              {hasSelected ? 'Ubicación Capturada' : 'Toca el mapa para capturar'}
+            </Text>
+            <Text className="text-foreground font-bold text-sm font-mono mt-0.5">
+              {hasSelected
+                ? `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`
+                : 'Sin coordenadas seleccionadas'}
+            </Text>
+          </View>
         </View>
 
-        {!hasSelected && (
-          <View className="absolute inset-0 items-center justify-center pointer-events-none">
-            <MapPin size={32} className="text-muted-foreground opacity-50 mb-4" />
-          </View>
-        )}
-
-        <View className="p-2 border-t border-border">
+        {/* Botones */}
+        <View className="p-3 border-t border-border/50 flex-row gap-2">
           <Button
             variant="secondary"
             onPress={goToMyLocation}
             disabled={locating}
-            className="w-full"
+            className="flex-1 flex-row items-center justify-center gap-2 h-11"
           >
             {locating ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
               <LocateFixed size={18} color="#ffffff" />
             )}
-            <Text className="font-semibold">
-              Ir a mi ubicación
+            <Text className="font-semibold text-white">
+              {locating ? 'Obteniendo GPS...' : 'Usar mi ubicación GPS'}
             </Text>
           </Button>
         </View>
@@ -154,9 +150,7 @@ export function LocationPicker({ latitude, longitude, onLocationSelect, onAddres
         <Text className="text-xs text-destructive mt-1.5">{error}</Text>
       ) : (
         <Text className="text-xs text-muted-foreground mt-1.5">
-          {hasSelected 
-            ? `Seleccionado: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` 
-            : 'Ninguna ubicación seleccionada'}
+          Toca el mapa o usa el GPS para capturar las coordenadas de cobro.
         </Text>
       )}
     </View>
