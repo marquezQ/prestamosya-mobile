@@ -14,7 +14,7 @@ We are using a bleeding-edge modern React Native stack. **Strict version adheren
 - `axios`: ^1.18.1
 - `@rn-primitives/*`: Core logic for UI components
 - `lucide-react-native`: For iconography
-- `react-native-maps`: Native map rendering (Google Maps on Android, Apple Maps on iOS). Installed via `npx expo install react-native-maps`. **Does NOT support web** — see Platform Extensions below.
+- `react-native-webview` (~14.x): Renders OpenStreetMap maps inside a WebView using Leaflet.js (free, no API key). **Works in Expo Go** and production builds. The thin wrapper `components/ui/AppMapView(.web).tsx` handles the HTML generation and bidirectional communication (`postMessage` / `injectJavaScript`). Central constants (`DEFAULT_MAP_COORDS`, `roundCoord`) live in `lib/maps/config.ts`; the Leaflet HTML template lives in `lib/maps/mapHTML.ts`.
 - `expo-location` (~19.x): Native location — foreground permissions, GPS position, reverse geocoding. Installed via `npx expo install expo-location`. Config plugin in `app.json` sets the permission message (Spanish). Bundled in Expo Go.
 - `expo-image-picker` (~17.x): Media library access for guarantee photos. Installed via `npx expo install expo-image-picker`. Config plugin in `app.json` sets the Spanish `photoPermission` message. Gallery-only (no camera). Bundled in Expo Go; works on web too (file input fallback), so no `.web.tsx` split needed.
 - `react-native-keyboard-controller` (1.18.5): Modern keyboard handling (smooth, native-feeling scroll-to-focused-input). **Bundled in Expo Go since SDK 54** (`inExpoGo: true`). **Does NOT support web** — see Platform Extensions below.
@@ -22,7 +22,7 @@ We are using a bleeding-edge modern React Native stack. **Strict version adheren
 
 ## 🌐 Web Platform Extensions (`.web.tsx`)
 
-**CRITICAL RULE**: Libraries that use native modules (like `react-native-maps`, `react-native-camera`, etc.) will crash the web bundler with an `Importing native-only module` error.
+**CRITICAL RULE**: Libraries that use native modules (like `react-native-camera`, etc.) will crash the web bundler with an `Importing native-only module` error.
 
 **Pattern**: Create a sibling file with the `.web.tsx` extension as a fallback. Metro bundler automatically uses the `.web.tsx` version when bundling for web, and the `.tsx` version on iOS/Android.
 

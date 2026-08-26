@@ -37,11 +37,10 @@ function RootLayoutNav() {
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
   useEffect(() => {
-    // Fuerza a NativeWind a inyectar las clases CSS correctas (dark/light) antes del primer render
-    const theme = Appearance.getColorScheme() ?? "light";
-    setColorScheme(colorScheme ?? theme);
+    // Fuerza a NativeWind a establecer Modo Claro ("light") por defecto al iniciar la app
+    setColorScheme("light");
     setIsColorSchemeLoaded(true);
-  }, [colorScheme, setColorScheme]);
+  }, [setColorScheme]);
 
   if (!isColorSchemeLoaded) {
     return null;
@@ -77,13 +76,14 @@ export default function RootLayout() {
     if (!isHydrated) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const inAppGroup = segments[0] === "(app)";
 
     // Usar setTimeout para evitar actualizaciones de estado durante el render de React Navigation
     setTimeout(() => {
       if (!isAuthenticated && !inAuthGroup) {
         router.replace("/(auth)/login");
-      } else if (isAuthenticated && inAuthGroup) {
-        // Redirige específicamente al index del home
+      } else if (isAuthenticated && !inAppGroup) {
+        // Redirige a home si está autenticado y no se encuentra en el grupo de la app
         router.replace("/(app)/(tabs)/home"); 
       }
     }, 0);

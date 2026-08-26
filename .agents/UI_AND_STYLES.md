@@ -128,8 +128,8 @@ All components for the client profile detail screen live in `components/client-d
 | `LoanAccordionCard.tsx` | Accordion dropdown card for active loans. Triggers `GET /loans/:id` on expand, showing loading spinner and full schedule table (`Bs.- {monto}`). |
 | `CompletedLoanAccordionCard.tsx` | Accordion dropdown card for completed loans. Triggers `GET /loans/:id` on expand. |
 | `LoanProgressBar.tsx` | Reusable horizontal progress bar (`h-3`). |
-| `ClientAddressMap.tsx` | Vertical `MapView` (`h-96`) + address card + "Abrir en Maps" (`Linking.openURL`) & "Compartir" (`Share.share`). |
-| `ClientAddressMap.web.tsx` | Web fallback — placeholder map + "Abrir en Maps" & clipboard copy link fallback. |
+| `ClientAddressMap.tsx` | Read-only `AppMapView` (`h-96`) + address card + "Abrir en Maps" (`Linking.openURL`) & "Compartir" (`Share.share`). Uses OpenFreeMap tiles (no billing). |
+| `ClientAddressMap.web.tsx` | Web fallback — placeholder UI + "Abrir en Maps" & clipboard copy link fallback. |
 | `tabs/CreditsTab.tsx` | Holds the two loan sections: **Préstamos Activos** and **Préstamos Finalizados**. |
 | `tabs/GuaranteesTab.tsx` | Client guarantees list view with "+ Nueva Garantía" header button, status pills, and Edit/Delete actions. Cards show a 14×14 photo thumbnail (`resizeMode="cover"`) when `imageUrl` exists (tap → fullscreen viewer), falling back to the type icon otherwise. |
 | `tabs/LocationTab.tsx` | Location tab view hosting `ClientAddressMap`. |
@@ -187,15 +187,15 @@ The "Nuevo Cliente" screen (`app/(app)/client/new.tsx`) renders the form from `c
 | Component | Responsibility |
 |---|---|
 | `components/clients/ClientForm.tsx` | RHF + Zod form. Submits via `useCreateClient`, wires the map's `onAddressFound` autofill into the address field. |
-| `components/ui/LocationPicker.tsx` | Interactive `MapView` (tap-to-set marker) + "Ir a mi ubicación" button (expo-location). Rounds coords to 6 decimals (see FORMS.md). |
-| `components/ui/LocationPicker.web.tsx` | Web fallback — no `MapView`, only the locate button. |
+| `components/ui/LocationPicker.tsx` | Interactive `AppMapView` (tap-to-set marker) + "Usar mi ubicación GPS" button (expo-location). Rounds coords to 6 decimals (see FORMS.md); coordinates centralized in `lib/maps/config.ts`. |
+| `components/ui/LocationPicker.web.tsx` | Web fallback — no map, only the GPS locate button + coords display. |
 | `components/ui/KeyboardAwareScrollView.tsx` / `.web.tsx` | Cross-platform scroll that keeps focused inputs above the keyboard. See FORMS.md + STACK.md. |
 
 ### "Ir a mi ubicación" flow (LocationPicker)
 - Checks `Location.hasServicesEnabledAsync()` → warns if GPS is off.
 - Requests foreground permission; on denial offers "Abrir ajustes" (`Linking.openSettings()`).
-- Uses `getCurrentPositionAsync({ accuracy: Balanced })`, rounds coords, reverse-geocodes to autofill the address, then `animateToRegion` on the map ref.
-- Map height: `h-80`. The button is a full-width `secondary` variant below the map.
+- Uses `getCurrentPositionAsync({ accuracy: Balanced })`, rounds coords, reverse-geocodes to autofill the address. `AppMapView` handles camera animation internally on coord changes.
+- Map height: `h-80`. The GPS button is a full-width `secondary` variant below the map.
 
 ### CI (Carnet de Identidad) Display Convention
 - The field `client.idNumber` is the Bolivian ID card number (CI).
