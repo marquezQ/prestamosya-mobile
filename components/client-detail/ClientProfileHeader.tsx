@@ -3,7 +3,7 @@ import { View, Linking } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Client } from '@/types/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Phone, MessageCircle, CheckCircle2 } from 'lucide-react-native';
+import { Phone, MessageCircle, CheckCircle2, Pencil } from 'lucide-react-native';
 import { Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -12,9 +12,10 @@ import { useColorScheme } from 'nativewind';
 
 interface ClientProfileHeaderProps {
   client: Client;
+  onEdit?: () => void;
 }
 
-export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
+export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps) {
   const { colorScheme } = useColorScheme();
   const colors = getThemeColors(colorScheme);
 
@@ -96,6 +97,16 @@ export function ClientProfileHeader({ client }: ClientProfileHeaderProps) {
           <MessageCircle size={16} color="#ffffff" />
           <Text className="font-bold text-white text-sm">WhatsApp</Text>
         </Button>
+        {onEdit && (
+          <Button
+            variant="outline"
+            className="flex-1 flex-row items-center justify-center gap-1.5 h-10 rounded-xl border-border active:bg-muted"
+            onPress={onEdit}
+          >
+            <Pencil size={16} color={palette.azul} />
+            <Text className="font-bold text-secondary text-sm">Editar</Text>
+          </Button>
+        )}
       </View>
     </View>
   );

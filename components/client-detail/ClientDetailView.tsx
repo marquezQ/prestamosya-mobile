@@ -17,6 +17,7 @@ interface ClientDetailViewProps {
   activeLoans?: ClientLoanSummary[];
   completedLoans?: ClientLoanSummary[];
   guarantees?: ClientGuaranteeSummary[];
+  onEdit?: () => void;
 }
 
 export function ClientDetailView({
@@ -24,13 +25,14 @@ export function ClientDetailView({
   activeLoans = [],
   completedLoans = [],
   guarantees = [],
+  onEdit,
 }: ClientDetailViewProps) {
   const [activeTab, setActiveTab] = useState<ClientProfileTab>('credits');
 
   return (
     <View className="flex-1 bg-background">
       {/* Hero / Header — siempre visible */}
-      <ClientProfileHeader client={client} />
+      <ClientProfileHeader client={client} onEdit={onEdit} />
 
       {/* Barra de pestañas persistente */}
       <ClientProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />

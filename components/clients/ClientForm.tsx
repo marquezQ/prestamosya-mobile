@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Alert, ActivityIndicator, Platform } from 'react-native';
 import axios from 'axios';
 import { z } from 'zod';
@@ -10,6 +10,8 @@ import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { LocationPicker } from '@/components/ui/LocationPicker';
 import { useCreateClient } from '@/hooks/useCreateClient';
+import { useUpdateClient } from '@/hooks/useUpdateClient';
+import { Client } from '@/types/client';
 
 const clientSchema = z.object({
   fullName: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
@@ -25,17 +27,24 @@ const clientSchema = z.object({
 type ClientFormValues = z.infer<typeof clientSchema>;
 
 interface ClientFormProps {
+  /** Si se provee, el formulario opera en modo edición pre-relleno con los datos del cliente. */
+  clientToEdit?: Client;
   onSuccess?: () => void;
 }
 
-export function ClientForm({ onSuccess }: ClientFormProps) {
-  const { mutateAsync: createClient, isPending } = useCreateClient();
+export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
+  const isEditMode = !!clientToEdit;
+
+  const { mutateAsync: createClient, isPending: isCreating } = useCreateClient();
+  const { mutateAsync: updateClient, isPending: isUpdating } = useUpdateClient();
+  const isPending = isCreating || isUpdating;
 
   const {
     control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
@@ -51,29 +60,72 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
     },
   });
 
+  // Sincroniza los valores cuando el formulario se abre en modo edición
+  useEffect(() => {
+    if (clientToEdit) {
+      reset({
+        fullName: clientToEdit.fullName,
+        phone: clientToEdit.phone,
+        idNumber: clientToEdit.idNumber,
+        phoneAlt: clientToEdit.phoneAlt ?? '',
+        address: clientToEdit.address ?? '',
+        latitude: clientToEdit.latitude ?? null,
+        longitude: clientToEdit.longitude ?? null,
+        notes: clientToEdit.notes ?? '',
+      });
+    } else {
+      reset({
+        fullName: '',
+        phone: '',
+        idNumber: '',
+        phoneAlt: '',
+        address: '',
+        latitude: null,
+        longitude: null,
+        notes: '',
+      });
+    }
+  }, [clientToEdit, reset]);
+
   const onSubmit = async (data: ClientFormValues) => {
     try {
-      await createClient(data);
-      if (Platform.OS === 'web') {
-        window.alert('Cliente registrado correctamente.');
-        onSuccess?.();
+      if (isEditMode && clientToEdit) {
+        await updateClient({ id: clientToEdit.id, data });
+        if (Platform.OS === 'web') {
+          window.alert('Cliente actualizado correctamente.');
+          onSuccess?.();
+        } else {
+          Alert.alert('Éxito', 'Cliente actualizado correctamente.', [
+            { text: 'OK', onPress: onSuccess },
+          ]);
+        }
       } else {
-        Alert.alert('Éxito', 'Cliente registrado correctamente.', [
-          { text: 'OK', onPress: onSuccess },
-        ]);
+        await createClient(data);
+        if (Platform.OS === 'web') {
+          window.alert('Cliente registrado correctamente.');
+          onSuccess?.();
+        } else {
+          Alert.alert('Éxito', 'Cliente registrado correctamente.', [
+            { text: 'OK', onPress: onSuccess },
+          ]);
+        }
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
+        const message = isEditMode
+          ? 'Ya existe otro cliente con ese CI o teléfono.'
+          : 'Ya existe un cliente con ese CI o teléfono.';
         if (Platform.OS === 'web') {
-          window.alert('Ya existe un cliente con ese CI o teléfono.');
+          window.alert(message);
         } else {
-          Alert.alert('Error', 'Ya existe un cliente con ese CI o teléfono.');
+          Alert.alert('Error', message);
         }
       } else {
+        const action = isEditMode ? 'actualizar' : 'registrar';
         if (Platform.OS === 'web') {
-          window.alert('Hubo un problema al registrar al cliente. Inténtalo de nuevo.');
+          window.alert(`Hubo un problema al ${action} al cliente. Inténtalo de nuevo.`);
         } else {
-          Alert.alert('Error', 'Hubo un problema al registrar al cliente. Inténtalo de nuevo.');
+          Alert.alert('Error', `Hubo un problema al ${action} al cliente. Inténtalo de nuevo.`);
         }
       }
     }
@@ -179,7 +231,7 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
         />
       </View>
 
-      <LocationPicker 
+      <LocationPicker
         latitude={latitude}
         longitude={longitude}
         onLocationSelect={(lat, lng) => {
@@ -213,8 +265,8 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
         />
       </View>
 
-      <Button 
-        onPress={handleSubmit(onSubmit)} 
+      <Button
+        onPress={handleSubmit(onSubmit)}
         disabled={isPending}
         className="mt-4 h-14"
       >
@@ -222,7 +274,9 @@ export function ClientForm({ onSuccess }: ClientFormProps) {
           <ActivityIndicator color="#ffffff" className="mr-2" />
         ) : null}
         <Text className="text-primary-foreground font-bold text-lg">
-          {isPending ? 'Guardando...' : 'Guardar Cliente'}
+          {isPending
+            ? isEditMode ? 'Guardando...' : 'Guardando...'
+            : isEditMode ? 'Guardar Cambios' : 'Guardar Cliente'}
         </Text>
       </Button>
     </View>

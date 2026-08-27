@@ -43,9 +43,18 @@ export default function ClientsScreen() {
       />
       
       <View className="flex-1">
-        <Text className="font-bold text-lg text-foreground px-4 py-3">
-          Directorio de Clientes
-        </Text>
+        <View className="flex-row items-center justify-between px-4 py-3">
+          <Text className="font-bold text-lg text-foreground">
+            Directorio de Clientes
+          </Text>
+          <Pressable
+            onPress={() => router.push('/(app)/client/new')}
+            className="bg-secondary active:bg-secondary/90 h-9 px-3.5 rounded-xl flex-row items-center gap-1.5"
+          >
+            <Plus size={16} color="#ffffff" />
+            <Text className="text-white text-xs font-bold">Nuevo Cliente</Text>
+          </Pressable>
+        </View>
         <ClientList 
           data={filteredData}
           isLoading={isLoading}
@@ -54,14 +63,6 @@ export default function ClientsScreen() {
           isRefetching={isRefetching}
         />
       </View>
-
-      {/* Floating Action Button */}
-      <Pressable 
-        className="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-2xl items-center justify-center shadow-lg active:scale-95"
-        onPress={() => router.push('/(app)/client/new')}
-      >
-        <Plus size={28} className="text-primary-foreground" />
-      </Pressable>
     </View>
   );
 }

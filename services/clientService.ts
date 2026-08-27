@@ -1,5 +1,11 @@
 import { api } from './api';
-import { ClientListResponse, ClientDetailResponse, ClientCreateInput, Client } from '@/types/client';
+import {
+  ClientListResponse,
+  ClientDetailResponse,
+  ClientCreateInput,
+  ClientUpdateInput,
+  Client,
+} from '@/types/client';
 import { ENDPOINTS } from './endpoints';
 
 export const clientService = {
@@ -24,6 +30,13 @@ export const clientService = {
    */
   createClient: async (data: ClientCreateInput): Promise<{ data: Client }> => {
     const response = await api.post<{ data: Client }>(ENDPOINTS.CLIENTS.CREATE, data);
+    return response.data;
+  },
+  /**
+   * Actualiza los datos de un cliente (PATCH parcial).
+   */
+  updateClient: async (id: string, data: ClientUpdateInput): Promise<{ data: Client }> => {
+    const response = await api.patch<{ data: Client }>(ENDPOINTS.CLIENTS.UPDATE(id), data);
     return response.data;
   },
 };
