@@ -25,6 +25,12 @@ export interface ClientCreateInput {
   notes: string | null;
 }
 
+/**
+ * PATCH /api/clients/:id — todos los campos son opcionales.
+ * El campo `status` es calculado por el backend y NO se envía.
+ */
+export type ClientUpdateInput = Partial<ClientCreateInput>;
+
 export interface ClientListResponse {
   data: Client[];
 }

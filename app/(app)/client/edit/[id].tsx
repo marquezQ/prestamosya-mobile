@@ -4,13 +4,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/components/ui/text';
 import { useClientById } from '@/hooks/useClientById';
-import { ClientDetailView } from '@/components/client-detail/ClientDetailView';
+import { ClientForm } from '@/components/clients/ClientForm';
+import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
 import { ArrowLeft } from 'lucide-react-native';
-
 import { useColorScheme } from 'nativewind';
 import { getThemeColors } from '@/lib/theme/colors';
 
-export default function ClientProfileScreen() {
+export default function EditClientScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -23,14 +23,14 @@ export default function ClientProfileScreen() {
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {/* Custom Header */}
       <View className="flex-row items-center px-4 py-3 border-b border-border bg-background">
-        <Pressable 
+        <Pressable
           onPress={() => router.back()}
           className="h-10 w-10 items-center justify-center -ml-2 rounded-full active:bg-muted"
         >
           <ArrowLeft size={24} color={colors.foreground} />
         </Pressable>
         <Text className="font-bold text-lg text-foreground ml-2">
-          Perfil de Cliente
+          Editar Cliente
         </Text>
       </View>
 
@@ -39,7 +39,7 @@ export default function ClientProfileScreen() {
         <View className="flex-1 items-center justify-center p-4">
           <ActivityIndicator size="large" className="text-primary" />
           <Text className="text-muted-foreground mt-4 font-medium">
-            Cargando perfil...
+            Cargando datos del cliente...
           </Text>
         </View>
       ) : isError || !data?.client ? (
@@ -52,13 +52,16 @@ export default function ClientProfileScreen() {
           </Text>
         </View>
       ) : (
-        <ClientDetailView
-          client={data.client}
-          activeLoans={data.activeLoans}
-          completedLoans={data.completedLoans}
-          guarantees={data.guarantees}
-          onEdit={() => router.push(`/(app)/client/edit/${id}`)}
-        />
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 32 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <ClientForm
+            clientToEdit={data.client}
+            onSuccess={() => router.back()}
+          />
+        </KeyboardAwareScrollView>
       )}
     </View>
   );
