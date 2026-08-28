@@ -7,7 +7,7 @@ export interface Client {
   address: string | null;
   latitude: number | null;
   longitude: number | null;
-  status: 'CURRENT' | 'OVERDUE' | 'NO_LOAN' | string;
+  status: 'CURRENT' | 'DELINQUENT' | 'NO_LOAN';
   notes: string | null;
   createdAt: string;
   updatedAt: string;

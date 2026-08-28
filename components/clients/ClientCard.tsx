@@ -12,8 +12,8 @@ interface ClientCardProps {
 }
 
 function getClientStatusConfig(status: string) {
-  switch (status) {
-    case 'OVERDUE':
+  switch (status?.toUpperCase()) {
+    case 'DELINQUENT':
       return {
         label: 'En mora',
         badgeBg: 'bg-red-500/10',
