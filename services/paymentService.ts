@@ -4,6 +4,7 @@ import type {
   PaymentDashboardResponse,
   RegisterPaymentInput,
   RegisterPaymentResponse,
+  VoidPaymentResponse,
 } from '@/types/payment';
 
 export const paymentService = {
@@ -29,6 +30,18 @@ export const paymentService = {
     const response = await api.post<RegisterPaymentResponse>(
       ENDPOINTS.PAYMENTS.REGISTER,
       data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Anula un pago previamente registrado.
+   * DELETE /payments/:id con body { reason }
+   */
+  voidPayment: async (id: string, reason: string): Promise<VoidPaymentResponse> => {
+    const response = await api.delete<VoidPaymentResponse>(
+      ENDPOINTS.PAYMENTS.VOID(id),
+      { data: { reason } },
     );
     return response.data;
   },

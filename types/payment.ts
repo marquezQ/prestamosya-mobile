@@ -71,3 +71,11 @@ export interface RegisterPaymentResponse {
   data: RegisterPaymentResponseData;
   message: string;
 }
+
+export interface VoidPaymentInput {
+  reason: string;
+}
+
+export interface VoidPaymentResponse {
+  message: string;
+}

@@ -9,8 +9,6 @@ interface PaymentMethodSelectorProps {
   onChange: (method: PaymentMethod) => void;
 }
 
-// Nota: 'Transferencia' usa el icono QR intencionalmente — en Bolivia las
-// transferencias se realizan mayoritariamente vía código QR.
 const PAYMENT_METHOD_UI_OPTIONS: {
   label: string;
   value: PaymentMethod;
@@ -26,7 +24,7 @@ export function PaymentMethodSelector({
 }: PaymentMethodSelectorProps) {
   return (
     <View>
-      <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-2">
+      <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
         Método de Pago *
       </Text>
       <View className="flex-row gap-2">
@@ -37,13 +35,13 @@ export function PaymentMethodSelector({
             <Pressable
               key={opt.value}
               onPress={() => onChange(opt.value)}
-              className={`flex-1 items-center justify-center gap-1 py-3 px-2 rounded-xl border ${
+              className={`flex-1 flex-row items-center justify-center gap-2 h-10 px-3 rounded-xl border ${
                 isSelected
                   ? 'bg-secondary border-secondary'
-                  : 'bg-muted/50 border-border active:bg-muted'
+                  : 'bg-muted/40 border-border/70 active:bg-muted'
               }`}
             >
-              <Icon size={20} className={isSelected ? 'text-white' : 'text-secondary'} />
+              <Icon size={16} color={isSelected ? '#ffffff' : '#2368A3'} />
               <Text
                 className={`text-xs font-bold ${
                   isSelected ? 'text-white' : 'text-foreground'

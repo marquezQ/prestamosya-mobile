@@ -37,10 +37,10 @@ function RootLayoutNav() {
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
   useEffect(() => {
-    // Fuerza a NativeWind a establecer Modo Claro ("light") por defecto al iniciar la app
+    // Fuerza a la app a estar siempre en Modo Claro ("light") por defecto de forma estable
     setColorScheme("light");
     setIsColorSchemeLoaded(true);
-  }, [setColorScheme]);
+  }, []);
 
   if (!isColorSchemeLoaded) {
     return null;

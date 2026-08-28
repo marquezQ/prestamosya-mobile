@@ -11,6 +11,7 @@ import { palette } from '@/lib/theme/colors';
 interface CreditsTabProps {
   activeLoans: ClientLoanSummary[];
   completedLoans: ClientLoanSummary[];
+  clientPhone?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -53,7 +54,7 @@ function EmptyState({ message }: { message: string }) {
 // Credits Tab
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function CreditsTab({ activeLoans, completedLoans }: CreditsTabProps) {
+export function CreditsTab({ activeLoans, completedLoans, clientPhone = '' }: CreditsTabProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -72,7 +73,7 @@ export function CreditsTab({ activeLoans, completedLoans }: CreditsTabProps) {
         <EmptyState message="No hay préstamos activos en este momento." />
       ) : (
         activeLoans.map((loan) => (
-          <LoanAccordionCard key={loan.id} loan={loan} />
+          <LoanAccordionCard key={loan.id} loan={loan} clientPhone={clientPhone} />
         ))
       )}
 
