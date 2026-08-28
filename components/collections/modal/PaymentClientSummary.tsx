@@ -15,17 +15,19 @@ export function PaymentClientSummary({
   const initials = getInitials(clientName);
 
   return (
-    <View className="flex-row items-center gap-3 bg-muted/50 border border-border rounded-2xl p-3.5">
-      <View className="w-11 h-11 rounded-full bg-card border border-border items-center justify-center">
-        <Text className="text-secondary font-bold text-base">{initials}</Text>
+    <View className="flex-row items-center gap-2.5 bg-muted/40 border border-border/60 rounded-xl p-2.5">
+      <View className="w-9 h-9 rounded-full bg-primary/20 items-center justify-center shrink-0">
+        <Text className="text-secondary font-bold text-sm">{initials}</Text>
       </View>
-      <View className="flex-1">
-        <Text className="text-foreground font-bold text-base leading-snug">
+      <View className="flex-1 justify-center">
+        <Text className="text-foreground font-bold text-sm leading-snug" numberOfLines={1}>
           {clientName}
         </Text>
-        <Text className="text-muted-foreground text-xs font-medium mt-0.5">
-          Tel: {clientPhone}
-        </Text>
+        {clientPhone ? (
+          <Text className="text-muted-foreground text-xs font-medium">
+            Tel: {clientPhone}
+          </Text>
+        ) : null}
       </View>
     </View>
   );

@@ -42,6 +42,7 @@ export function ClientDetailView({
         <CreditsTab
           activeLoans={activeLoans}
           completedLoans={completedLoans}
+          clientPhone={client.phone}
         />
       )}
       {activeTab === 'guarantees' && (

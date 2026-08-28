@@ -35,9 +35,7 @@ export function formatDateBO(dateStr: string, pattern = 'dd MMM yyyy'): string {
  * UTC puede devolver el día anterior según la hora local.
  */
 export function getTodayISO(): string {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return local.toISOString().split('T')[0];
+  return format(new Date(), 'yyyy-MM-dd');
 }
 
 /**

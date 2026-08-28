@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -110,26 +109,26 @@ export function RegisterPaymentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg w-full bg-card border border-border p-5 rounded-2xl">
-        <DialogHeader className="mb-1">
-          <DialogTitle className="text-foreground font-bold text-xl">
+      <DialogContent className="max-w-lg w-full bg-card border border-border p-4 sm:p-5 rounded-2xl">
+        {/* Header simple y directo */}
+        <DialogHeader className="mb-0.5">
+          <DialogTitle className="text-foreground font-bold text-lg">
             Registrar Pago
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground text-xs font-medium">
-            Datos del pago entregado por el cliente
-          </DialogDescription>
         </DialogHeader>
 
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="gap-4 py-2"
+          contentContainerClassName="gap-3 py-1"
         >
+          {/* Ficha resumida del cliente */}
           <PaymentClientSummary clientName={clientName} clientPhone={clientPhone} />
 
+          {/* Cuotas pendientes referenciales */}
           <PendingInstallmentsSummary installments={installments} />
 
-          {/* Amount input */}
+          {/* Campo de Monto */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
               Monto a Pagar (Bs.-) *
@@ -144,7 +143,7 @@ export function RegisterPaymentModal({
                   onBlur={onBlur}
                   keyboardType="numeric"
                   placeholder="0"
-                  className="bg-background text-foreground font-bold text-lg h-12"
+                  className="bg-background text-foreground font-bold text-lg h-12 rounded-xl"
                 />
               )}
             />
@@ -155,7 +154,7 @@ export function RegisterPaymentModal({
             )}
           </View>
 
-          {/* Payment method selector */}
+          {/* Selector de Método de Pago simplificado */}
           <Controller
             control={control}
             name="method"
@@ -164,7 +163,7 @@ export function RegisterPaymentModal({
             )}
           />
 
-          {/* Payment date picker */}
+          {/* Selector de Fecha */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
               Fecha de Pago *
@@ -183,7 +182,7 @@ export function RegisterPaymentModal({
             )}
           </View>
 
-          {/* Notes */}
+          {/* Notas */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
               Notas / Observaciones (Opcional)
@@ -196,14 +195,14 @@ export function RegisterPaymentModal({
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="Nota sobre el pago"
-                  className="bg-background text-foreground text-sm h-12"
+                  placeholder="Ej. Pago entregado por el titular"
+                  className="bg-background text-foreground text-sm h-12 rounded-xl"
                 />
               )}
             />
           </View>
 
-          {/* Backend error */}
+          {/* Error del Backend */}
           {registerPayment.isError && (
             <View className="flex-row items-center gap-2 bg-destructive/10 border border-destructive/30 rounded-xl p-3">
               <AlertCircle size={18} color="#ef4444" />

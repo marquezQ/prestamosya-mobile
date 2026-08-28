@@ -84,23 +84,25 @@ export function ClientCard({ client, onPress }: ClientCardProps) {
 
       {/* Info */}
       <View className="flex-1 justify-center">
-        <View className="flex-row items-center gap-2 mb-0.5">
-          <Text className="text-foreground font-bold text-base leading-snug shrink" numberOfLines={1}>
-            {client.fullName}
+        <Text className="text-foreground font-bold text-base leading-snug mb-1">
+          {client.fullName}
+        </Text>
+
+        <View className="flex-row items-center gap-2 flex-wrap">
+          <Text className="text-muted-foreground text-xs font-medium">
+            CI: {client.idNumber}
           </Text>
 
+          <View className="w-1 h-1 rounded-full bg-border" />
+
           {/* Status Badge */}
-          <View className={`flex-row items-center gap-1.5 px-2 py-0.5 rounded-full shrink-0 ${statusConfig.badgeBg}`}>
+          <View className={`flex-row items-center gap-1.5 px-2 py-0.5 rounded-full ${statusConfig.badgeBg}`}>
             <View className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotBg}`} />
             <Text className={`text-xs font-bold uppercase tracking-wider ${statusConfig.textColor}`}>
               {statusConfig.label}
             </Text>
           </View>
         </View>
-
-        <Text className="text-muted-foreground text-sm font-medium">
-          CI: {client.idNumber}
-        </Text>
       </View>
 
       {/* Actions */}

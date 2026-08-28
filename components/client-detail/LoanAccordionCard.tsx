@@ -11,9 +11,10 @@ import { Button } from '@/components/ui/button';
 import { LoanProgressBar } from './LoanProgressBar';
 import { ClientLoanSummary } from '@/types/client';
 import { useLoanById } from '@/hooks/useLoanById';
-import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw } from 'lucide-react-native';
+import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw, Banknote } from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
 import { formatDateBO } from '@/lib/format';
+import { RegisterPaymentModal } from '../collections/RegisterPaymentModal';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Period label translator
@@ -83,10 +84,12 @@ function formatLoanId(id: string): string {
 
 interface LoanAccordionCardProps {
   loan: ClientLoanSummary;
+  clientPhone?: string;
 }
 
-export function LoanAccordionCard({ loan }: LoanAccordionCardProps) {
+export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const sc = getStatusConfig(loan.status);
 
   // Fetch loan detail on demand when accordion is opened
@@ -96,6 +99,13 @@ export function LoanAccordionCard({ loan }: LoanAccordionCardProps) {
   const quickPaid = loan.totalPaid ?? 0;
   const quickTotal = loan.totalAmount ?? 1;
   const quickProgress = Math.min(Math.round((quickPaid / quickTotal) * 100), 100);
+
+  const nextPendingInstallment = loanDetail?.installments.find(
+    (ins) => ins.status === 'PENDING' || ins.status === 'OVERDUE' || ins.status === 'PARTIAL'
+  );
+  const defaultAmount = nextPendingInstallment
+    ? nextPendingInstallment.totalAmount - nextPendingInstallment.paidAmount
+    : loanDetail?.loan.outstandingBalance ?? 0;
 
   return (
     <View className="mx-4 mb-3 rounded-2xl overflow-hidden bg-card border border-border shadow-sm">
@@ -308,10 +318,26 @@ export function LoanAccordionCard({ loan }: LoanAccordionCardProps) {
                 )}
 
                 {/* CTA */}
-                <Button className="w-full bg-secondary active:bg-secondary/80 flex-row gap-2 h-14 rounded-xl">
-                  <Plus size={20} color="#ffffff" />
+                <Button
+                  onPress={() => setIsPaymentModalOpen(true)}
+                  className="w-full bg-secondary active:bg-secondary/80 flex-row gap-2 h-14 rounded-xl"
+                >
+                  <Banknote size={20} color="#ffffff" />
                   <Text className="text-white font-bold text-lg">Registrar pago</Text>
                 </Button>
+
+                {/* Payment Modal */}
+                {loanDetail && (
+                  <RegisterPaymentModal
+                    isOpen={isPaymentModalOpen}
+                    onClose={() => setIsPaymentModalOpen(false)}
+                    loanId={loan.id}
+                    clientName={loanDetail.loan.clientName}
+                    clientPhone={clientPhone}
+                    installments={loanDetail.installments}
+                    defaultAmount={defaultAmount}
+                  />
+                )}
               </View>
             )}
           </AccordionContent>

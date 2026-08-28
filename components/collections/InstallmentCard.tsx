@@ -26,11 +26,11 @@ export function InstallmentCard({ item, onPress }: InstallmentCardProps) {
       {/* Left: Cuota badge + Client Info + Status */}
       <View className="flex-row items-center gap-3 flex-1 mr-3">
         {/* Cuota # Badge */}
-        <View className="w-12 h-12 rounded-2xl bg-secondary/10 items-center justify-center border border-secondary/20">
-          <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider leading-none">
+        <View className="px-2.5 py-1.5 min-w-[50px] rounded-xl bg-secondary/10 items-center justify-center border border-secondary/20 shrink-0">
+          <Text className="text-muted-foreground text-[11px] font-bold uppercase leading-none">
             CUOTA
           </Text>
-          <Text className="text-secondary font-extrabold text-base leading-none mt-1">
+          <Text className="text-secondary font-extrabold text-xs leading-none mt-0.5">
             #{item.installmentNumber}
           </Text>
         </View>

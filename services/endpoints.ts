@@ -23,7 +23,7 @@ export const ENDPOINTS = {
     BASE: '/payments',
     DASHBOARD: '/payments/dashboard',
     REGISTER: '/payments',
-    // VOID: '/payments/:id' — pendiente de UI (DELETE con body { reason })
+    VOID: (id: string) => `/payments/${id}`,
   },
   ADMIN: {
     RECALCULATE_OVERDUE: '/admin/recalculate-overdue',

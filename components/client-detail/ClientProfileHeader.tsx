@@ -75,7 +75,7 @@ export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps
         {client.fullName}
       </Text>
       <Text className="text-muted-foreground text-xs text-center mb-3 font-medium">
-        Cliente ID: {client.idNumber} • Desde {formattedMemberSince}
+        CI: {client.idNumber} • Desde {formattedMemberSince}
       </Text>
 
       {/* Actions */}
