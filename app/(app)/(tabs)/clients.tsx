@@ -18,8 +18,8 @@ export default function ClientsScreen() {
     
     return data.filter(client => {
       // 1. Filtrado por estado
-      if (activeFilter === 'UP_TO_DATE' && client.status === 'OVERDUE') return false;
-      if (activeFilter === 'OVERDUE' && client.status !== 'OVERDUE') return false;
+      if (activeFilter === 'UP_TO_DATE' && client.status === 'DELINQUENT') return false;
+      if (activeFilter === 'OVERDUE' && client.status !== 'DELINQUENT') return false;
       
       // 2. Filtrado por búsqueda (nombre o CI)
       if (searchQuery.trim() !== '') {

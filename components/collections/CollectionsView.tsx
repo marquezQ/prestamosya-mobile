@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator, Alert, Platform } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { DateCarousel } from './DateCarousel';
@@ -10,10 +10,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CalendarCheck, ShieldCheck, RefreshCw } from 'lucide-react-native';
+import { ShieldCheck, RefreshCw } from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
 import { formatDateBO } from '@/lib/format';
 import { usePaymentDashboard } from '@/hooks/usePaymentDashboard';
+import { useRecalculateOverdue } from '@/hooks/useRecalculateOverdue';
 
 export function CollectionsView() {
   const router = useRouter();
@@ -28,6 +29,28 @@ export function CollectionsView() {
     refetch,
     isRefetching,
   } = usePaymentDashboard(selectedISO);
+
+  const { mutateAsync: recalculateOverdue, isPending: isRecalculating } =
+    useRecalculateOverdue();
+
+  const handleRecalculate = async () => {
+    try {
+      const res = await recalculateOverdue();
+      const summaryMsg = `Cobros y moras recalculados exitosamente.\n\n• Cuotas actualizadas: ${res.data.updatedInstallmentsCount}\n• Clientes en mora: ${res.data.markedDelinquentClientsCount}\n• Clientes regularizados: ${res.data.restoredCurrentClientsCount}`;
+      if (Platform.OS === 'web') {
+        window.alert(summaryMsg);
+      } else {
+        Alert.alert('Cobros Actualizados', summaryMsg);
+      }
+    } catch (error) {
+      const errorMsg = 'No se pudo completar el recálculo de moras. Inténtalo nuevamente.';
+      if (Platform.OS === 'web') {
+        window.alert(errorMsg);
+      } else {
+        Alert.alert('Error', errorMsg);
+      }
+    }
+  };
 
   // Format header date (e.g., "Jueves, 20 de agosto")
   const headerDateStr = format(selectedDate, "EEEE, d 'de' MMMM", { locale: es });
@@ -52,6 +75,8 @@ export function CollectionsView() {
     router.push(`/(app)/loan/${loanId}?clientPhone=${encodeURIComponent(clientPhone)}`);
   };
 
+  const isBusy = isRecalculating || isRefetching;
+
   return (
     <View className="flex-1 bg-background">
       {/* ── Screen Header ── */}
@@ -65,9 +90,20 @@ export function CollectionsView() {
           </Text>
         </View>
 
-        <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center">
-          <CalendarCheck size={22} color={palette.azul} />
-        </View>
+        <Pressable
+          onPress={handleRecalculate}
+          disabled={isBusy}
+          className="bg-secondary active:bg-secondary/90 h-9 px-3.5 rounded-xl flex-row items-center gap-1.5 disabled:opacity-50"
+        >
+          {isBusy ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <RefreshCw size={16} color="#ffffff" />
+          )}
+          <Text className="text-white text-xs font-bold">
+            {isBusy ? 'Actualizando...' : 'Actualizar'}
+          </Text>
+        </Pressable>
       </View>
 
       <ScrollView

@@ -25,4 +25,7 @@ export const ENDPOINTS = {
     REGISTER: '/payments',
     // VOID: '/payments/:id' — pendiente de UI (DELETE con body { reason })
   },
+  ADMIN: {
+    RECALCULATE_OVERDUE: '/admin/recalculate-overdue',
+  },
 };
