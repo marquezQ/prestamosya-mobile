@@ -5,6 +5,8 @@ import type {
   RegisterPaymentInput,
   RegisterPaymentResponse,
   VoidPaymentResponse,
+  SettleLoanInput,
+  SettleLoanResponse,
 } from '@/types/payment';
 
 export const paymentService = {
@@ -42,6 +44,19 @@ export const paymentService = {
     const response = await api.delete<VoidPaymentResponse>(
       ENDPOINTS.PAYMENTS.VOID(id),
       { data: { reason } },
+    );
+    return response.data;
+  },
+
+  /**
+   * Liquida un préstamo anticipadamente, saldando el total del saldo
+   * pendiente en una sola operación atómica.
+   * POST /payments/settle
+   */
+  settleLoan: async (data: SettleLoanInput): Promise<SettleLoanResponse> => {
+    const response = await api.post<SettleLoanResponse>(
+      ENDPOINTS.PAYMENTS.SETTLE,
+      data,
     );
     return response.data;
   },

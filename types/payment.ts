@@ -79,3 +79,40 @@ export interface VoidPaymentInput {
 export interface VoidPaymentResponse {
   message: string;
 }
+
+// ─── Settle Loan (POST /payments/settle) ──────────────────────
+
+export interface SettleLoanInput {
+  loanId: string;
+  amount: number;
+  /** Descuento aplicado al saldo (puede ser 0). amount + discount debe igualar outstandingBalance. */
+  discount: number;
+  method: PaymentMethod;
+  paymentDate: string; // YYYY-MM-DD
+  notes?: string;
+}
+
+export interface SettledInstallment {
+  installmentId: string;
+  installmentNumber: number;
+  amountApplied: number;
+  discountApplied: number;
+}
+
+export interface SettleLoanResponseData {
+  paymentId: string;
+  loanId: string;
+  amount: number;
+  discountAmount: number;
+  method: PaymentMethod;
+  paymentDate: string;
+  notes: string | null;
+  settledInstallments: SettledInstallment[];
+  loanStatus: string;
+  outstandingBalance: number;
+}
+
+export interface SettleLoanResponse {
+  data: SettleLoanResponseData;
+  message: string;
+}

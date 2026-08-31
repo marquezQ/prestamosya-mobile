@@ -24,17 +24,14 @@ export function StepConfigureLoan() {
   return (
     <View className="flex-1 px-4">
       {/* Encabezado */}
-      <View className="pt-2 pb-3">
+      <View className="pb-2">
         <Text className="text-foreground font-bold text-xl">
           Configurar Préstamo
-        </Text>
-        <Text className="text-muted-foreground text-base mt-0.5">
-          Define los términos y el cronograma de pagos
         </Text>
       </View>
 
       {/* Tabs Selector de Alto Contraste */}
-      <View className="flex-row bg-muted p-1.5 rounded-xl border border-border mb-4 h-14">
+      <View className="flex-row bg-muted p-1 rounded-xl border border-border mb-3 h-12">
         <Pressable
           onPress={() => handleModeChange('automatic')}
           className={`flex-1 items-center justify-center rounded-lg shadow-none ${
@@ -42,7 +39,7 @@ export function StepConfigureLoan() {
           }`}
         >
           <Text
-            className={`text-base font-bold ${
+            className={`text-sm font-bold ${
               loanMode === 'automatic'
                 ? 'text-primary-foreground'
                 : 'text-muted-foreground'
@@ -59,7 +56,7 @@ export function StepConfigureLoan() {
           }`}
         >
           <Text
-            className={`text-base font-bold ${
+            className={`text-sm font-bold ${
               loanMode === 'manual'
                 ? 'text-primary-foreground'
                 : 'text-muted-foreground'

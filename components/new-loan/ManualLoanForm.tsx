@@ -57,11 +57,11 @@ export function ManualLoanForm() {
   }, 0);
 
   return (
-    <View className="gap-4 pb-6">
+    <View className="gap-3 pb-4">
       {/* Monto Capital y Moneda */}
-      <View className="flex-row gap-4">
+      <View className="flex-row gap-3">
         <View className="flex-1">
-          <Label nativeID="capitalAmount" className="mb-2">
+          <Label nativeID="capitalAmount" className="mb-1.5">
             Monto Capital *
           </Label>
           <Controller
@@ -90,7 +90,7 @@ export function ManualLoanForm() {
         </View>
 
         <View className="w-32">
-          <Label nativeID="currency" className="mb-2">
+          <Label nativeID="currency" className="mb-1.5">
             Moneda *
           </Label>
           <Controller
@@ -126,44 +126,45 @@ export function ManualLoanForm() {
         </View>
       </View>
 
-      {/* N° Cuotas (derivado de las cuotas construidas) */}
-      <View>
-        <Label nativeID="totalInstallments" className="mb-2">
-          N° Cuotas *
-        </Label>
-        <View className="h-12 border border-border rounded-lg bg-background items-center justify-center">
-          <Text className="text-foreground font-bold text-base">
-            {fields.length}
-          </Text>
+      {/* N° Cuotas (calculado dinámicamente) + Fecha del Préstamo en la misma fila */}
+      <View className="flex-row gap-3">
+        <View className="w-32">
+          <Label nativeID="totalInstallments" className="mb-1.5">
+            N° Cuotas
+          </Label>
+          <View className="h-12 border border-primary/40 rounded-xl bg-primary/10 items-center justify-center px-2">
+            <Text className="text-primary font-extrabold text-base">
+              {fields.length} {fields.length === 1 ? 'cuota' : 'cuotas'}
+            </Text>
+          </View>
+        </View>
+
+        <View className="flex-1">
+          <Label className="mb-1.5">Fecha del Préstamo *</Label>
+          <Controller
+            control={control}
+            name="startDate"
+            render={({ field: { onChange, value } }) => (
+              <DatePicker
+                value={value || null}
+                onChange={(d) => {
+                  onChange(d);
+                  handleInputChange();
+                }}
+              />
+            )}
+          />
+          {errors.startDate && (
+            <Text className="text-destructive text-sm mt-1">
+              {errors.startDate.message}
+            </Text>
+          )}
         </View>
       </View>
 
-      {/* Fecha del Préstamo */}
-      <View>
-        <Label className="mb-2">Fecha del Préstamo *</Label>
-        <Controller
-          control={control}
-          name="startDate"
-          render={({ field: { onChange, value } }) => (
-            <DatePicker
-              value={value || null}
-              onChange={(d) => {
-                onChange(d);
-                handleInputChange();
-              }}
-            />
-          )}
-        />
-        {errors.startDate && (
-          <Text className="text-destructive text-sm mt-1">
-            {errors.startDate.message}
-          </Text>
-        )}
-      </View>
-
       {/* Arreglo de Cuotas Manuales */}
-      <View className="mt-2">
-        <View className="flex-row items-center justify-between mb-3">
+      <View className="mt-1">
+        <View className="flex-row items-center justify-between mb-2">
           <Text className="text-foreground font-bold text-base">
             Cuotas Personalizadas
           </Text>
@@ -192,16 +193,18 @@ export function ManualLoanForm() {
           </Text>
         )}
 
+        {/* Botón CTA destacado para agregar cuotas */}
         <Button
           variant="outline"
           onPress={() => {
             append({ dueDate: null, totalAmount: '' });
             handleInputChange();
           }}
-          className="mb-4 h-12"
+          className="mb-4 h-13 border-2 border-primary/40 bg-primary/10 active:bg-primary/20 flex-row items-center justify-center gap-2 rounded-xl"
         >
-          <Plus size={18} className="mr-2 text-primary" />
-          <Text className="font-bold">Agregar Cuota</Text>
+          <Text className="font-bold text-primary text-base">
+            + Agregar Cuota (#{fields.length + 1})
+          </Text>
         </Button>
       </View>
 
