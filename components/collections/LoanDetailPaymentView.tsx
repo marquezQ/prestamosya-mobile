@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Banknote, CheckCircle2 } from 'lucide-react-native';
+import { ArrowLeft, Banknote, BadgeCheck, CheckCircle2 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LoanDetailData } from '@/types/loan';
 import { RegisterPaymentModal } from './RegisterPaymentModal';
-import { RegisterPaymentResponseData } from '@/types/payment';
+import { SettleLoanModal } from './SettleLoanModal';
+import { RegisterPaymentResponseData, SettleLoanResponseData } from '@/types/payment';
 import { formatBs } from '@/lib/format';
 import { LoanClientHeaderCard } from './loan-detail/LoanClientHeaderCard';
 import { LoanMetricsCard } from './loan-detail/LoanMetricsCard';
@@ -28,12 +29,16 @@ export function LoanDetailPaymentView({
   const insets = useSafeAreaInsets();
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
   const [successBanner, setSuccessBanner] = useState<{
     title: string;
     detail: string;
   } | null>(null);
 
   const { loan, installments, payments } = loanDetail;
+
+  const isLoanActive =
+    loan.status === 'ACTIVE' && loan.outstandingBalance > 0;
 
   const nextPendingInstallment = installments.find(
     (ins) => ins.status === 'PENDING' || ins.status === 'OVERDUE' || ins.status === 'PARTIAL'
@@ -60,6 +65,15 @@ export function LoanDetailPaymentView({
       detail: `${appliedSummary} — Saldo restante: ${formatBs(result.outstandingBalance)}`,
     });
     setTimeout(() => setSuccessBanner(null), 6000);
+  };
+
+  // Tras la liquidación el préstamo queda en COMPLETED; redirigimos al usuario.
+  const handleLoanSettled = (_result: SettleLoanResponseData) => {
+    setSuccessBanner({
+      title: '¡Préstamo liquidado exitosamente!',
+      detail: 'El saldo quedó en Bs.- 0,00. Redirigiendo...',
+    });
+    setTimeout(() => router.back(), 2500);
   };
 
   return (
@@ -128,16 +142,28 @@ export function LoanDetailPaymentView({
 
       {/* Persistent Action Bar */}
       <View
-        className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-border shadow-lg"
+        className="absolute bottom-0 left-0 right-0 p-4 bg-background border-t border-border shadow-lg gap-2.5"
         style={{ paddingBottom: Math.max(insets.bottom, 16) }}
       >
         <Button
           onPress={() => setIsPaymentModalOpen(true)}
+          disabled={!isLoanActive}
           className="bg-secondary active:bg-secondary/90 h-14 rounded-2xl flex-row items-center justify-center gap-2 shadow-md"
         >
           <Banknote size={22} color="#ffffff" />
           <Text className="text-white font-bold text-lg">Registrar Pago</Text>
         </Button>
+
+        {isLoanActive && (
+          <Button
+            variant="outline"
+            onPress={() => setIsSettleModalOpen(true)}
+            className="h-12 rounded-2xl flex-row items-center justify-center gap-2 border-secondary/40 active:bg-secondary/10"
+          >
+            <BadgeCheck size={18} color="#2368A3" />
+            <Text className="text-secondary font-bold text-base">Liquidar Préstamo</Text>
+          </Button>
+        )}
       </View>
 
       {/* Payment Modal */}
@@ -150,6 +176,17 @@ export function LoanDetailPaymentView({
         installments={installments}
         defaultAmount={defaultAmount}
         onPaymentSuccess={handlePaymentRegistered}
+      />
+
+      {/* Settle Modal */}
+      <SettleLoanModal
+        isOpen={isSettleModalOpen}
+        onClose={() => setIsSettleModalOpen(false)}
+        loanId={loan.id}
+        clientName={loan.clientName}
+        clientPhone={clientPhone}
+        outstandingBalance={loan.outstandingBalance}
+        onSettleSuccess={handleLoanSettled}
       />
     </View>
   );

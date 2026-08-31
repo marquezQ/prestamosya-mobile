@@ -22,7 +22,8 @@ export function formatBs(amount: number): string {
 export function formatDateBO(dateStr: string, pattern = 'dd MMM yyyy'): string {
   if (!dateStr) return '—';
   try {
-    const parsed = parse(dateStr, 'yyyy-MM-dd', new Date());
+    const cleanDateStr = dateStr.split('T')[0];
+    const parsed = parse(cleanDateStr, 'yyyy-MM-dd', new Date());
     return isValid(parsed) ? format(parsed, pattern, { locale: es }) : dateStr;
   } catch {
     return dateStr;

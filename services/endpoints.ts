@@ -24,6 +24,7 @@ export const ENDPOINTS = {
     DASHBOARD: '/payments/dashboard',
     REGISTER: '/payments',
     VOID: (id: string) => `/payments/${id}`,
+    SETTLE: '/payments/settle',
   },
   ADMIN: {
     RECALCULATE_OVERDUE: '/admin/recalculate-overdue',

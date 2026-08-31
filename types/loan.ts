@@ -7,7 +7,7 @@ export type PeriodType = 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'custo
 
 export type Currency = 'BOB' | 'USD';
 
-export type LoanStatus = 'ACTIVE' | 'PAID' | 'DEFAULTED' | 'CANCELLED';
+export type LoanStatus = 'ACTIVE' | 'PAID' | 'DEFAULTED' | 'CANCELLED' | 'COMPLETED';
 export type InstallmentStatus = 'PENDING' | 'PAID' | 'OVERDUE' | 'PARTIAL';
 
 // ─── Cuota individual devuelta por el backend ─────────────────

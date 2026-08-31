@@ -11,10 +11,12 @@ import { Button } from '@/components/ui/button';
 import { LoanProgressBar } from './LoanProgressBar';
 import { ClientLoanSummary } from '@/types/client';
 import { useLoanById } from '@/hooks/useLoanById';
-import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw, Banknote } from 'lucide-react-native';
+import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw, Banknote, BadgeCheck } from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
 import { formatDateBO } from '@/lib/format';
 import { RegisterPaymentModal } from '../collections/RegisterPaymentModal';
+import { SettleLoanModal } from '../collections/SettleLoanModal';
+import { SettleLoanResponseData } from '@/types/payment';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Period label translator
@@ -90,6 +92,7 @@ interface LoanAccordionCardProps {
 export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isSettleModalOpen, setIsSettleModalOpen] = useState(false);
   const sc = getStatusConfig(loan.status);
 
   // Fetch loan detail on demand when accordion is opened
@@ -106,6 +109,15 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
   const defaultAmount = nextPendingInstallment
     ? nextPendingInstallment.totalAmount - nextPendingInstallment.paidAmount
     : loanDetail?.loan.outstandingBalance ?? 0;
+
+  const isLoanActive =
+    (loanDetail?.loan.status ?? loan.status) === 'ACTIVE' &&
+    (loanDetail?.loan.outstandingBalance ?? loan.outstandingBalance ?? 0) > 0;
+
+  const handleLoanSettled = (_result: SettleLoanResponseData) => {
+    // Las queries se invalidan en el hook; el acordeón se refresca solo.
+    setIsSettleModalOpen(false);
+  };
 
   return (
     <View className="mx-4 mb-3 rounded-2xl overflow-hidden bg-card border border-border shadow-sm">
@@ -320,11 +332,23 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                 {/* CTA */}
                 <Button
                   onPress={() => setIsPaymentModalOpen(true)}
+                  disabled={!isLoanActive}
                   className="w-full bg-secondary active:bg-secondary/80 flex-row gap-2 h-14 rounded-xl"
                 >
                   <Banknote size={20} color="#ffffff" />
                   <Text className="text-white font-bold text-lg">Registrar pago</Text>
                 </Button>
+
+                {isLoanActive && (
+                  <Button
+                    variant="outline"
+                    onPress={() => setIsSettleModalOpen(true)}
+                    className="w-full h-12 rounded-xl flex-row gap-2 border-secondary/40 active:bg-secondary/10 mt-2"
+                  >
+                    <BadgeCheck size={18} color="#2368A3" />
+                    <Text className="text-secondary font-bold text-base">Liquidar Préstamo</Text>
+                  </Button>
+                )}
 
                 {/* Payment Modal */}
                 {loanDetail && (
@@ -336,6 +360,19 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                     clientPhone={clientPhone}
                     installments={loanDetail.installments}
                     defaultAmount={defaultAmount}
+                  />
+                )}
+
+                {/* Settle Modal */}
+                {loanDetail && (
+                  <SettleLoanModal
+                    isOpen={isSettleModalOpen}
+                    onClose={() => setIsSettleModalOpen(false)}
+                    loanId={loan.id}
+                    clientName={loanDetail.loan.clientName}
+                    clientPhone={clientPhone}
+                    outstandingBalance={loanDetail.loan.outstandingBalance}
+                    onSettleSuccess={handleLoanSettled}
                   />
                 )}
               </View>
