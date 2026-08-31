@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { LoanMode, PeriodType } from '@/types/loan';
+import type { LoanMode, PeriodType, LoanScheduleType } from '@/types/loan';
 
 // ─── Validadores Reutilizables ───────────────────────────────
 
@@ -71,6 +71,7 @@ const permissiveInstallmentRowSchema = z.object({
 export const loanFormSchema = z
   .object({
     loanMode: z.enum(['automatic', 'manual']),
+    scheduleType: z.enum(['EQUAL_INSTALLMENTS', 'INTEREST_ONLY']).optional(),
     capitalAmount: positiveAmount,
     currency: z.enum(['BOB', 'USD']),
     // En modo manual el interés se deriva de los montos de cada cuota y no hay
@@ -153,6 +154,7 @@ export const loanFormSchema = z
 
 export interface LoanFormValues {
   loanMode: LoanMode;
+  scheduleType?: LoanScheduleType;
   capitalAmount: string;
   currency: 'BOB' | 'USD';
   interestRate?: string;
@@ -164,6 +166,7 @@ export interface LoanFormValues {
 
 export const createDefaultLoanFormValues = (): LoanFormValues => ({
   loanMode: 'automatic',
+  scheduleType: 'EQUAL_INSTALLMENTS',
   capitalAmount: '',
   currency: 'BOB',
   interestRate: '',

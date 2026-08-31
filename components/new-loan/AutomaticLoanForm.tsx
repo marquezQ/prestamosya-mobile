@@ -7,11 +7,19 @@ import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { useFormContext, Controller } from 'react-hook-form';
 import type { LoanFormValues } from '@/lib/schemas/loanForm';
-import { PERIOD_OPTIONS, type Currency } from '@/types/loan';
+import { PERIOD_OPTIONS, type Currency, type LoanScheduleType } from '@/types/loan';
 import { useNewLoanStore } from '@/stores/newLoanStore';
 import { useSimulateLoan } from '@/hooks/useSimulateLoan';
 import { SchedulePreview } from './SchedulePreview';
 import { Calculator } from 'lucide-react-native';
+
+const SCHEDULE_TYPE_OPTIONS: {
+  label: string;
+  value: LoanScheduleType;
+}[] = [
+  { label: 'Cuotas iguales', value: 'EQUAL_INSTALLMENTS' },
+  { label: 'Solo interés', value: 'INTEREST_ONLY' },
+];
 
 export function AutomaticLoanForm() {
   const {
@@ -45,6 +53,7 @@ export function AutomaticLoanForm() {
         periodType: values.periodType || 'monthly',
         totalInstallments: Number(values.totalInstallments),
         startDate: values.startDate!,
+        scheduleType: values.scheduleType || 'EQUAL_INSTALLMENTS',
       },
       {
         onSuccess: (res) => {
@@ -61,11 +70,11 @@ export function AutomaticLoanForm() {
   };
 
   return (
-    <View className="gap-4 pb-6">
+    <View className="gap-3 pb-4">
       {/* Monto Capital y Moneda */}
-      <View className="flex-row gap-4">
+      <View className="flex-row gap-3">
         <View className="flex-1">
-          <Label nativeID="capitalAmount" className="mb-2">
+          <Label nativeID="capitalAmount" className="mb-1.5">
             Monto Capital *
           </Label>
           <Controller
@@ -94,7 +103,7 @@ export function AutomaticLoanForm() {
         </View>
 
         <View className="w-32">
-          <Label nativeID="currency" className="mb-2">
+          <Label nativeID="currency" className="mb-1.5">
             Moneda *
           </Label>
           <Controller
@@ -131,9 +140,9 @@ export function AutomaticLoanForm() {
       </View>
 
       {/* Tasa y Cuotas */}
-      <View className="flex-row gap-4">
+      <View className="flex-row gap-3">
         <View className="flex-1">
-          <Label nativeID="interestRate" className="mb-2">
+          <Label nativeID="interestRate" className="mb-1.5">
             Tasa (%) *
           </Label>
           <Controller
@@ -162,7 +171,7 @@ export function AutomaticLoanForm() {
         </View>
 
         <View className="flex-1">
-          <Label nativeID="totalInstallments" className="mb-2">
+          <Label nativeID="totalInstallments" className="mb-1.5">
             N° Cuotas *
           </Label>
           <Controller
@@ -191,9 +200,44 @@ export function AutomaticLoanForm() {
         </View>
       </View>
 
+      {/* Modalidad de Cobro (scheduleType) */}
+      <View>
+        <Label className="mb-1.5">Modalidad de Cobro *</Label>
+        <Controller
+          control={control}
+          name="scheduleType"
+          render={({ field: { onChange, value = 'EQUAL_INSTALLMENTS' } }) => (
+            <View className="flex-row border border-border rounded-lg overflow-hidden h-12 bg-background">
+              {SCHEDULE_TYPE_OPTIONS.map((opt) => (
+                <Pressable
+                  key={opt.value}
+                  onPress={() => {
+                    onChange(opt.value);
+                    handleInputChange();
+                  }}
+                  className={`flex-1 items-center justify-center border-r border-border last:border-r-0 ${
+                    value === opt.value ? 'bg-primary' : 'bg-background'
+                  }`}
+                >
+                  <Text
+                    className={`text-xs font-bold ${
+                      value === opt.value
+                        ? 'text-primary-foreground'
+                        : 'text-foreground'
+                    }`}
+                  >
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        />
+      </View>
+
       {/* Frecuencia de Cobro */}
       <View>
-        <Label className="mb-2">Frecuencia de Cobro *</Label>
+        <Label className="mb-1.5">Frecuencia de Cobro *</Label>
         <Controller
           control={control}
           name="periodType"
@@ -228,7 +272,7 @@ export function AutomaticLoanForm() {
 
       {/* Selector de Fecha Único */}
       <View>
-        <Label className="mb-2">Fecha del Préstamo *</Label>
+        <Label className="mb-1.5">Fecha del Préstamo *</Label>
         <Controller
           control={control}
           name="startDate"

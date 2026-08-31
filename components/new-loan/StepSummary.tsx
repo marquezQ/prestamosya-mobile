@@ -65,6 +65,7 @@ export function StepSummary() {
       ...baseParams,
       mode: 'automatic',
       totalInstallments: schedule.length || Number(values.totalInstallments),
+      scheduleType: values.scheduleType || 'EQUAL_INSTALLMENTS',
     };
   };
 
@@ -180,6 +181,19 @@ export function StepSummary() {
               {schedule.length > 0 ? schedule.length : values.totalInstallments}
             </Text>
           </View>
+
+          {loanMode === 'automatic' && (
+            <View className="w-full mb-3">
+              <Text className="text-muted-foreground text-xs mb-0.5">
+                Modalidad de Cobro
+              </Text>
+              <Text className="text-foreground font-bold text-base">
+                {values.scheduleType === 'INTEREST_ONLY'
+                  ? 'Solo Interés (Capital al final)'
+                  : 'Cuotas Iguales (Capital + Interés)'}
+              </Text>
+            </View>
+          )}
 
           <View className="w-full mb-1">
             <Text className="text-muted-foreground text-xs mb-0.5">

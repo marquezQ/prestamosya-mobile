@@ -35,7 +35,8 @@ export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps
 
   const handleWhatsApp = () => {
     if (client.phone) {
-      const phone = client.phone.replace(/\D/g, '');
+      const rawDigits = client.phone.replace(/\D/g, '');
+      const phone = rawDigits.startsWith('591') ? rawDigits : `591${rawDigits}`;
       const url = `whatsapp://send?phone=${phone}`;
 
       Linking.canOpenURL(url)
@@ -75,7 +76,7 @@ export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps
         {client.fullName}
       </Text>
       <Text className="text-muted-foreground text-xs text-center mb-3 font-medium">
-        CI: {client.idNumber} • Desde {formattedMemberSince}
+        CI: {client.idNumber} • Desde {formattedMemberSince} • Cel: {client.phone || '—'}
       </Text>
 
       {/* Actions */}

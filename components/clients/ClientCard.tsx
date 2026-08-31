@@ -59,7 +59,8 @@ export function ClientCard({ client, onPress }: ClientCardProps) {
   const handleWhatsApp = (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (client.phone) {
-      const phone = client.phone.replace(/\D/g, '');
+      const rawDigits = client.phone.replace(/\D/g, '');
+      const phone = rawDigits.startsWith('591') ? rawDigits : `591${rawDigits}`;
       const url = `whatsapp://send?phone=${phone}`;
       Linking.canOpenURL(url).then((supported) => {
         if (!supported) return Linking.openURL(`https://wa.me/${phone}`);

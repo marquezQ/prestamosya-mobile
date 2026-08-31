@@ -2,6 +2,9 @@
 
 export type LoanMode = 'automatic' | 'manual';
 
+/** Modalidad de cálculo de cuotas del backend (cuotas iguales vs solo interés) */
+export type LoanScheduleType = 'EQUAL_INSTALLMENTS' | 'INTEREST_ONLY';
+
 // Valores válidos: daily, weekly, fortnightly (+15 días), monthly, custom.
 export type PeriodType = 'daily' | 'weekly' | 'fortnightly' | 'monthly' | 'custom';
 
@@ -53,6 +56,8 @@ export interface LoanSimulateParams {
   totalInstallments: number;
   /** Fecha de desembolso (YYYY-MM-DD). El backend calcula firstDueDate = startDate + 1 período */
   startDate: string;
+  /** Modalidad de cálculo de cuotas. Por defecto EQUAL_INSTALLMENTS */
+  scheduleType?: LoanScheduleType;
 }
 
 // ─── Inputs para crear préstamo (POST /loans) ─────────────────
@@ -68,6 +73,8 @@ export interface CreateAutomaticLoanInput {
   /** Fecha de desembolso (YYYY-MM-DD) */
   startDate: string;
   notes?: string;
+  /** Modalidad de cálculo de cuotas. Por defecto EQUAL_INSTALLMENTS */
+  scheduleType?: LoanScheduleType;
 }
 
 export interface ManualInstallmentInput {
@@ -111,6 +118,7 @@ export interface CreatedLoan {
   startDate: string;
   firstDueDate: string;
   notes: string | null;
+  scheduleType?: LoanScheduleType;
   installments: SimulatedInstallment[];
 }
 

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "prestamosya-mobile",
+    "name": "PrestamosYA",
     "slug": "prestamosya-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/LogoP.png",
     "userInterfaceStyle": "light",
     "scheme": "prestamosya",
     "experiments": {
@@ -12,7 +12,7 @@
     },
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/LogoP.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/LogoP.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -35,7 +35,7 @@
       "package": "com.anonymous.prestamosyamobile"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/LogoP.png",
       "bundler": "metro"
     },
     "plugins": [
