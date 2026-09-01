@@ -4,7 +4,7 @@
     "slug": "prestamosya-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/LogoP.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "prestamosya",
     "experiments": {
@@ -12,9 +12,9 @@
     },
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/LogoP.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#206ba5"
     },
     "ios": {
       "supportsTablet": true,
@@ -22,7 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/LogoP.png",
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

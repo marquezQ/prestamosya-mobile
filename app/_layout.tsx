@@ -11,7 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "@react-navigation/native";
 import { KeyboardProvider } from "@/components/ui/KeyboardProvider";
 import { useAuthStore } from "@/stores/authStore";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Image } from "react-native";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 
 // Desactiva el warning de 'strict mode' de Reanimated en desarrollo causado por componentes primitivos de UI
@@ -50,6 +50,7 @@ function RootLayoutNav() {
     <KeyboardProvider>
       <ThemeProvider value={getNavigationTheme(colorScheme)}>
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />
         </Stack>
@@ -64,43 +65,16 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const { isHydrated, isAuthenticated, hydrate } = useAuthStore();
-  const segments = useSegments();
-  const router = useRouter();
+  const { hydrate } = useAuthStore();
 
   useEffect(() => {
     hydrate();
   }, [hydrate]);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-
-    const inAuthGroup = segments[0] === "(auth)";
-    const inAppGroup = segments[0] === "(app)";
-
-    // Usar setTimeout para evitar actualizaciones de estado durante el render de React Navigation
-    setTimeout(() => {
-      if (!isAuthenticated && !inAuthGroup) {
-        router.replace("/(auth)/login");
-      } else if (isAuthenticated && !inAppGroup) {
-        // Redirige a home si está autenticado y no se encuentra en el grupo de la app
-        router.replace("/(app)/(tabs)/home"); 
-      }
-    }, 0);
-  }, [isAuthenticated, isHydrated, segments]);
-
-  if (!isHydrated) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <RootLayoutNav />
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </QueryClientProvider>
   );
 }
