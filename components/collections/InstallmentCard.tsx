@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import { ChevronRight } from 'lucide-react-native';
 import { DashboardInstallmentItem } from '@/types/payment';
 import { palette } from '@/lib/theme/colors';
-import { formatBs } from '@/lib/format';
+import { formatCurrency } from '@/lib/format';
 import { getInstallmentStatusConfig } from './installmentStatus';
 
 interface InstallmentCardProps {
@@ -59,7 +59,7 @@ export function InstallmentCard({ item, onPress }: InstallmentCardProps) {
       {/* Right: Amount + Chevron */}
       <View className="flex-row items-center gap-2">
         <Text className="text-foreground font-bold text-base">
-          {formatBs(displayAmount)}
+          {formatCurrency(displayAmount, item.currency || 'BOB')}
         </Text>
         <ChevronRight size={18} color={palette.azul} />
       </View>

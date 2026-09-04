@@ -5,11 +5,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Banknote, BadgeCheck, CheckCircle2 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LoanDetailData } from '@/types/loan';
+import { LoanDetailData, Currency } from '@/types/loan';
 import { RegisterPaymentModal } from './RegisterPaymentModal';
 import { SettleLoanModal } from './SettleLoanModal';
 import { RegisterPaymentResponseData, SettleLoanResponseData } from '@/types/payment';
-import { formatBs } from '@/lib/format';
+import { formatCurrency } from '@/lib/format';
 import { LoanClientHeaderCard } from './loan-detail/LoanClientHeaderCard';
 import { LoanMetricsCard } from './loan-detail/LoanMetricsCard';
 import { LoanScheduleTable } from './loan-detail/LoanScheduleTable';
@@ -36,6 +36,7 @@ export function LoanDetailPaymentView({
   } | null>(null);
 
   const { loan, installments, payments } = loanDetail;
+  const currency: Currency = (loan.currency as Currency) || 'BOB';
 
   const isLoanActive =
     loan.status === 'ACTIVE' && loan.outstandingBalance > 0;
@@ -55,14 +56,14 @@ export function LoanDetailPaymentView({
           `Cuota #${ins.installmentNumber} ${
             ins.newStatus === 'PAID'
               ? 'pagada'
-              : `parcial (${formatBs(ins.amountApplied)})`
+              : `parcial (${formatCurrency(ins.amountApplied, currency)})`
           }`
       )
       .join(' · ');
 
     setSuccessBanner({
-      title: `¡Pago de ${formatBs(result.amount)} registrado!`,
-      detail: `${appliedSummary} — Saldo restante: ${formatBs(result.outstandingBalance)}`,
+      title: `¡Pago de ${formatCurrency(result.amount, currency)} registrado!`,
+      detail: `${appliedSummary} — Saldo restante: ${formatCurrency(result.outstandingBalance, currency)}`,
     });
     setTimeout(() => setSuccessBanner(null), 6000);
   };
@@ -71,7 +72,7 @@ export function LoanDetailPaymentView({
   const handleLoanSettled = (_result: SettleLoanResponseData) => {
     setSuccessBanner({
       title: '¡Préstamo liquidado exitosamente!',
-      detail: 'El saldo quedó en Bs.- 0,00. Redirigiendo...',
+      detail: `El saldo quedó en ${formatCurrency(0, currency)}. Redirigiendo...`,
     });
     setTimeout(() => router.back(), 2500);
   };
@@ -121,6 +122,7 @@ export function LoanDetailPaymentView({
           totalPaid={loan.totalPaid}
           totalAmount={loan.totalAmount}
           outstandingBalance={loan.outstandingBalance}
+          currency={currency}
         />
 
         {/* Section Title */}
@@ -135,9 +137,9 @@ export function LoanDetailPaymentView({
           </View>
         </View>
 
-        <LoanScheduleTable installments={installments} />
+        <LoanScheduleTable installments={installments} currency={currency} />
 
-        <LoanPaymentHistoryList payments={payments} />
+        <LoanPaymentHistoryList payments={payments} currency={currency} />
       </ScrollView>
 
       {/* Persistent Action Bar */}
@@ -175,6 +177,7 @@ export function LoanDetailPaymentView({
         clientPhone={clientPhone}
         installments={installments}
         defaultAmount={defaultAmount}
+        currency={currency}
         onPaymentSuccess={handlePaymentRegistered}
       />
 
@@ -186,6 +189,7 @@ export function LoanDetailPaymentView({
         clientName={loan.clientName}
         clientPhone={clientPhone}
         outstandingBalance={loan.outstandingBalance}
+        currency={currency}
         onSettleSuccess={handleLoanSettled}
       />
     </View>

@@ -1,16 +1,18 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { LoanInstallmentItem } from '@/types/loan';
-import { formatDateBO, formatBs } from '@/lib/format';
+import { LoanInstallmentItem, Currency } from '@/types/loan';
+import { formatDateBO, formatCurrency } from '@/lib/format';
 import { getInstallmentStatusConfig } from '../installmentStatus';
 
 interface PendingInstallmentsSummaryProps {
   installments: LoanInstallmentItem[];
+  currency?: Currency;
 }
 
 export function PendingInstallmentsSummary({
   installments,
+  currency = 'BOB',
 }: PendingInstallmentsSummaryProps) {
   const pendingItems = installments.filter(
     (ins) => ins.status === 'PENDING' || ins.status === 'OVERDUE' || ins.status === 'PARTIAL'
@@ -45,7 +47,7 @@ export function PendingInstallmentsSummary({
               </Text>
             </View>
             <Text className="text-foreground font-bold text-sm">
-              {formatBs(amountToPay)}
+              {formatCurrency(amountToPay, currency)}
             </Text>
           </View>
         );

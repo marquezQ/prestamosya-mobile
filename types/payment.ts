@@ -1,3 +1,5 @@
+import { Currency } from '@/types/loan';
+
 export type InstallmentStatus = 'PENDING' | 'PARTIAL' | 'PAID' | 'OVERDUE';
 
 /**
@@ -20,6 +22,7 @@ export interface DashboardInstallmentItem {
   status: InstallmentStatus;
   daysOverdue: number;
   paidAt: string | null;
+  currency: Currency;
 }
 
 export interface PaymentDashboardMetadata {

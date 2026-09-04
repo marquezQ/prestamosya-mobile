@@ -208,7 +208,7 @@ export function StepSummary() {
 
       {/* Cronograma */}
       <View className="mb-6">
-        <SchedulePreview schedule={schedule} />
+        <SchedulePreview schedule={schedule} currency={values.currency} />
       </View>
 
       {/* Botón de Confirmar */}

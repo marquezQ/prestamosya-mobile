@@ -17,7 +17,7 @@ import {
 import { DatePicker } from '@/components/ui/DatePicker';
 import { CheckCircle2, AlertCircle } from 'lucide-react-native';
 import { PaymentMethod, RegisterPaymentInput, RegisterPaymentResponseData } from '@/types/payment';
-import { LoanInstallmentItem } from '@/types/loan';
+import { LoanInstallmentItem, Currency } from '@/types/loan';
 import { getTodayISO } from '@/lib/format';
 import { getApiErrorMessage } from '@/services/api';
 import { useRegisterPayment } from '@/hooks/useRegisterPayment';
@@ -47,6 +47,7 @@ interface RegisterPaymentModalProps {
   clientPhone?: string;
   installments?: LoanInstallmentItem[];
   defaultAmount?: number;
+  currency?: Currency;
   onPaymentSuccess?: (result: RegisterPaymentResponseData) => void;
 }
 
@@ -58,6 +59,7 @@ export function RegisterPaymentModal({
   clientPhone = '',
   installments = [],
   defaultAmount = 0,
+  currency = 'BOB',
   onPaymentSuccess,
 }: RegisterPaymentModalProps) {
   const registerPayment = useRegisterPayment();
@@ -126,12 +128,12 @@ export function RegisterPaymentModal({
           <PaymentClientSummary clientName={clientName} clientPhone={clientPhone} />
 
           {/* Cuotas pendientes referenciales */}
-          <PendingInstallmentsSummary installments={installments} />
+          <PendingInstallmentsSummary installments={installments} currency={currency} />
 
           {/* Campo de Monto */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Monto a Pagar (Bs.-) *
+              Monto a Pagar ({currency === 'USD' ? '$us' : 'Bs.-'}) *
             </Text>
             <Controller
               control={control}

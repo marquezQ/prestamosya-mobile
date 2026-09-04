@@ -2,16 +2,17 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { CalendarDays } from 'lucide-react-native';
-import { LoanInstallmentItem } from '@/types/loan';
+import { LoanInstallmentItem, Currency } from '@/types/loan';
 import { palette } from '@/lib/theme/colors';
-import { formatDateBO, formatBs } from '@/lib/format';
+import { formatDateBO, formatCurrency } from '@/lib/format';
 import { getInstallmentStatusConfig } from '../installmentStatus';
 
 interface LoanScheduleTableProps {
   installments: LoanInstallmentItem[];
+  currency?: Currency;
 }
 
-export function LoanScheduleTable({ installments }: LoanScheduleTableProps) {
+export function LoanScheduleTable({ installments, currency = 'BOB' }: LoanScheduleTableProps) {
   return (
     <View className="mx-4 rounded-2xl overflow-hidden border border-border bg-card shadow-sm mb-4">
       {/* Table Header */}
@@ -68,7 +69,7 @@ export function LoanScheduleTable({ installments }: LoanScheduleTableProps) {
             {/* Monto */}
             <View className="w-24 items-end">
               <Text className="text-foreground font-bold text-sm">
-                {formatBs(inst.totalAmount)}
+                {formatCurrency(inst.totalAmount, currency)}
               </Text>
             </View>
 

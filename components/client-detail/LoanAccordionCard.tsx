@@ -10,10 +10,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { LoanProgressBar } from './LoanProgressBar';
 import { ClientLoanSummary } from '@/types/client';
+import { Currency } from '@/types/loan';
 import { useLoanById } from '@/hooks/useLoanById';
 import { Plus, CheckCircle2, AlertCircle, Clock, CalendarDays, RefreshCw, Banknote, BadgeCheck } from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
-import { formatDateBO } from '@/lib/format';
+import { formatDateBO, formatCurrency } from '@/lib/format';
 import { RegisterPaymentModal } from '../collections/RegisterPaymentModal';
 import { SettleLoanModal } from '../collections/SettleLoanModal';
 import { SettleLoanResponseData } from '@/types/payment';
@@ -97,6 +98,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
 
   // Fetch loan detail on demand when accordion is opened
   const { data: loanDetail, isLoading, isError, refetch } = useLoanById(loan.id, isOpen);
+  const currency: Currency = (loanDetail?.loan.currency ?? loan.currency ?? 'BOB') as Currency;
 
   const periodLabel = getPeriodLabel(loan.periodType);
   const quickPaid = loan.totalPaid ?? 0;
@@ -191,10 +193,10 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                   </Text>
                   <View className="flex-row items-baseline gap-1.5 mb-2.5">
                     <Text className="text-2xl font-bold text-secondary">
-                      Bs.- {(loanDetail?.loan.totalPaid ?? quickPaid).toFixed(2)}
+                      {formatCurrency(loanDetail?.loan.totalPaid ?? quickPaid, currency)}
                     </Text>
                     <Text className="text-muted-foreground text-sm font-medium">
-                      / {(loanDetail?.loan.totalAmount ?? quickTotal).toFixed(2)}
+                      / {formatCurrency(loanDetail?.loan.totalAmount ?? quickTotal, currency)}
                     </Text>
                   </View>
 
@@ -223,7 +225,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                       Capital
                     </Text>
                     <Text className="text-foreground font-bold text-base">
-                      Bs.- {(loanDetail?.loan.capitalAmount ?? loan.capitalAmount ?? 0).toFixed(0)}
+                      {formatCurrency(loanDetail?.loan.capitalAmount ?? loan.capitalAmount ?? 0, currency)}
                     </Text>
                     <Text className="text-muted-foreground text-xs mt-0.5 font-medium">
                       Interés: {loanDetail?.loan.interestRate ?? loan.interestRate}%
@@ -235,7 +237,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                       Saldo Restante
                     </Text>
                     <Text className="text-foreground font-bold text-base">
-                      Bs.- {Math.max(0, loanDetail?.loan.outstandingBalance ?? loan.outstandingBalance ?? 0).toFixed(2)}
+                      {formatCurrency(Math.max(0, loanDetail?.loan.outstandingBalance ?? loan.outstandingBalance ?? 0), currency)}
                     </Text>
                     <Text className="text-muted-foreground text-xs mt-0.5 font-medium">
                       {loan.totalInstallments} cuotas totales
@@ -303,7 +305,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                               isPaid ? 'text-muted-foreground' : 'text-foreground'
                             }`}
                           >
-                            Bs.- {inst.totalAmount.toFixed(2)}
+                            {formatCurrency(inst.totalAmount, currency)}
                           </Text>
                         </View>
                       );
@@ -316,13 +318,13 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                           Monto total del crédito:
                         </Text>
                         <Text className="text-sm font-semibold text-foreground">
-                          Bs.- {loanDetail.loan.totalAmount.toFixed(2)}
+                          {formatCurrency(loanDetail.loan.totalAmount, currency)}
                         </Text>
                       </View>
                       <View className="flex-row justify-between items-center pt-1 border-t border-border/60">
                         <Text className="text-sm font-bold text-foreground">Saldo pendiente:</Text>
                         <Text className="text-base font-bold text-secondary">
-                          Bs.- {Math.max(0, loanDetail.loan.outstandingBalance).toFixed(2)}
+                          {formatCurrency(Math.max(0, loanDetail.loan.outstandingBalance), currency)}
                         </Text>
                       </View>
                     </View>
@@ -360,6 +362,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                     clientPhone={clientPhone}
                     installments={loanDetail.installments}
                     defaultAmount={defaultAmount}
+                    currency={currency}
                   />
                 )}
 
@@ -372,6 +375,7 @@ export function LoanAccordionCard({ loan, clientPhone = '' }: LoanAccordionCardP
                     clientName={loanDetail.loan.clientName}
                     clientPhone={clientPhone}
                     outstandingBalance={loanDetail.loan.outstandingBalance}
+                    currency={currency}
                     onSettleSuccess={handleLoanSettled}
                   />
                 )}

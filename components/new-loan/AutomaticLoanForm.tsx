@@ -26,6 +26,7 @@ export function AutomaticLoanForm() {
     control,
     trigger,
     getValues,
+    watch,
     formState: { errors },
   } = useFormContext<LoanFormValues>();
 
@@ -317,7 +318,7 @@ export function AutomaticLoanForm() {
       {/* Cronograma Proyectado */}
       {schedule.length > 0 && (
         <View className="mt-4">
-          <SchedulePreview schedule={schedule} />
+          <SchedulePreview schedule={schedule} currency={watch('currency')} />
         </View>
       )}
     </View>

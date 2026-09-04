@@ -1,16 +1,26 @@
 import { format, isValid, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+import { Currency } from '@/types/loan';
+
 /**
- * Formatea un monto en Bolivianos con el prefijo de moneda del proyecto.
- * Ej.: formatBs(1500) → "Bs.- 1.500"
+ * Formatea un monto con el prefijo de moneda correspondiente ('BOB' → "Bs.- 1.500", 'USD' → "$us 1.500").
  */
-export function formatBs(amount: number): string {
+export function formatCurrency(amount: number, currency: Currency = 'BOB'): string {
   const safeAmount = Number.isFinite(amount) ? amount : 0;
-  return `Bs.- ${safeAmount.toLocaleString('es-BO', {
+  const formatted = safeAmount.toLocaleString('es-BO', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  })}`;
+  });
+  return currency === 'USD' ? `$us ${formatted}` : `Bs.- ${formatted}`;
+}
+
+/**
+ * Formatea un monto en Bolivianos con el prefijo de moneda del proyecto.
+ * Alias retrocompatible de formatCurrency(amount, 'BOB').
+ */
+export function formatBs(amount: number): string {
+  return formatCurrency(amount, 'BOB');
 }
 
 /**
