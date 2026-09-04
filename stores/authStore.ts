@@ -25,19 +25,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const token = await secureStorage.getToken();
       if (token) {
-        // If we want to actually validate the token, we would call getProfile()
-        // but since we don't have the backend yet, let's just assume valid if exists
-        // const user = await authService.getProfile();
-        // set({ user, isAuthenticated: true, isHydrated: true });
-        
-        // Mocking user profile for now so we don't hit 401 loop on startup without backend
-        set({ 
-          user: { id: "1", username: "admin", name: "Admin", role: "admin" }, 
-          isAuthenticated: true, 
-          isHydrated: true 
-        });
+        try {
+          const user = await authService.getProfile();
+          set({ user, isAuthenticated: true, isHydrated: true });
+        } catch (err) {
+          console.warn('Fallo al validar sesion en backend, limpiando token:', err);
+          await secureStorage.deleteToken();
+          set({ user: null, isAuthenticated: false, isHydrated: true });
+        }
       } else {
-        set({ isHydrated: true, isAuthenticated: false });
+        set({ isHydrated: true, isAuthenticated: false, user: null });
       }
     } catch (error) {
       console.error('Error hydrating auth state:', error);

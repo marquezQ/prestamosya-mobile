@@ -16,6 +16,17 @@ export function formatCurrency(amount: number, currency: Currency = 'BOB'): stri
 }
 
 /**
+ * Formatea un monto numérico sin prefijo de moneda (ej. "1.500,00").
+ */
+export function formatAmountNumber(amount: number): string {
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+  return safeAmount.toLocaleString('es-BO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+}
+
+/**
  * Formatea un monto en Bolivianos con el prefijo de moneda del proyecto.
  * Alias retrocompatible de formatCurrency(amount, 'BOB').
  */
