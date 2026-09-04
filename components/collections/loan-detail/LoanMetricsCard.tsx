@@ -2,18 +2,21 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { LoanProgressBar } from '@/components/client-detail/LoanProgressBar';
-import { formatBs } from '@/lib/format';
+import { formatCurrency } from '@/lib/format';
+import { Currency } from '@/types/loan';
 
 interface LoanMetricsCardProps {
   totalPaid: number;
   totalAmount: number;
   outstandingBalance: number;
+  currency?: Currency;
 }
 
 export function LoanMetricsCard({
   totalPaid,
   totalAmount,
   outstandingBalance,
+  currency = 'BOB',
 }: LoanMetricsCardProps) {
   const progressPercent = Math.min(
     100,
@@ -27,10 +30,10 @@ export function LoanMetricsCard({
       </Text>
       <View className="flex-row items-baseline gap-1.5 mb-2.5">
         <Text className="text-3xl font-bold text-secondary">
-          {formatBs(totalPaid)}
+          {formatCurrency(totalPaid, currency)}
         </Text>
         <Text className="text-muted-foreground text-base font-medium">
-          / {formatBs(totalAmount)}
+          / {formatCurrency(totalAmount, currency)}
         </Text>
       </View>
 
@@ -41,7 +44,7 @@ export function LoanMetricsCard({
           Progreso de pago ({progressPercent}%)
         </Text>
         <Text className="text-secondary font-bold text-xs">
-          Saldo Restante: {formatBs(outstandingBalance)}
+          Saldo Restante: {formatCurrency(outstandingBalance, currency)}
         </Text>
       </View>
     </View>

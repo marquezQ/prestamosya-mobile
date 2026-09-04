@@ -11,7 +11,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { AlertCircle, Trash2 } from 'lucide-react-native';
-import { formatBs } from '@/lib/format';
+import { formatCurrency } from '@/lib/format';
+import { Currency } from '@/types/loan';
 import { getApiErrorMessage } from '@/services/api';
 import { useVoidPayment } from '@/hooks/useVoidPayment';
 
@@ -20,6 +21,7 @@ interface VoidPaymentDialogProps {
   onClose: () => void;
   paymentId: string;
   amount: number;
+  currency?: Currency;
   onSuccess?: () => void;
 }
 
@@ -28,6 +30,7 @@ export function VoidPaymentDialog({
   onClose,
   paymentId,
   amount,
+  currency = 'BOB',
   onSuccess,
 }: VoidPaymentDialogProps) {
   const [reason, setReason] = useState('');
@@ -75,7 +78,7 @@ export function VoidPaymentDialog({
           <View className="bg-destructive/10 border border-destructive/20 rounded-xl p-3">
             <Text className="text-foreground text-sm font-medium">
               ¿Estás seguro de que deseas anular el pago por{' '}
-              <Text className="font-bold text-destructive">{formatBs(amount)}</Text>?
+              <Text className="font-bold text-destructive">{formatCurrency(amount, currency)}</Text>?
             </Text>
             <Text className="text-muted-foreground text-xs font-medium mt-1">
               Esta acción revertirá los abonos a las cuotas correspondientes.

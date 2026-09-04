@@ -2,15 +2,17 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { CalendarDays } from 'lucide-react-native';
-import type { SimulatedInstallment } from '@/types/loan';
+import type { SimulatedInstallment, Currency } from '@/types/loan';
 import { format, isValid, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { formatCurrency } from '@/lib/format';
 
 interface SchedulePreviewProps {
   schedule: SimulatedInstallment[];
+  currency?: Currency;
 }
 
-export function SchedulePreview({ schedule }: SchedulePreviewProps) {
+export function SchedulePreview({ schedule, currency = 'BOB' }: SchedulePreviewProps) {
   if (schedule.length === 0) return null;
 
   const totalAmountSum = schedule.reduce(
@@ -78,7 +80,7 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
                 {formattedDate}
               </Text>
               <Text className="text-foreground text-base font-bold text-right w-28">
-                {Number(item.totalAmount || 0).toFixed(2)} Bs
+                {formatCurrency(Number(item.totalAmount || 0), currency)}
               </Text>
             </View>
           );
@@ -90,7 +92,7 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
         <View className="flex-row justify-between mb-1">
           <Text className="text-muted-foreground text-sm">Total intereses:</Text>
           <Text className="text-muted-foreground text-sm font-bold">
-            {totalInterestSum.toFixed(2)} Bs
+            {formatCurrency(totalInterestSum, currency)}
           </Text>
         </View>
         <View className="flex-row justify-between mt-1">
@@ -98,7 +100,7 @@ export function SchedulePreview({ schedule }: SchedulePreviewProps) {
             Total a pagar:
           </Text>
           <Text className="text-primary text-xl font-bold">
-            {totalAmountSum.toFixed(2)} Bs
+            {formatCurrency(totalAmountSum, currency)}
           </Text>
         </View>
       </View>

@@ -17,7 +17,8 @@ import {
 import { DatePicker } from '@/components/ui/DatePicker';
 import { AlertCircle, BadgeCheck, Info } from 'lucide-react-native';
 import { SettleLoanInput, SettleLoanResponseData } from '@/types/payment';
-import { formatBs, getTodayISO } from '@/lib/format';
+import { Currency } from '@/types/loan';
+import { formatCurrency, getTodayISO } from '@/lib/format';
 import { getApiErrorMessage } from '@/services/api';
 import { useSettleLoan } from '@/hooks/useSettleLoan';
 import { PaymentClientSummary } from './modal/PaymentClientSummary';
@@ -31,7 +32,7 @@ import { PaymentMethodSelector } from './modal/PaymentMethodSelector';
  * Construye el schema Zod con la restricción cross-field:
  * amount + discount debe ser exactamente igual a outstandingBalance.
  */
-function buildSettleSchema(outstandingBalance: number) {
+function buildSettleSchema(outstandingBalance: number, currency: Currency = 'BOB') {
   return z
     .object({
       amount: z
@@ -54,7 +55,7 @@ function buildSettleSchema(outstandingBalance: number) {
       const diff = Math.abs(total - outstandingBalance);
       // Tolerancia de 0.01 para evitar errores de coma flotante
       if (diff > 0.01) {
-        const msg = `Monto + Descuento (${formatBs(total)}) debe ser igual al saldo pendiente (${formatBs(outstandingBalance)})`;
+        const msg = `Monto + Descuento (${formatCurrency(total, currency)}) debe ser igual al saldo pendiente (${formatCurrency(outstandingBalance, currency)})`;
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: msg, path: ['amount'] });
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: ' ', path: ['discount'] });
       }
@@ -81,6 +82,7 @@ interface SettleLoanModalProps {
   clientPhone?: string;
   /** Saldo total pendiente del préstamo; amount + discount debe igualarlo. */
   outstandingBalance: number;
+  currency?: Currency;
   onSettleSuccess?: (result: SettleLoanResponseData) => void;
 }
 
@@ -95,10 +97,11 @@ export function SettleLoanModal({
   clientName,
   clientPhone = '',
   outstandingBalance,
+  currency = 'BOB',
   onSettleSuccess,
 }: SettleLoanModalProps) {
   const settleLoan = useSettleLoan();
-  const settleSchema = buildSettleSchema(outstandingBalance);
+  const settleSchema = buildSettleSchema(outstandingBalance, currency);
 
   const {
     control,
@@ -184,7 +187,7 @@ export function SettleLoanModal({
               Saldo Pendiente a Liquidar
             </Text>
             <Text className="text-secondary font-bold text-2xl">
-              {formatBs(outstandingBalance)}
+              {formatCurrency(outstandingBalance, currency)}
             </Text>
             <Text className="text-muted-foreground text-xs font-medium mt-0.5">
               Monto + Descuento debe igualar este valor
@@ -194,7 +197,7 @@ export function SettleLoanModal({
           {/* Monto a cobrar */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Monto a Cobrar (Bs.-) *
+              Monto a Cobrar ({currency === 'USD' ? '$us' : 'Bs.-'}) *
             </Text>
             <Controller
               control={control}
@@ -220,7 +223,7 @@ export function SettleLoanModal({
           {/* Descuento */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Descuento (Bs.-) — Opcional
+              Descuento ({currency === 'USD' ? '$us' : 'Bs.-'}) — Opcional
             </Text>
             <Controller
               control={control}

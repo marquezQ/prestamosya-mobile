@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/accordion';
 import { CheckCircle2, CalendarCheck, Banknote, RefreshCw } from 'lucide-react-native';
 import { ClientLoanSummary } from '@/types/client';
+import { Currency } from '@/types/loan';
 import { useLoanById } from '@/hooks/useLoanById';
 import { Button } from '@/components/ui/button';
 import { palette } from '@/lib/theme/colors';
-import { formatDateBO } from '@/lib/format';
+import { formatDateBO, formatCurrency } from '@/lib/format';
 
 interface CompletedLoanAccordionCardProps {
   loan: ClientLoanSummary;
@@ -26,6 +27,7 @@ function formatLoanId(id: string): string {
 export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { data: loanDetail, isLoading, isError, refetch } = useLoanById(loan.id, isOpen);
+  const currency: Currency = (loanDetail?.loan.currency ?? loan.currency ?? 'BOB') as Currency;
 
   const startDateStr = loanDetail?.loan.startDate || loan.startDate;
   const formattedDate = startDateStr
@@ -128,7 +130,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                       </View>
                     </View>
                     <Text className="text-secondary font-bold text-base">
-                      Bs.- {loanDetail.loan.capitalAmount.toFixed(2)}
+                      {formatCurrency(loanDetail.loan.capitalAmount, currency)}
                     </Text>
                   </View>
 
@@ -143,7 +145,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                       </Text>
                     </View>
                     <Text className="text-foreground font-bold text-base">
-                      Bs.- {Math.max(0, loanDetail.loan.totalPaid - loanDetail.loan.capitalAmount).toFixed(2)}
+                      {formatCurrency(Math.max(0, loanDetail.loan.totalPaid - loanDetail.loan.capitalAmount), currency)}
                     </Text>
                   </View>
 
@@ -153,7 +155,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                       Total cobrado
                     </Text>
                     <Text className="text-green-700 dark:text-green-300 font-bold text-xl">
-                      Bs.- {loanDetail.loan.totalPaid.toFixed(2)}
+                      {formatCurrency(loanDetail.loan.totalPaid, currency)}
                     </Text>
                   </View>
                 </View>
@@ -203,7 +205,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                         </View>
                         <View className="w-28 items-end">
                           <Text className="text-muted-foreground font-bold text-sm line-through">
-                            Bs.- {inst.totalAmount.toFixed(2)}
+                            {formatCurrency(inst.totalAmount, currency)}
                           </Text>
                         </View>
                       </View>
@@ -215,7 +217,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                         Total del crédito:
                       </Text>
                       <Text className="text-sm font-bold text-foreground">
-                        Bs.- {loanDetail.loan.totalAmount.toFixed(2)}
+                        {formatCurrency(loanDetail.loan.totalAmount, currency)}
                       </Text>
                     </View>
                   </View>
@@ -256,7 +258,7 @@ export function CompletedLoanAccordionCard({ loan }: CompletedLoanAccordionCardP
                           </Text>
                         </View>
                         <Text className={`font-bold text-base shrink-0 ${pay.voided ? 'text-muted-foreground line-through' : 'text-green-600 dark:text-green-400'}`}>
-                          {pay.voided ? '' : '+ '}Bs.- {pay.amount.toFixed(2)}
+                          {pay.voided ? '' : '+ '}{formatCurrency(pay.amount, currency)}
                         </Text>
                       </View>
                     ))}

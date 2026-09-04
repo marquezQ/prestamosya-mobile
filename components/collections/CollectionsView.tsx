@@ -64,12 +64,44 @@ export function CollectionsView() {
 
   const { dueToday = [], overdue = [], paidToday = [] } = dashboardData ?? {};
 
-  // Progreso del día: cuotas de hoy (total) + lo ya cobrado hoy.
-  // Las cuotas parciales acreditan su paidAmount como progreso.
-  const totalPaidToday =
-    paidToday.reduce((acc, curr) => acc + curr.paidAmount, 0) +
-    dueToday.reduce((acc, curr) => acc + curr.paidAmount, 0);
-  const totalDueToday = dueToday.reduce((acc, curr) => acc + curr.totalAmount, 0);
+  // Progreso por moneda
+  const bobDueToday = dueToday.filter((i) => (i.currency || 'BOB') === 'BOB');
+  const usdDueToday = dueToday.filter((i) => i.currency === 'USD');
+  const bobPaidToday = paidToday.filter((i) => (i.currency || 'BOB') === 'BOB');
+  const usdPaidToday = paidToday.filter((i) => i.currency === 'USD');
+
+  // Totales BOB
+  const bobPaidAmount =
+    bobPaidToday.reduce((acc, curr) => acc + curr.paidAmount, 0) +
+    bobDueToday.reduce((acc, curr) => acc + curr.paidAmount, 0);
+  const bobDueAmount = bobDueToday.reduce((acc, curr) => acc + curr.totalAmount, 0);
+  const totalBOBTarget = bobDueAmount + bobPaidAmount;
+
+  // Totales USD
+  const usdPaidAmount =
+    usdPaidToday.reduce((acc, curr) => acc + curr.paidAmount, 0) +
+    usdDueToday.reduce((acc, curr) => acc + curr.paidAmount, 0);
+  const usdDueAmount = usdDueToday.reduce((acc, curr) => acc + curr.totalAmount, 0);
+  const totalUSDTarget = usdDueAmount + usdPaidAmount;
+
+  const hasUSDActivity = totalUSDTarget > 0 || usdDueToday.length > 0 || usdPaidToday.length > 0;
+
+  const progressItems = [
+    {
+      currency: 'BOB' as const,
+      collectedAmount: bobPaidAmount,
+      totalTargetAmount: totalBOBTarget,
+    },
+    ...(hasUSDActivity
+      ? [
+          {
+            currency: 'USD' as const,
+            collectedAmount: usdPaidAmount,
+            totalTargetAmount: totalUSDTarget,
+          },
+        ]
+      : []),
+  ];
 
   const handleSelectInstallment = (loanId: string, clientPhone: string) => {
     router.push(`/(app)/loan/${loanId}?clientPhone=${encodeURIComponent(clientPhone)}`);
@@ -117,13 +149,8 @@ export function CollectionsView() {
           onSelectDate={setSelectedDate}
         />
 
-        {/* ── Barra de Progreso del Día ── */}
-        {!isError && (
-          <DailyProgressCard
-            collectedAmount={totalPaidToday}
-            totalTargetAmount={totalDueToday + totalPaidToday}
-          />
-        )}
+        {/* ── Barra de Progreso del Día (Tarjeta Única) ── */}
+        {!isError && <DailyProgressCard progressItems={progressItems} />}
 
         {/* ── Estado de carga ── */}
         {isLoading && (

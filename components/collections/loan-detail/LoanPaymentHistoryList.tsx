@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { View, Pressable, Alert, Platform } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Banknote, Trash2, Ban } from 'lucide-react-native';
-import { LoanPaymentItem } from '@/types/loan';
-import { formatDateBO, formatBs } from '@/lib/format';
+import { LoanPaymentItem, Currency } from '@/types/loan';
+import { formatDateBO, formatCurrency } from '@/lib/format';
 import { VoidPaymentDialog } from './VoidPaymentDialog';
 
 interface LoanPaymentHistoryListProps {
   payments: LoanPaymentItem[];
+  currency?: Currency;
 }
 
-export function LoanPaymentHistoryList({ payments }: LoanPaymentHistoryListProps) {
+export function LoanPaymentHistoryList({ payments, currency = 'BOB' }: LoanPaymentHistoryListProps) {
   const [selectedPaymentForVoid, setSelectedPaymentForVoid] = useState<{
     id: string;
     amount: number;
@@ -107,7 +108,7 @@ export function LoanPaymentHistoryList({ payments }: LoanPaymentHistoryListProps
                     : 'text-green-600 dark:text-green-400'
                 }`}
               >
-                {isVoided ? '' : '+ '}{formatBs(pay.amount)}
+                {isVoided ? '' : '+ '}{formatCurrency(pay.amount, currency)}
               </Text>
 
               {!isVoided && (
@@ -132,6 +133,7 @@ export function LoanPaymentHistoryList({ payments }: LoanPaymentHistoryListProps
           onClose={() => setSelectedPaymentForVoid(null)}
           paymentId={selectedPaymentForVoid.id}
           amount={selectedPaymentForVoid.amount}
+          currency={currency}
           onSuccess={handleVoidSuccess}
         />
       )}

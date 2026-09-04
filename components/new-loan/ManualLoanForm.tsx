@@ -10,6 +10,7 @@ import type { LoanFormValues } from '@/lib/schemas/loanForm';
 import { type Currency } from '@/types/loan';
 import { buildManualSchedule } from '@/lib/manualSchedule';
 import { useNewLoanStore } from '@/stores/newLoanStore';
+import { formatCurrency } from '@/lib/format';
 import { ManualInstallmentRow } from './ManualInstallmentRow';
 import { Plus, CheckCircle2 } from 'lucide-react-native';
 
@@ -169,7 +170,7 @@ export function ManualLoanForm() {
             Cuotas Personalizadas
           </Text>
           <Text className="text-muted-foreground text-sm font-bold">
-            Suma: {totalSum.toFixed(2)} Bs
+            Suma: {formatCurrency(totalSum, watch('currency') || 'BOB')}
           </Text>
         </View>
 

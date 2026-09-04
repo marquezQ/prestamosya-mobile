@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { DashboardInstallmentItem } from '@/types/payment';
-import { formatDateBO, formatBs, getInitials } from '@/lib/format';
+import { formatDateBO, formatCurrency, getInitials } from '@/lib/format';
 
 interface OverdueInstallmentCardProps {
   item: DashboardInstallmentItem;
@@ -45,7 +45,7 @@ export function OverdueInstallmentCard({ item, onPress }: OverdueInstallmentCard
 
       {/* Right: Red Amount Badge */}
       <View className="bg-red-600 px-3.5 py-1.5 rounded-xl items-center justify-center shadow-sm">
-        <Text className="text-white font-bold text-sm">{formatBs(displayAmount)}</Text>
+        <Text className="text-white font-bold text-sm">{formatCurrency(displayAmount, item.currency || 'BOB')}</Text>
       </View>
     </Pressable>
   );
