@@ -18,7 +18,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.prestamosyamobile"
+      "bundleIdentifier": "com.anonymous.prestamosyamobile",
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "whatsapp",
+          "whatsapp-business",
+          "tel"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
