@@ -29,4 +29,7 @@ export const ENDPOINTS = {
   ADMIN: {
     RECALCULATE_OVERDUE: '/admin/recalculate-overdue',
   },
+  DASHBOARD: {
+    HOME: '/dashboard/home',
+  },
 };

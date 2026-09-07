@@ -146,8 +146,40 @@ El tab Cobros y el flujo de pagos están conectados al backend real.
 - Nombre y CI del cliente en el detalle de préstamo SIEMPRE desde `loanDetail.loan.clientName/clientIdNumber` — nunca desde params de ruta ni defaults de props.
 - Labels dinámicos: cuando `selectedDate !== metadata.serverToday`, los títulos dicen "Cuotas/Cobrados del {fecha}" en vez de "de hoy".
 - Config única de badges de estado: `getInstallmentStatusConfig()` en `components/collections/installmentStatus.tsx`.
-- Helpers de formato compartidos en `lib/format.ts` (`formatBs`, `formatDateBO`, `getTodayISO`, `getInitials`) — no duplicar localmente.
+- Helpers de formato compartidos en `lib/format.ts` (`formatBs`, `formatDateBO`, `getTodayISO`, `getInitials`, `formatAmountNumber`) — no duplicar localmente.
 - El modal de pago usa RNR `Dialog` (patrón `GuaranteeFormModal`). Si se agregan campos, mantener `ScrollView` con `keyboardShouldPersistTaps="handled"` dentro de `DialogContent`.
+
+---
+
+## 🔐 Auth Hydration — REGLA CRÍTICA
+
+El método `hydrate()` en `stores/authStore.ts` es el punto de entrada al restaurar sesión al iniciar la app.
+
+**Regla:** Nunca hardcodear ni mockear el objeto `user` dentro de `hydrate()`. Si hay un token en `secureStorage`, siempre llamar al backend real:
+
+```ts
+// ✅ CORRECTO — consume el endpoint real GET /auth/me
+const user = await authService.getProfile();
+set({ user, isAuthenticated: true, isHydrated: true });
+
+// ❌ INCORRECTO — nunca hacer esto, ignora al usuario real
+set({ user: { id: "1", username: "admin", name: "Admin", role: "admin" }, ... });
+```
+
+Si el token expiró o el backend devuelve `401`, el store limpia el token con `secureStorage.deleteToken()` y redirige al Login automáticamente (manejado por el interceptor de Axios que invoca `setLogoutCallback`).
+
+---
+
+## 📱 WhatsApp — Helper Nativo (`lib/whatsapp.ts`)
+
+El helper unificado para abrir WhatsApp vive en `lib/whatsapp.ts`.
+
+- **`openWhatsApp({ phone, text })`**: Abre el URI scheme nativo `whatsapp://send?phone=...&text=...`. En Android e iOS, si hay más de una app de WhatsApp instalada (Personal y Business), el SO muestra su diálogo de selección nativo. Si el scheme nativo no está disponible, hace fallback a `https://api.whatsapp.com/send`.
+- **`sendWhatsAppWithChooser(options)`**: Alias de compatibilidad que simplemente llama a `openWhatsApp`. No usa `Alert.alert` — el selector es 100% nativo del sistema operativo.
+- **Formateo del número**: Se limpian caracteres no numéricos. Si el número tiene 8 dígitos (número boliviano local), se antepone `591` automáticamente.
+
+> **Regla:** Nunca usar `Alert.alert` para presentar un selector de WhatsApp manual. La selección la hace siempre el sistema operativo.
+
 
 
 

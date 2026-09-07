@@ -114,7 +114,7 @@ export function CollectionsView() {
       {/* ── Screen Header ── */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-background">
         <View>
-          <Text className="font-bold text-2xl text-foreground tracking-tight">
+          <Text className="font-bold text-lg text-foreground">
             Cobros
           </Text>
           <Text className="text-muted-foreground text-xs font-semibold mt-0.5">

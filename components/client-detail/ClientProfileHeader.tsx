@@ -9,6 +9,7 @@ import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { palette, getThemeColors } from '@/lib/theme/colors';
 import { useColorScheme } from 'nativewind';
+import { sendWhatsAppWithChooser } from '@/lib/whatsapp';
 
 interface ClientProfileHeaderProps {
   client: Client;
@@ -35,10 +36,7 @@ export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps
 
   const handleWhatsApp = () => {
     if (client.phone) {
-      const rawDigits = client.phone.replace(/\D/g, '');
-      const phone = rawDigits.startsWith('591') ? rawDigits : `591${rawDigits}`;
-      const url = `https://wa.me/${phone}`;
-      Linking.openURL(url).catch((err) => console.error('An error occurred', err));
+      sendWhatsAppWithChooser({ phone: client.phone });
     }
   };
 

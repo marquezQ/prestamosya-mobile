@@ -266,3 +266,56 @@ Any form rendered inside a `Dialog`/`DialogContent` MUST use the RNKC wrapper �
 ```
 
 The RNKC component auto-scrolls the focused input above the keyboard on iOS/Android and has a `.web.tsx` fallback. It requires the root `KeyboardProvider` (already mounted in `_layout.tsx`). Reference implementation: `app/(auth)/login.tsx` and `components/collections/RegisterPaymentModal.tsx`. Do NOT add `KeyboardAvoidingView` on top of it — Android already resizes the window (edge-to-edge + adjustResize) and double-compensating causes visual jumps.
+
+---
+
+## 🗂️ Home Module — Components & UI Patterns
+
+Todos los componentes del tab Inicio viven en `components/home/`.
+
+| Componente | Responsabilidad |
+|---|---|
+| `HomeView.tsx` | Contenedor principal. El `<HomeHeader />` está **dentro del `<ScrollView>`** (no fijo). Pull-to-Refresh via `<RefreshControl>`. |
+| `HomeHeader.tsx` | Encabezado desplazable. Muestra `"Resumen General - {user.name}"` leyendo `user` del `useAuthStore`. Usa `text-lg font-bold`. |
+| `OutstandingCapitalCard.tsx` | Tarjeta hero de Capital en Calle. Diseño minimalista sobre `bg-card`. |
+| `LoansClientsSummaryCards.tsx` | Grid de KPIs de préstamos y clientes con tasa de morosidad de color dinámico. |
+| `OverdueCollectionList.tsx` | Lista Top-10 de cuotas en mora con acciones rápidas. |
+
+### Convenciones Clave del Home
+
+#### Encabezados de Tab — Tamaño Estandarizado
+Los títulos de encabezado de las tres vistas principales **usan siempre `text-lg font-bold text-foreground`** para consistencia visual:
+- Home: `"Resumen General - {nombre}"` en `HomeHeader.tsx`
+- Cobros: `"Cobros"` en `CollectionsView.tsx`
+- Clientes: `"Directorio de Clientes"` en `clients.tsx`
+
+> **Regla:** No usar `text-2xl` para títulos de pestaña — usar `text-lg` para igualar las tres vistas.
+
+#### Capital en Calle — Diseño de Tarjeta
+
+La tarjeta `OutstandingCapitalCard` usa:
+- Contenedor principal: `bg-card border border-border/70 rounded-3xl`
+- Sub-tarjeta BOB: `bg-sky-500/5 border border-sky-500/20 rounded-2xl` con badge `Bs.-`
+- Sub-tarjeta USD (solo si `capital.USD > 0`): `bg-emerald-500/5 border border-emerald-500/20 rounded-2xl` con badge `$us`
+- Las **cifras numéricas** usan `formatAmountNumber()` (sin prefijo pegado al número) con `numberOfLines={1}` para evitar desfasamiento entre columnas.
+- Los badges `Bs.-` / `$us` van en el encabezado de cada sub-tarjeta (arriba a la derecha), **no** adosados a la cifra.
+
+#### Clientes en Mora (`OverdueCollectionList`) — Convenciones
+
+- **Monto pendiente**: color neutro `text-foreground` (no rojo). El rojo solo se usa en la badge de días de mora.
+- **Botón Llamar**: Estilo outline sin fondo (`border border-secondary/40 active:bg-secondary/10`) con ícono `Phone` y texto `"Llamar"`. Igual al del `ClientProfileHeader`.
+- **Botón WhatsApp**: Estilo sólido verde (`bg-green-600`) con ícono `MessageSquare` y texto `"WhatsApp"`.
+- Ambos botones son simétricos: `px-3 py-1.5 rounded-xl flex-row items-center gap-1.5 text-xs font-bold`, ícono size 14.
+- **Sin chevron `>`**: El card completo es un `Pressable` que navega al detalle del préstamo. El ícono de flecha es redundante y fue eliminado.
+
+### `formatAmountNumber` — Formateo Numérico Sin Prefijo
+
+Disponible en `lib/format.ts`. Formatea un número en locale `es-BO` sin el prefijo de moneda:
+
+```ts
+formatAmountNumber(150000)  // → "150.000"
+formatCurrency(150000, 'BOB')  // → "Bs.- 150.000"  (con prefijo)
+```
+
+Usar `formatAmountNumber` cuando la etiqueta de moneda ya está visible visualmente (ej. badge `Bs.-` en el encabezado de la tarjeta). Usar `formatCurrency` cuando el texto va solo (ej. mensajes de WhatsApp, resúmenes textuales).
+

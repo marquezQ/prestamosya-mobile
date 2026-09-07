@@ -5,6 +5,7 @@ import { Client } from '@/types/client';
 import { Phone, MessageSquare } from 'lucide-react-native';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { palette } from '@/lib/theme/colors';
+import { sendWhatsAppWithChooser } from '@/lib/whatsapp';
 
 interface ClientCardProps {
   client: Client;
@@ -59,10 +60,7 @@ export function ClientCard({ client, onPress }: ClientCardProps) {
   const handleWhatsApp = (e: GestureResponderEvent) => {
     e.stopPropagation();
     if (client.phone) {
-      const rawDigits = client.phone.replace(/\D/g, '');
-      const phone = rawDigits.startsWith('591') ? rawDigits : `591${rawDigits}`;
-      const url = `https://wa.me/${phone}`;
-      Linking.openURL(url).catch((err) => console.error('An error occurred', err));
+      sendWhatsAppWithChooser({ phone: client.phone });
     }
   };
 

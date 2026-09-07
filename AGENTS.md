@@ -25,6 +25,7 @@ To maintain consistency and prevent breaking the architecture, **you MUST read t
 3. **UI, Components & Styling**: See `.agents/UI_AND_STYLES.md` for rules on using `className` vs `style`, how to use the RNR components in `components/ui/`, how the CSS variables theme works, and the centralized palette in `lib/theme/`.
 4. **Data Fetching & State**: See `.agents/DATA_AND_STATE.md` for Axios interceptors, React Query usage rules, and Zustand store structures.
 5. **Forms & Validation**: See `.agents/FORMS.md` for the standard way to implement forms using Zod schemas and hookform resolvers.
+6. **Currency & Multimoneda**: See `.agents/CURRENCY.md` for how `currency` (BOB / USD) flows from the backend, prop drilling patterns, and `formatAmountNumber` vs `formatCurrency` rules.
 
 ---
 *Note to Agents: Do not deviate from these established patterns without explicit user permission. Always prioritize `className` (Tailwind) over inline `style`, use specific hooks for Safe Areas, and do not mix client state (Zustand) with server state (React Query).*
