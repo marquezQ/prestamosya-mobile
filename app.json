@@ -60,7 +60,20 @@
           "photoPermission": "Permitir que PrestamosYA acceda a tus fotos para adjuntar imágenes de las garantías."
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "manifestQueries": {
+              "package": [
+                "com.whatsapp",
+                "com.whatsapp.w4b"
+              ]
+            }
+          }
+        }
+      ]
     ]
   }
 }

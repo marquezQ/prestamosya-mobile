@@ -40,7 +40,7 @@ export async function openWhatsApp({ phone, text = '' }: WhatsAppOptions): Promi
   const webUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}${textParam}`;
 
   try {
-    const canOpenNative = await Linking.canOpenURL(nativeUrl);
+    const canOpenNative = await Linking.canOpenURL(nativeUrl).catch(() => true);
     if (canOpenNative) {
       await Linking.openURL(nativeUrl);
     } else {
