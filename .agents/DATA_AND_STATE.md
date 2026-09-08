@@ -151,6 +151,38 @@ El tab Cobros y el flujo de pagos están conectados al backend real.
 
 ---
 
+## 📄 Stats Module — Data Layer
+
+El tab **Resumen** consume dos endpoints reales de estadísticas. Tipos en `types/stats.ts`.
+
+### Services & Hooks
+| File | Responsibility |
+|---|---|
+| `services/endpoints.ts` | `STATS.MONTHLY` (`/stats/monthly`) y `STATS.MONTHLY_HISTORY` (`/stats/monthly-history`) |
+| `services/statsService.ts` | `getMonthlyStats(year?, month?)` y `getMonthlyHistory(months = 6)` vía Axios central |
+| `hooks/useMonthlyStats.ts` | React Query. QueryKey: `['stats', 'monthly', year, month]`. `staleTime` 5 min |
+| `hooks/useMonthlyHistory.ts` | React Query. QueryKey: `['stats', 'history', months]` (default 6). `staleTime` 5 min |
+
+### Endpoints del backend (ambos con `Authorization: Bearer`)
+1. **GET /stats/monthly?year=YYYY&month=M** (sin params = mes actual) → `{ data: MonthlyStatsData, message? }` con `period`, `incomeBreakdown`, `performanceSummary`, `riskIndicators`, `monthlyBalance`, `generatedAt`.
+2. **GET /stats/monthly-history?months=N** → `{ data: MonthlyHistoryItem[], message? }`; **índice 0 = mes más reciente** con `label`, `interestCollected`, `netProfit`, `collectionRate`, `newLoansCount`.
+
+### Métricas clave (reglas de negocio)
+- **`incomeBreakdown.interestCollected`** es la **ganancia real** del mes — la cifra estrella del Summary. NUNCA usar `totalCashIn` como ganancia.
+- **`monthlyBalance.returnOnCapital`** es un **porcentaje por moneda** (ej. `BOB: 3.64` = 3.64%) — se muestra con `%`, no como moneda.
+- `collectionRate` y `revenueEfficiency` son porcentajes 0-100.
+- **`topDelinquentClients` NO existe** en stats: fue removido del endpoint (el listado de morosos vive centralizado en `GET /dashboard/home`, tab Inicio). No renderizar ni tipar clientes morosos en el módulo Summary.
+- **`refinancedLoansCount` NO existe** (MVP): el refinanciamiento se opera como liquidación (`completedLoansCount`) + nuevo préstamo (`newLoansCount`). Nunca renderizar ni tipar "Refinanciados".
+- `riskIndicators` opcionalmente expone `overdueLoansCount` y `delinquentInstallmentsCount`; el resto de campos son opcionales y siempre se leen con `?? 0`/`?? {BOB:0, USD:0}` (el backend puede omitir claves).
+
+### Convenciones del módulo
+- Estado de mes seleccionado vive en `SummaryView` (`useState {year, month}`, default = mes actual del dispositivo). Siempre pasar `year`/`month` al hook.
+- Se cargan 2 queries (reporte + historial). **Un solo loader** centralizado mientras `isLoading` del reporte; la gráfica usa skeleton. Ver `.agents/UI_AND_STYLES.md` (sección Summary Module).
+- No se añade librería de gráficas: la gráfica mensual se construye con `Views` (altura dinámica vía `style={{height}}`).
+- `formatCurrency` para montos BOB/USD; mostrar línea USD solo si `> 0`.
+
+---
+
 ## 🔐 Auth Hydration — REGLA CRÍTICA
 
 El método `hydrate()` en `stores/authStore.ts` es el punto de entrada al restaurar sesión al iniciar la app.

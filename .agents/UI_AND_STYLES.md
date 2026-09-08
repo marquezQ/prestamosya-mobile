@@ -276,7 +276,7 @@ Todos los componentes del tab Inicio viven en `components/home/`.
 | Componente | Responsabilidad |
 |---|---|
 | `HomeView.tsx` | Contenedor principal. El `<HomeHeader />` está **dentro del `<ScrollView>`** (no fijo). Pull-to-Refresh via `<RefreshControl>`. |
-| `HomeHeader.tsx` | Encabezado desplazable. Muestra `"Resumen General - {user.name}"` leyendo `user` del `useAuthStore`. Usa `text-lg font-bold`. |
+| `HomeHeader.tsx` | Encabezado desplazable. Muestra **solo** `user.name` (nunca el `username`) leyendo `user` del `useAuthStore`. Si `user.name` no existe, muestra cadena vacía: `const userName = user?.name || ''`. Usa `text-lg font-bold`. |
 | `OutstandingCapitalCard.tsx` | Tarjeta hero de Capital en Calle. Diseño minimalista sobre `bg-card`. |
 | `LoansClientsSummaryCards.tsx` | Grid de KPIs de préstamos y clientes con tasa de morosidad de color dinámico. |
 | `OverdueCollectionList.tsx` | Lista Top-10 de cuotas en mora con acciones rápidas. |
@@ -285,9 +285,10 @@ Todos los componentes del tab Inicio viven en `components/home/`.
 
 #### Encabezados de Tab — Tamaño Estandarizado
 Los títulos de encabezado de las tres vistas principales **usan siempre `text-lg font-bold text-foreground`** para consistencia visual:
-- Home: `"Resumen General - {nombre}"` en `HomeHeader.tsx`
+- Home: `user.name` (solo nombre) en `HomeHeader.tsx` — si no existe `name`, cadena vacía
 - Cobros: `"Cobros"` en `CollectionsView.tsx`
 - Clientes: `"Directorio de Clientes"` en `clients.tsx`
+- Resumen: `"Resumen"` en `MonthNavigator.tsx`
 
 > **Regla:** No usar `text-2xl` para títulos de pestaña — usar `text-lg` para igualar las tres vistas.
 
@@ -318,4 +319,40 @@ formatCurrency(150000, 'BOB')  // → "Bs.- 150.000"  (con prefijo)
 ```
 
 Usar `formatAmountNumber` cuando la etiqueta de moneda ya está visible visualmente (ej. badge `Bs.-` en el encabezado de la tarjeta). Usar `formatCurrency` cuando el texto va solo (ej. mensajes de WhatsApp, resúmenes textuales).
+
+---
+
+## 🗂️ Summary Module — Components & UI Patterns
+
+El tab **Resumen** (`app/(app)/(tabs)/summary.tsx`) renderiza solo `<SummaryView />`. Todos sus componentes viven en `components/summary/`.
+
+| Componente | Responsabilidad |
+|---|---|
+| `SummaryView.tsx` | Orquestador: estado de mes seleccionado `{year, month}`, `useMonthlyStats` + `useMonthlyHistory(6)`, `ScrollView` + `RefreshControl`, `MonthNavigator` fijo arriba (fuera del ScrollView). |
+| `MonthNavigator.tsx` | Encabezado del tab: título `"Resumen"` (`text-lg font-bold`) + label del mes con `date-fns` (`MMMM yyyy`, locale `es`, capitalizado). Chevrons prev/next (`w-9 h-9 rounded-xl border border-border bg-card`) con ícono color `palette.azul`; el "siguiente" se deshabilita en el mes actual. Pill `"Actual"` cuando se navega a un mes pasado. |
+| `DualCurrencyAmount.tsx` | Renderiza `formatCurrency(amount.BOB, 'BOB')` + segunda línea USD **solo si `USD > 0`**. Prop `textClassName` para el monto BOB. |
+| `SectionHeader.tsx` | Encabezado de tarjeta (icono en `w-8 h-8 rounded-xl bg-primary/10` + título + subtítulo) con slot opcional `right`. |
+| `StatCell.tsx` | Celda KPI numérica (`label` + `value`) para grillas de contadores. |
+| `IncomeCard.tsx` | Hero de ingresos: interés cobrado (ganancia real) en paneles Bs.-/USD (`bg-sky-500/5`) + chips "Capital recuperado" / "Efectivo ingresado". Condonaciones **solo si > 0**. |
+| `PerformanceCard.tsx` | "Dinero que debías cobrar / cobraste", barras `LoanProgressBar` (`h-2.5`) de tasa y eficiencia, y lista de cuotas con `CountRow`: punto de color (`w-2.5 h-2.5 rounded-full`) + etiqueta clara + conteo. |
+| `BalanceCard.tsx` | "Rentabilidad del Mes": ganancia neta (verde), capital invertido, `returnOnCapital` como % (`toFixed(2)`) con nota "Ganancia ÷ capital invertido". |
+| `RiskCard.tsx` | "Riesgo del Mes": pill de morosidad dinámica (≥20 roja / ≥10 ámbar / si no verde), dinero en riesgo, préstamos en mora, extra de préstamos nuevos + celdas `StatCell`. Sin refinanciamiento (MVP). |
+| `MonthlyBarChart.tsx` | Gráfica de barras de `netProfit.BOB` de 6 meses construida **solo con `View`s** (`style={{height}}` dinámico) — **no se añade librería de gráficas**. Barras `bg-secondary`, negativos en rojo con altura mínima 4, valores con `formatAmountNumber`, eje X con `item.label`. |
+
+### Convenciones Clave del Summary
+
+#### UX para usuario no técnico
+- Las etiquetas usan **español claro** (ej. "Dinero que debías cobrar", "Cuotas del período", "Vencidas sin pagar") en lugar de jerga técnica (nunca "Revenue", "Delinquency", "Refinanciados", etc.).
+- Preferir **listas con puntos de color** (`CountRow`) sobre grillas técnicas para contadores de cuotas.
+- Ocultar filas/campos sin datos o en cero para reducir ruido visual.
+- `returnOnCapital` y todos los porcentajes se muestran con `toFixed(1)`–`toFixed(2)` + símbolo `%` como texto (NO como moneda ni con `formatCurrency`).
+
+#### Loader centralizado (regla)
+- Al entrar al tab se muestra **un solo `ActivityIndicator`** ("Preparando tu resumen del mes…") mientras `isLoading` del reporte mensual.
+- La gráfica de historial usa un **skeleton** (caja `h-44 bg-muted/40 rounded-2xl`) en vez de un segundo spinner.
+- Cada fallo (stats / historial) tiene su propio bloque con botón "Reintentar" (`Button variant="outline"` + ícono `RefreshCw` color `palette.azul`).
+
+#### Moneda bimonetaria en Summary
+- Montos `CurrencyAmount` ({BOB, USD}) → siempre `DualCurrencyAmount` (o paneles tipo `OutstandingCapitalCard` para el hero).
+- No mostrar filas/líneas USD que sean 0.
 

@@ -17,6 +17,7 @@ This app uses File-Based Routing via **Expo Router v3+**.
 - `app/(app)/(tabs)/`: The main bottom navigation tabs. Shared chrome (header, tab bar) lives in `app/(app)/(tabs)/_layout.tsx`.
 - `app/(app)/client/[id].tsx`: **Client detail screen.** Dynamic route accessed via `router.push('/(app)/client/${id}')`. Registered as `<Stack.Screen name="client/[id]" />` in `app/(app)/_layout.tsx`. Lives outside `(tabs)` so the tab bar is not shown. Uses its own custom header with an `ArrowLeft` back button.
 - `app/(app)/loan/[id].tsx`: **Loan detail / payment screen (módulo Cobros).** Registered as `<Stack.Screen name="loan/[id]" />` in `app/(app)/_layout.tsx`. Lives outside `(tabs)`. Navigated from CollectionsView via `router.push(\`/(app)/loan/${loanId}?clientPhone=${...}\`)`. Renders `LoanDetailPaymentView` con el botón persistente "Registrar Pago".
+- `app/(app)/(tabs)/summary.tsx`: **Resumen tab.** Renderea solo `<SummaryView />` (módulo `components/summary/`). El estado del mes seleccionado vive dentro del propio `SummaryView`; al cambiar de mes se vuelven a hacer fetch (`GET /stats/monthly` + `/stats/monthly-history`). Sin navegación interna.
 
 ## 📱 Full-screen Detail Pattern (outside Tabs)
 

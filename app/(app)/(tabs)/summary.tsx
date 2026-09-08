@@ -1,9 +1,5 @@
-import { View, Text } from "react-native";
+import { SummaryView } from "@/components/summary/SummaryView";
 
 export default function SummaryScreen() {
-  return (
-    <View className="flex-1 justify-center items-center bg-background">
-      <Text className="text-2xl font-bold text-foreground">Resumen</Text>
-    </View>
-  );
+  return <SummaryView />;
 }
