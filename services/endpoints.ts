@@ -32,4 +32,8 @@ export const ENDPOINTS = {
   DASHBOARD: {
     HOME: '/dashboard/home',
   },
+  STATS: {
+    MONTHLY: '/stats/monthly',
+    MONTHLY_HISTORY: '/stats/monthly-history',
+  },
 };
