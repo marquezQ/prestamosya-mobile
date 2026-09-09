@@ -6,13 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMonthlyStats } from '@/hooks/useMonthlyStats';
 import { useMonthlyHistory } from '@/hooks/useMonthlyHistory';
 import { MonthNavigator } from './MonthNavigator';
+import { SummaryGroupHeader } from './SummaryGroupHeader';
 import { IncomeCard } from './IncomeCard';
 import { PerformanceCard } from './PerformanceCard';
 import { BalanceCard } from './BalanceCard';
-import { RiskCard } from './RiskCard';
+import { MonthlyActivityCard } from './MonthlyActivityCard';
+import { PortfolioCard } from './PortfolioCard';
 import { MonthlyBarChart } from './MonthlyBarChart';
 import { palette } from '@/lib/theme/colors';
-import { RefreshCw } from 'lucide-react-native';
+import { RefreshCw, CalendarDays, Wallet } from 'lucide-react-native';
 
 export function SummaryView() {
   const insets = useSafeAreaInsets();
@@ -49,6 +51,7 @@ export function SummaryView() {
       <MonthNavigator
         year={monthSelection.year}
         month={monthSelection.month}
+        period={stats?.period}
         onMonthChange={(year, month) => setMonthSelection({ year, month })}
       />
 
@@ -96,10 +99,20 @@ export function SummaryView() {
 
         {!isLoading && !isError && stats && (
           <>
+            <SummaryGroupHeader
+              icon={<CalendarDays size={18} color={palette.azul} />}
+              title="Resumen del Mes"
+              subtitle="Lo ocurrido entre el día 1 y el último día del mes seleccionado"
+            />
             <IncomeCard income={stats.incomeBreakdown} />
             <PerformanceCard performance={stats.performanceSummary} />
             <BalanceCard balance={stats.monthlyBalance} />
-            <RiskCard risk={stats.riskIndicators} />
+            <MonthlyActivityCard
+              newLoansCapital={stats.riskIndicators?.newLoansCapital ?? { BOB: 0, USD: 0 }}
+              newLoansCount={stats.riskIndicators?.newLoansCount ?? 0}
+              completedLoansCount={stats.riskIndicators?.completedLoansCount ?? 0}
+              newClientsCount={stats.riskIndicators?.newClientsCount ?? 0}
+            />
 
             {/* Gráfica del historial: skeleton (sin spinner) + retry propio */}
             {isHistoryLoading ? (
@@ -121,6 +134,18 @@ export function SummaryView() {
             ) : (
               <MonthlyBarChart data={history ?? []} />
             )}
+
+            <SummaryGroupHeader
+              icon={<Wallet size={18} color={palette.azul} />}
+              title="Estado Actual de Tu Cartera"
+              subtitle="Foto al día de hoy · no cambia al cambiar de mes"
+            />
+            <PortfolioCard
+              capitalDeployed={stats.monthlyBalance?.capitalDeployed ?? { BOB: 0, USD: 0 }}
+              portfolioAtRisk={stats.riskIndicators?.portfolioAtRisk ?? { BOB: 0, USD: 0 }}
+              delinquencyRate={stats.riskIndicators?.delinquencyRate ?? 0}
+              overdueLoansCount={stats.riskIndicators?.overdueLoansCount ?? 0}
+            />
           </>
         )}
       </ScrollView>

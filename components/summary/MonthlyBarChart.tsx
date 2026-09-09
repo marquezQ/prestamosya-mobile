@@ -20,14 +20,18 @@ export function MonthlyBarChart({ data }: MonthlyBarChartProps) {
     0,
   );
 
+  const header = (
+    <SectionHeader
+      icon={<BarChart3 size={18} color={palette.azul} />}
+      title="Historial Mensual"
+      subtitle="monthlyHistory · netProfit.BOB"
+    />
+  );
+
   if (items.length === 0) {
     return (
       <View className="mx-4 mb-3 bg-card border border-border rounded-2xl p-4 shadow-sm">
-        <SectionHeader
-          icon={<BarChart3 size={18} color={palette.azul} />}
-          title="Beneficios de los últimos 6 meses"
-          subtitle="Utilidad neta mensual (Bs.-)"
-        />
+        {header}
         <View className="border border-dashed border-border rounded-xl p-4 items-center">
           <Text className="text-muted-foreground text-xs font-semibold">
             Sin datos suficientes para la gráfica.
@@ -39,11 +43,7 @@ export function MonthlyBarChart({ data }: MonthlyBarChartProps) {
 
   return (
     <View className="mx-4 mb-3 bg-card border border-border rounded-2xl p-4 shadow-sm">
-      <SectionHeader
-        icon={<BarChart3 size={18} color={palette.azul} />}
-        title="Beneficios de los últimos 6 meses"
-        subtitle="Utilidad neta mensual (Bs.-)"
-      />
+      {header}
 
       <View className="flex-row items-end gap-2">
         {items.map((item) => {

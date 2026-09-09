@@ -168,9 +168,13 @@ El tab **Resumen** consume dos endpoints reales de estadísticas. Tipos en `type
 2. **GET /stats/monthly-history?months=N** → `{ data: MonthlyHistoryItem[], message? }`; **índice 0 = mes más reciente** con `label`, `interestCollected`, `netProfit`, `collectionRate`, `newLoansCount`.
 
 ### Métricas clave (reglas de negocio)
+- El reporte mezcla **2 familias de métricas** que la UI separa en 2 bloques (`SummaryGroupHeader`):
+  1. **Del mes** (varían con `year`/`month`): `incomeBreakdown`, `performanceSummary`, `monthlyBalance.netProfit`/`returnOnCapital`, `newLoans*`, `completedLoansCount`, `newClientsCount`. Etiqueta `Del mes`.
+  2. **Foto de cartera** (estado actual en vivo, NO varía con el mes): `portfolioAtRisk`, `delinquencyRate` y `capitalDeployed` (aunque viva dentro de `monthlyBalance`. Cuentan el estado del día de hoy). Etiqueta `Hoy`.
 - **`incomeBreakdown.interestCollected`** es la **ganancia real** del mes — la cifra estrella del Summary. NUNCA usar `totalCashIn` como ganancia.
-- **`monthlyBalance.returnOnCapital`** es un **porcentaje por moneda** (ej. `BOB: 3.64` = 3.64%) — se muestra con `%`, no como moneda.
-- `collectionRate` y `revenueEfficiency` son porcentajes 0-100.
+- **`monthlyBalance.returnOnCapital`** es un **porcentaje por moneda** (ej. `BOB: 3.64` = 3.64%) — se muestra con `%`, no como moneda. Es **del mes**: el backend lo sincroniza con `netProfit` según el mes consultado.
+- **`monthlyBalance.capitalDeployed`** es **foto de cartera** (suma del saldo pendiente de los préstamos ACTIVE hoy) y se renderiza en `PortfolioCard`, NO en `BalanceCard`.
+- `collectionRate` y `revenueEfficiency` son porcentajes 0-100 (lleguen en esa escala; si el backend enviara 0-1, el render de barras y etiquetas se ajusta en `PerformanceCard`).
 - **`topDelinquentClients` NO existe** en stats: fue removido del endpoint (el listado de morosos vive centralizado en `GET /dashboard/home`, tab Inicio). No renderizar ni tipar clientes morosos en el módulo Summary.
 - **`refinancedLoansCount` NO existe** (MVP): el refinanciamiento se opera como liquidación (`completedLoansCount`) + nuevo préstamo (`newLoansCount`). Nunca renderizar ni tipar "Refinanciados".
 - `riskIndicators` opcionalmente expone `overdueLoansCount` y `delinquentInstallmentsCount`; el resto de campos son opcionales y siempre se leen con `?? 0`/`?? {BOB:0, USD:0}` (el backend puede omitir claves).

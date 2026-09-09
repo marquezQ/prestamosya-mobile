@@ -1,5 +1,12 @@
 # Forms & Validation Context
 
+## 🔐 Login — Reglas acordadas (frente y backend)
+
+- **Usuario**: `min 3`, `max 20` caracteres (schema zod + `maxLength={20}` en el `Input`).
+- **Contraseña**: `min 6` caracteres.
+- `handleSubmit(onSubmit)` solo llama al submit si zod pasa; los errores de zod se pintan **debajo de cada campo** (`fieldError`). El recuadro rojo **superior** del login (`errorMessage`) NO es zod: se llena con `error.message` de la mutación `useLogin` tras una petición que llegó al server (mensaje del backend).
+- **Regla:** los límites del schema zod deben ser **iguales o más estrictos** que los del backend, para que el cliente cortee antes y el usuario vea el mensaje de zod, no el del servidor.
+
 ## 📋 React Hook Form + Zod
 
 Complex forms (like Login, Register, Loan Application) must be built using `react-hook-form` paired with `zod` for validation.

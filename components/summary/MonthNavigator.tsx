@@ -5,10 +5,13 @@ import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { addMonths, format, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { palette } from '@/lib/theme/colors';
+import { MonthlyPeriod } from '@/types/stats';
 
 interface MonthNavigatorProps {
   year: number;
   month: number;
+  /** Periodo autoritativo servido por el backend (GET /stats/monthly → data.period). */
+  period?: MonthlyPeriod;
   onMonthChange: (year: number, month: number) => void;
 }
 
@@ -20,13 +23,15 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function MonthNavigator({ year, month, onMonthChange }: MonthNavigatorProps) {
+export function MonthNavigator({ year, month, period, onMonthChange }: MonthNavigatorProps) {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
-  const isCurrentMonth = year === currentYear && month === currentMonth;
+  const fallbackIsCurrent = year === currentYear && month === currentMonth;
+  const isCurrentMonth = period ? period.isCurrentMonth : fallbackIsCurrent;
 
-  const label = capitalize(format(toDate(year, month), 'MMMM yyyy', { locale: es }));
+  const label =
+    period?.label ?? capitalize(format(toDate(year, month), 'MMMM yyyy', { locale: es }));
 
   const handlePrev = () => {
     const prev = subMonths(toDate(year, month), 1);

@@ -29,8 +29,8 @@ const loginSchema = z.object({
   username: z
     .string()
     .min(3, "El usuario debe tener al menos 3 caracteres")
-    .max(15, "El usuario no puede exceder los 15 caracteres"),
-  password: z.string().min(5, "La contraseña debe tener al menos 5 caracteres"),
+    .max(20, "El usuario no puede exceder los 20 caracteres"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -251,6 +251,7 @@ export default function LoginScreen() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
+                    maxLength={20}
                     autoCapitalize="none"
                     autoCorrect={false}
                     editable={!isPending}
