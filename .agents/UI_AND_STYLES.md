@@ -329,20 +329,25 @@ El tab **Resumen** (`app/(app)/(tabs)/summary.tsx`) renderiza solo `<SummaryView
 | Componente | Responsabilidad |
 |---|---|
 | `SummaryView.tsx` | Orquestador: estado de mes seleccionado `{year, month}`, `useMonthlyStats` + `useMonthlyHistory(6)`, `ScrollView` + `RefreshControl`, `MonthNavigator` fijo arriba (fuera del ScrollView). |
-| `MonthNavigator.tsx` | Encabezado del tab: título `"Resumen"` (`text-lg font-bold`) + label del mes con `date-fns` (`MMMM yyyy`, locale `es`, capitalizado). Chevrons prev/next (`w-9 h-9 rounded-xl border border-border bg-card`) con ícono color `palette.azul`; el "siguiente" se deshabilita en el mes actual. Pill `"Actual"` cuando se navega a un mes pasado. |
+| `MonthNavigator.tsx` | Encabezado del tab: título `"Resumen"` (`text-lg font-bold`) + label del mes. Antes de cargar usa `date-fns` (`MMMM yyyy`, locale `es`, capitalizado); **una vez cargado, usa `period.label` e `isCurrentMonth` devueltos por `GET /stats/monthly`** (`data.period`) como fuente de verdad. Chevrons prev/next (`w-9 h-9 rounded-xl border border-border bg-card`) con ícono color `palette.azul`; el "siguiente" se deshabilita y aparece el pill `"Actual"` cuando `isCurrentMonth` es `true`. Si el backend respondiera un periodo distinto al mes pedido, el label no coincidirá con las flechas → señal de que el backend ignora los query params `year`/`month`. |
 | `DualCurrencyAmount.tsx` | Renderiza `formatCurrency(amount.BOB, 'BOB')` + segunda línea USD **solo si `USD > 0`**. Prop `textClassName` para el monto BOB. |
 | `SectionHeader.tsx` | Encabezado de tarjeta (icono en `w-8 h-8 rounded-xl bg-primary/10` + título + subtítulo) con slot opcional `right`. |
 | `StatCell.tsx` | Celda KPI numérica (`label` + `value`) para grillas de contadores. |
-| `IncomeCard.tsx` | Hero de ingresos: interés cobrado (ganancia real) en paneles Bs.-/USD (`bg-sky-500/5`) + chips "Capital recuperado" / "Efectivo ingresado". Condonaciones **solo si > 0**. |
-| `PerformanceCard.tsx` | "Dinero que debías cobrar / cobraste", barras `LoanProgressBar` (`h-2.5`) de tasa y eficiencia, y lista de cuotas con `CountRow`: punto de color (`w-2.5 h-2.5 rounded-full`) + etiqueta clara + conteo. |
-| `BalanceCard.tsx` | "Rentabilidad del Mes": ganancia neta (verde), capital invertido, `returnOnCapital` como % (`toFixed(2)`) con nota "Ganancia ÷ capital invertido". |
-| `RiskCard.tsx` | "Riesgo del Mes": pill de morosidad dinámica (≥20 roja / ≥10 ámbar / si no verde), dinero en riesgo, préstamos en mora, extra de préstamos nuevos + celdas `StatCell`. Sin refinanciamiento (MVP). |
-| `MonthlyBarChart.tsx` | Gráfica de barras de `netProfit.BOB` de 6 meses construida **solo con `View`s** (`style={{height}}` dinámico) — **no se añade librería de gráficas**. Barras `bg-secondary`, negativos en rojo con altura mínima 4, valores con `formatAmountNumber`, eje X con `item.label`. |
+| `SummaryGroupHeader.tsx` | Encabezado de **bloque de agrupación**: icono en `w-9 h-9 rounded-2xl bg-secondary/10` + título + subtítulo explicativo. Separa las 2 familias de métricas del tab. |
+| `SectionTag.tsx` | Pill de clasificación contexto: `Del mes` (`bg-sky-500/10 border-sky-500/20`, texto sky) o `Hoy` (`bg-violet-500/10 border-violet-500/20`, texto violet). Se pasa en el slot `right` de `SectionHeader`. |
+| `IncomeCard.tsx` | Sección **incomeBreakdown**. Hero `interestCollected` en paneles Bs.-/USD (`bg-sky-500/5`) + chips `capitalRecovered` / `totalCashIn`. `discountsGiven` ("Descuentos otorgados") **solo si > 0**. Tag `Del mes`. |
+| `PerformanceCard.tsx` | Sección **performanceSummary**. Filas `expectedRevenue` / `actualRevenue` ("Ingresos esperados/Ingresos reales"), barras `LoanProgressBar` (`h-2.5`) de `collectionRate` y `revenueEfficiency`, y lista de cuotas con `CountRow`: punto de color (`w-2.5 h-2.5 rounded-full`) + etiqueta + conteo. Tag `Del mes`. |
+| `BalanceCard.tsx` | Sección **monthlyBalance** (solo métricas del período): `netProfit` ("Beneficio neto", verde) y `returnOnCapital` como % (`toFixed(2)`). **`capitalDeployed` NO va aquí → vive en `PortfolioCard`**. Sin fórmulas derivadas: cada valor se muestra tal cual llega del backend. Tag `Del mes`. |
+| `MonthlyActivityCard.tsx` | Métricas del mes tomadas de **riskIndicators**: `newLoansCapital` ("Capital de préstamos nuevos") + celdas `StatCell` de `newLoansCount`/`completedLoansCount`/`newClientsCount`. Sin refinanciamiento (MVP). Tag `Del mes`. |
+| `PortfolioCard.tsx` | **Foto de cartera** (no varía con el mes): `capitalDeployed` ("Capital en calle", desde `monthlyBalance`), `portfolioAtRisk` ("Capital en riesgo"), `overdueLoansCount` ("Préstamos con mora", rojo) y `delinquencyRate` ("Tasa de morosidad") con color dinámico (≥20 rojo / ≥10 ámbar / si no verde). Tag `Hoy`. |
+| `MonthlyBarChart.tsx` | Sección **monthlyHistory** → grafica `netProfit.BOB`. Construida **solo con `View`s** (`style={{height}}` dinámico) — **no se añade librería de gráficas**. Barras `bg-secondary`, negativos en rojo con altura mínima 4, valores con `formatAmountNumber`, eje X con `item.label`. |
 
 ### Convenciones Clave del Summary
 
-#### UX para usuario no técnico
-- Las etiquetas usan **español claro** (ej. "Dinero que debías cobrar", "Cuotas del período", "Vencidas sin pagar") en lugar de jerga técnica (nunca "Revenue", "Delinquency", "Refinanciados", etc.).
+#### Etiquetas mapeadas al backend (verificación front↔back)
+- Etapa de verificación: cada etiqueta es **español lo más cercano al nombre del campo en inglés del backend**, para saltar de la app al API sin perderse. Ejemplos: `interestCollected`→"Intereses cobrados", `expectedRevenue`→"Ingresos esperados", `capitalDeployed`→"Capital desplegado", `portfolioAtRisk`→"Capital en riesgo", `discountsGiven`→"Descuentos otorgados".
+- El **subtitle de `SectionHeader`** de cada tarjeta muestra el **nombre del objeto del backend** que agrupa la sección (`incomeBreakdown`, `performanceSummary`, `monthlyBalance`, `riskIndicators`, `monthlyHistory · netProfit.BOB`). La gráfica de historial no existe en el monthly (es array).
+- Al terminar la verificación, este texto puede volver a un lenguaje más coloquial si el producto lo pide.
 - Preferir **listas con puntos de color** (`CountRow`) sobre grillas técnicas para contadores de cuotas.
 - Ocultar filas/campos sin datos o en cero para reducir ruido visual.
 - `returnOnCapital` y todos los porcentajes se muestran con `toFixed(1)`–`toFixed(2)` + símbolo `%` como texto (NO como moneda ni con `formatCurrency`).

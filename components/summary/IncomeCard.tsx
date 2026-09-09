@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SectionHeader } from './SectionHeader';
+import { SectionTag } from './SectionTag';
 import { DualCurrencyAmount } from './DualCurrencyAmount';
 import { formatAmountNumber } from '@/lib/format';
 import { IncomeBreakdown } from '@/types/stats';
@@ -21,18 +22,19 @@ export function IncomeCard({ income }: IncomeCardProps) {
   const hasDiscounts = (discounts.BOB ?? 0) > 0 || (discounts.USD ?? 0) > 0;
 
   return (
-    <View className="mx-4 mt-3 mb-3 rounded-3xl bg-card border border-border/70 p-4 shadow-sm">
+    <View className="mx-4 mt-2 mb-3 rounded-3xl bg-card border border-border/70 p-4 shadow-sm">
       <SectionHeader
         icon={<TrendingUp size={18} color={palette.azul} />}
-        title="Ingresos del Mes"
-        subtitle="Intereses cobrados por tus préstamos"
+        title="Desglose de Ingresos"
+        subtitle="incomeBreakdown"
+        right={<SectionTag kind="month" />}
       />
 
       <View className="flex-row gap-3 mt-1">
         <View className="flex-1 bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 rounded-2xl p-3.5 justify-between">
           <View className="flex-row items-center justify-between mb-1.5">
             <Text className="text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider">
-              Bolivianos
+              Intereses cobrados (BOB)
             </Text>
             <View className="px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/25">
               <Text className="text-sky-700 dark:text-sky-300 text-xs font-extrabold">Bs.-</Text>
@@ -47,7 +49,7 @@ export function IncomeCard({ income }: IncomeCardProps) {
           <View className="flex-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3.5 justify-between">
             <View className="flex-row items-center justify-between mb-1.5">
               <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
-                Dólares
+                Intereses cobrados (USD)
               </Text>
               <View className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25">
                 <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
@@ -71,7 +73,7 @@ export function IncomeCard({ income }: IncomeCardProps) {
         </View>
         <View className="flex-1 bg-muted/50 rounded-xl p-3">
           <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
-            Efectivo ingresado
+            Efectivo total ingresado
           </Text>
           <DualCurrencyAmount amount={cashIn} textClassName="text-foreground font-extrabold text-base" />
         </View>
@@ -81,7 +83,7 @@ export function IncomeCard({ income }: IncomeCardProps) {
         <View className="pt-3 mt-3 border-t border-border/60">
           <View className="flex-row items-center justify-between">
             <Text className="text-muted-foreground text-sm font-semibold">
-              Condonaciones aplicadas
+              Descuentos otorgados
             </Text>
             <DualCurrencyAmount amount={discounts} />
           </View>

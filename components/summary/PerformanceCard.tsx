@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SectionHeader } from './SectionHeader';
+import { SectionTag } from './SectionTag';
 import { DualCurrencyAmount } from './DualCurrencyAmount';
 import { LoanProgressBar } from '@/components/client-detail/LoanProgressBar';
 import { PerformanceSummary } from '@/types/stats';
@@ -52,21 +53,22 @@ export function PerformanceCard({ performance }: PerformanceCardProps) {
     <View className="mx-4 mb-3 bg-card border border-border rounded-2xl p-4 shadow-sm">
       <SectionHeader
         icon={<Gauge size={18} color={palette.azul} />}
-        title="Cobranza del Mes"
-        subtitle="Cuotas pagadas y dinero cobrado"
+        title="Resumen de Rendimiento"
+        subtitle="performanceSummary"
+        right={<SectionTag kind="month" />}
       />
 
       <View className="flex-row items-center justify-between py-2 border-b border-border/50">
-        <Text className="text-muted-foreground text-sm font-semibold">Dinero que debías cobrar</Text>
+        <Text className="text-muted-foreground text-sm font-semibold">Ingresos esperados</Text>
         <DualCurrencyAmount amount={p.expectedRevenue ?? { BOB: 0, USD: 0 }} />
       </View>
       <View className="flex-row items-center justify-between py-2 mb-3 border-b border-border/50">
-        <Text className="text-muted-foreground text-sm font-semibold">Dinero que cobraste</Text>
+        <Text className="text-muted-foreground text-sm font-semibold">Ingresos reales</Text>
         <DualCurrencyAmount amount={p.actualRevenue ?? { BOB: 0, USD: 0 }} />
       </View>
 
       <RateRow label="Tasa de cobranza" value={p.collectionRate ?? 0} />
-      <RateRow label="Ingresos cobrados vs. esperados" value={p.revenueEfficiency ?? 0} />
+      <RateRow label="Eficiencia de ingresos" value={p.revenueEfficiency ?? 0} />
 
       <View className="border-t border-border/50 pt-2">
         <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider mb-1">
@@ -84,12 +86,12 @@ export function PerformanceCard({ performance }: PerformanceCardProps) {
         />
         <CountRow
           dotClassName="bg-red-500"
-          label="Vencidas sin pagar"
+          label="Aún vencidas"
           value={p.installmentsStillOverdueCount ?? 0}
         />
         <CountRow
           dotClassName="bg-sky-500"
-          label="Abonadas parcialmente"
+          label="Parciales"
           value={p.installmentsPartialCount ?? 0}
         />
       </View>

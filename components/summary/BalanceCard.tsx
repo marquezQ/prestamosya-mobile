@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { SectionHeader } from './SectionHeader';
+import { SectionTag } from './SectionTag';
 import { DualCurrencyAmount } from './DualCurrencyAmount';
 import { MonthlyBalance } from '@/types/stats';
 import { Coins } from 'lucide-react-native';
@@ -20,30 +21,21 @@ export function BalanceCard({ balance }: BalanceCardProps) {
     <View className="mx-4 mb-3 bg-card border border-border rounded-2xl p-4 shadow-sm">
       <SectionHeader
         icon={<Coins size={18} color={palette.celeste} />}
-        title="Rentabilidad del Mes"
-        subtitle="Ganancia neta y capital invertido"
+        title="Balance del Mes"
+        subtitle="monthlyBalance · resultado del período"
+        right={<SectionTag kind="month" />}
       />
 
       <View className="flex-row items-center justify-between py-2 border-b border-border/50">
-        <Text className="text-muted-foreground text-sm font-semibold">Ganancia neta del mes</Text>
+        <Text className="text-muted-foreground text-sm font-semibold">Beneficio neto</Text>
         <DualCurrencyAmount
           amount={b.netProfit ?? { BOB: 0, USD: 0 }}
           textClassName="text-green-600 dark:text-green-400 font-extrabold text-base"
         />
       </View>
 
-      <View className="flex-row items-center justify-between py-2 border-b border-border/50">
-        <Text className="text-muted-foreground text-sm font-semibold">Capital invertido en préstamos</Text>
-        <DualCurrencyAmount amount={b.capitalDeployed ?? { BOB: 0, USD: 0 }} />
-      </View>
-
       <View className="flex-row items-center justify-between py-2">
-        <View>
-          <Text className="text-muted-foreground text-sm font-semibold">Rentabilidad del capital</Text>
-          <Text className="text-muted-foreground/70 text-xs font-medium mt-0.5">
-            Ganancia ÷ capital invertido
-          </Text>
-        </View>
+        <Text className="text-muted-foreground text-sm font-semibold">Retorno sobre capital</Text>
         <View className="items-end">
           <Text className="text-foreground font-extrabold text-base">
             {(roc.BOB ?? 0).toFixed(2)}%
