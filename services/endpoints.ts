@@ -2,7 +2,14 @@ export const ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
-    ME: '/auth/me',
+    ME: '/auth/me', // Refleja el payload del JWT en memoria (sin BD)
+  },
+  USERS: {
+    ME: '/users/me',              // Perfil fresco desde BD { id, name, username, role, isActive, createdAt, updatedAt }
+    CHANGE_PASSWORD: '/users/me/password', // PATCH — responde 400 (no 401) si la contraseña actual es incorrecta
+  },
+  BUSINESS_CONFIG: {
+    BASE: '/business-config', // GET (auto-crea con defaults) y PATCH (actualización parcial)
   },
   CLIENTS: {
     GET_ALL: '/clients',

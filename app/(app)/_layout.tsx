@@ -22,6 +22,7 @@ export default function AppLayout() {
       <Stack.Screen name="client/edit/[id]" />
       <Stack.Screen name="loan/new" />
       <Stack.Screen name="loan/[id]" />
+      <Stack.Screen name="profile" />
     </Stack>
   );
 }

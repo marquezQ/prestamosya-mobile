@@ -1,9 +1,10 @@
 import { View, Pressable } from "react-native";
 import { Text } from "@/components/ui/text";
-import { Sun, Moon, User as UserIcon, Settings, LogOut } from "lucide-react-native";
+import { Sun, Moon, User as UserIcon, UserCog, LogOut } from "lucide-react-native";
 import { useColorScheme } from "nativewind";
 import { Icon } from "@/components/ui/icon";
 import { useLogout } from "@/hooks/useAuth";
+import { useRouter } from "expo-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,12 +17,14 @@ import {
 export function HeaderActions() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const { mutate: logout } = useLogout();
+  const router = useRouter();
 
   return (
     <View className="flex-row items-center gap-4 pr-4">
       <Pressable
         onPress={toggleColorScheme}
         className="rounded-full bg-muted p-2"
+        accessibilityLabel={colorScheme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
       >
         <Icon
           as={colorScheme === "dark" ? Sun : Moon}
@@ -32,7 +35,10 @@ export function HeaderActions() {
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Pressable className="rounded-full bg-muted p-2">
+          <Pressable
+            className="rounded-full bg-muted p-2"
+            accessibilityLabel="Menú de usuario"
+          >
             <Icon
               as={UserIcon}
               className="text-foreground"
@@ -45,9 +51,10 @@ export function HeaderActions() {
           <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
           <DropdownMenuSeparator />
           
-          <DropdownMenuItem>
-            <Icon as={Settings} className="text-foreground mr-2" size={16} />
-            <Text>Configuración</Text>
+          {/* Navega a la pantalla de perfil (fullscreen, fuera de tabs) */}
+          <DropdownMenuItem onPress={() => router.push("/(app)/profile")}>
+            <Icon as={UserCog} className="text-foreground mr-2" size={16} />
+            <Text>Editar perfil</Text>
           </DropdownMenuItem>
           
           <DropdownMenuSeparator />
