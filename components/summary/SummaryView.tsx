@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useMonthlyStats } from '@/hooks/useMonthlyStats';
 import { useMonthlyHistory } from '@/hooks/useMonthlyHistory';
+import { useMonthlyPdf } from '@/hooks/useMonthlyPdf';
 import { MonthNavigator } from './MonthNavigator';
 import { SummaryGroupHeader } from './SummaryGroupHeader';
 import { IncomeCard } from './IncomeCard';
@@ -23,6 +24,8 @@ export function SummaryView() {
     year: today.getFullYear(),
     month: today.getMonth() + 1,
   });
+
+  const { downloadAndOpenPdf, isDownloading: isDownloadingPdf } = useMonthlyPdf();
 
   const {
     data: stats,
@@ -53,6 +56,8 @@ export function SummaryView() {
         month={monthSelection.month}
         period={stats?.period}
         onMonthChange={(year, month) => setMonthSelection({ year, month })}
+        onDownloadPdf={() => downloadAndOpenPdf(monthSelection.year, monthSelection.month)}
+        isDownloadingPdf={isDownloadingPdf}
       />
 
       <ScrollView

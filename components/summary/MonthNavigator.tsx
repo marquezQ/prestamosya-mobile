@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, ActivityIndicator } from 'react-native';
 import { Text } from '@/components/ui/text';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, FileText } from 'lucide-react-native';
 import { addMonths, format, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { palette } from '@/lib/theme/colors';
@@ -13,6 +13,8 @@ interface MonthNavigatorProps {
   /** Periodo autoritativo servido por el backend (GET /stats/monthly → data.period). */
   period?: MonthlyPeriod;
   onMonthChange: (year: number, month: number) => void;
+  onDownloadPdf?: () => void;
+  isDownloadingPdf?: boolean;
 }
 
 function toDate(year: number, month: number): Date {
@@ -23,7 +25,14 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-export function MonthNavigator({ year, month, period, onMonthChange }: MonthNavigatorProps) {
+export function MonthNavigator({
+  year,
+  month,
+  period,
+  onMonthChange,
+  onDownloadPdf,
+  isDownloadingPdf = false,
+}: MonthNavigatorProps) {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
@@ -46,12 +55,29 @@ export function MonthNavigator({ year, month, period, onMonthChange }: MonthNavi
 
   return (
     <View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-background">
-      <View className="flex-1">
+      <View className="flex-1 pr-2">
         <Text className="font-bold text-lg text-foreground">Resumen Mensual</Text>
         <Text className="text-muted-foreground text-xs font-semibold mt-0.5">{label}</Text>
       </View>
 
       <View className="flex-row items-center gap-2">
+        {onDownloadPdf && (
+          <Pressable
+            onPress={onDownloadPdf}
+            disabled={isDownloadingPdf}
+            className="h-9 px-3 rounded-xl border border-secondary/30 bg-secondary/10 flex-row items-center gap-1.5 active:bg-secondary/20 disabled:opacity-50"
+          >
+            {isDownloadingPdf ? (
+              <ActivityIndicator size="small" color={palette.azul} />
+            ) : (
+              <FileText size={15} color={palette.azul} />
+            )}
+            <Text className="text-secondary font-bold text-xs">
+              {isDownloadingPdf ? 'PDF...' : 'Ver PDF'}
+            </Text>
+          </Pressable>
+        )}
+
         {!isCurrentMonth && (
           <Pressable
             onPress={() => onMonthChange(currentYear, currentMonth)}

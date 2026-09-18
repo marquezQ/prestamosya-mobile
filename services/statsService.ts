@@ -1,5 +1,6 @@
 import { api } from './api';
 import { ENDPOINTS } from './endpoints';
+import { ENV } from '@/config/env';
 import { MonthlyStatsResponse, MonthlyHistoryResponse } from '@/types/stats';
 
 export const statsService = {
@@ -26,5 +27,16 @@ export const statsService = {
       },
     );
     return response.data;
+  },
+  /**
+   * Obtiene la URL completa del endpoint del reporte mensual en PDF.
+   * GET /stats/monthly-pdf?year=YYYY&month=M
+   */
+  getMonthlyPdfUrl: (year?: number, month?: number): string => {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    const queryString = params.toString();
+    return `${ENV.API_URL}${ENDPOINTS.STATS.MONTHLY_PDF}${queryString ? `?${queryString}` : ''}`;
   },
 };

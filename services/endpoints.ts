@@ -42,5 +42,6 @@ export const ENDPOINTS = {
   STATS: {
     MONTHLY: '/stats/monthly',
     MONTHLY_HISTORY: '/stats/monthly-history',
+    MONTHLY_PDF: '/stats/monthly-pdf',
   },
 };
