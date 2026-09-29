@@ -1,6 +1,6 @@
 import "../global.css";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Appearance } from "react-native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PortalHost } from "@rn-primitives/portal";
@@ -13,6 +13,11 @@ import { KeyboardProvider } from "@/components/ui/KeyboardProvider";
 import { useAuthStore } from "@/stores/authStore";
 import { View, ActivityIndicator, Image } from "react-native";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
+import {
+  configurePushNotifications,
+  setupNotificationListeners,
+} from "@/lib/pushNotifications";
+import * as Notifications from "expo-notifications";
 
 // Desactiva el warning de 'strict mode' de Reanimated en desarrollo causado por componentes primitivos de UI
 if (__DEV__) {
@@ -66,10 +71,32 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const { hydrate } = useAuthStore();
+  const router = useRouter();
+  const notificationResponseRef = useRef<Notifications.NotificationResponse | null>(
+    // Captura la notificación inicial si la app fue abierta desde un push (cold start).
+    Notifications.useLastNotificationResponse?.() ?? null
+  );
 
   useEffect(() => {
+    configurePushNotifications();
     hydrate();
   }, [hydrate]);
+
+  // Configura el listener de respuesta a notificaciones (usuario toca el push).
+  // El deep link navega a la pantalla de bandeja.
+  useEffect(() => {
+    const cleanup = setupNotificationListeners({
+      onResponse: () => {
+        // La navegación necesita que el router esté listo.
+        // El timeout 0 garantiza que el navigator ya está montado.
+        setTimeout(() => {
+          router.push("/(app)/notifications");
+        }, 0);
+      },
+    });
+
+    return cleanup;
+  }, [router]);
 
   return (
     <QueryClientProvider client={queryClient}>

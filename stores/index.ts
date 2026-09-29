@@ -12,4 +12,5 @@
 
 // export { useAuthStore } from "./auth.store";   // ← descomentar cuando se cree
 // export { useLoanStore } from "./loan.store";   // ← descomentar cuando se cree
-export { useNewLoanStore } from "./newLoanStore";
+export { useNewLoanStore } from './newLoanStore';
+export { useNotificationStore } from './notificationStore';

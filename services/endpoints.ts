@@ -44,4 +44,20 @@ export const ENDPOINTS = {
     MONTHLY_HISTORY: '/stats/monthly-history',
     MONTHLY_PDF: '/stats/monthly-pdf',
   },
+  NOTIFICATIONS: {
+    /** GET — lista paginada de notificaciones del usuario */
+    LIST: '/notifications',
+    /** GET — entero con total de no leídas (para badge) */
+    UNREAD_COUNT: '/notifications/unread-count',
+    /** PATCH — marca una notificación específica como leída */
+    MARK_READ: (id: string) => `/notifications/${id}/read`,
+    /** PATCH — marca todas las no leídas como leídas */
+    MARK_ALL_READ: '/notifications/read-all',
+    /** POST — registra el token de push del dispositivo */
+    REGISTER_TOKEN: '/notifications/device-tokens',
+    /** DELETE — elimina el token de push del dispositivo (llamar al logout) */
+    DELETE_TOKEN: '/notifications/device-tokens',
+    /** POST — [solo admin] dispara el resumen diario manualmente */
+    TRIGGER_DAILY: '/notifications/trigger-daily-summary',
+  },
 };
