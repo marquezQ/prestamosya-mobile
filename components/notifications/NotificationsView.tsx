@@ -22,12 +22,11 @@ import {
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { ArrowLeft, Bell, CheckCheck, RefreshCw, AlertCircle } from 'lucide-react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { ArrowLeft, Bell, RefreshCw, AlertCircle } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { palette, getThemeColors } from '@/lib/theme/colors';
 import { useNotifications } from '@/hooks/useNotifications';
-import { useMarkAsRead } from '@/hooks/useMarkAsRead';
 import { useMarkAllAsRead } from '@/hooks/useMarkAllAsRead';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { NotificationCard } from './NotificationCard';
@@ -38,16 +37,12 @@ import type { Notification } from '@/types/notification';
 interface NotificationsHeaderProps {
   unreadCount: number;
   onBack: () => void;
-  onMarkAll: () => void;
-  isMarkingAll: boolean;
   paddingTop: number;
 }
 
 function NotificationsHeader({
   unreadCount,
   onBack,
-  onMarkAll,
-  isMarkingAll,
   paddingTop,
 }: NotificationsHeaderProps) {
   const { colorScheme } = useColorScheme();
@@ -74,26 +69,13 @@ function NotificationsHeader({
           <Text className="text-lg font-bold text-foreground">Notificaciones</Text>
           {unreadCount > 0 && (
             <Text className="text-xs text-muted-foreground font-medium">
-              {unreadCount} sin leer
+              {unreadCount} nuevas
             </Text>
           )}
         </View>
 
-        {/* Marcar todas — solo visible si hay no leídas */}
-        {unreadCount > 0 ? (
-          <Pressable
-            onPress={onMarkAll}
-            disabled={isMarkingAll}
-            className="h-10 w-10 items-center justify-center rounded-xl bg-muted active:opacity-70 disabled:opacity-40"
-            accessibilityLabel="Marcar todas como leídas"
-            accessibilityRole="button"
-          >
-            <CheckCheck size={18} color={palette.azul} />
-          </Pressable>
-        ) : (
-          // Placeholder para mantener el título centrado
-          <View className="h-10 w-10" />
-        )}
+        {/* Placeholder para mantener el título centrado */}
+        <View className="h-10 w-10" />
       </View>
     </View>
   );
@@ -147,8 +129,20 @@ export function NotificationsView() {
     reset,
   } = useNotifications();
 
-  const { mutate: markAsRead, isPending: isMarkingOne } = useMarkAsRead();
-  const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
+  const { mutate: markAllAsRead } = useMarkAllAsRead();
+
+  // Marcar todas como leídas al salir de la pantalla (blur)
+  useFocusEffect(
+    useCallback(() => {
+      // on focus
+      return () => {
+        // on blur
+        if (unreadCount > 0) {
+          markAllAsRead();
+        }
+      };
+    }, [unreadCount, markAllAsRead])
+  );
 
   const handleRefresh = useCallback(() => {
     reset();
@@ -157,24 +151,21 @@ export function NotificationsView() {
 
   const handleCardPress = useCallback(
     (id: string) => {
-      markAsRead(id);
+      // Navegar a la pantalla de cobros y salir de notificaciones
+      router.push('/(app)/(tabs)/collections');
     },
-    [markAsRead]
+    [router]
   );
-
-  const handleMarkAll = useCallback(() => {
-    markAllAsRead();
-  }, [markAllAsRead]);
 
   const renderItem = useCallback(
     ({ item }: { item: Notification }) => (
       <NotificationCard
         notification={item}
         onPress={handleCardPress}
-        isMarkingRead={isMarkingOne}
+        isMarkingRead={false}
       />
     ),
-    [handleCardPress, isMarkingOne]
+    [handleCardPress]
   );
 
   const keyExtractor = useCallback((item: Notification) => item.id, []);
@@ -186,8 +177,6 @@ export function NotificationsView() {
       <NotificationsHeader
         unreadCount={unreadCount}
         onBack={() => router.back()}
-        onMarkAll={handleMarkAll}
-        isMarkingAll={isMarkingAll}
         paddingTop={insets.top}
       />
 
