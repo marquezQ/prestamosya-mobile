@@ -28,6 +28,7 @@
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -88,9 +89,11 @@
       ]
     ],
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "your-eas-project-id"
+        "projectId": "eb4c5784-0231-41f0-bb04-8bfe6c386c65"
       }
-    }
+    },
+    "owner": "marquezq"
   }
 }

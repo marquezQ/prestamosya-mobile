@@ -65,7 +65,6 @@ export const notificationService = {
   async registerDeviceToken(payload: DeviceTokenPayload): Promise<void> {
     const body = {
       token: payload.token,
-      deviceToken: payload.token,
       platform: payload.platform || 'expo',
     };
     console.log('[NotificationService] Enviando POST /notifications/device-tokens a:', ENDPOINTS.NOTIFICATIONS.REGISTER_TOKEN, body);
@@ -82,7 +81,6 @@ export const notificationService = {
   async deleteDeviceToken(payload: DeviceTokenPayload): Promise<void> {
     const body = {
       token: payload.token,
-      deviceToken: payload.token,
       platform: payload.platform || 'expo',
     };
     console.log('[NotificationService] Enviando DELETE /notifications/device-tokens:', body);
