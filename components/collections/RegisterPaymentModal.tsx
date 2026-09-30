@@ -122,6 +122,7 @@ export function RegisterPaymentModal({
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          bottomOffset={60}
           contentContainerClassName="gap-3 py-1"
         >
           {/* Ficha resumida del cliente */}

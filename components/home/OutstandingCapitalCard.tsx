@@ -22,11 +22,8 @@ export function OutstandingCapitalCard({ capital }: OutstandingCapitalCardProps)
             <Wallet size={20} color={palette.azul} />
           </View>
           <View>
-            <Text className="text-foreground font-bold text-base leading-snug">
+            <Text className="text-foreground font-bold text-lg leading-snug">
               Capital en Calle
-            </Text>
-            <Text className="text-muted-foreground text-xs font-medium mt-0.5">
-              Inversión activa en préstamos
             </Text>
           </View>
         </View>
@@ -55,7 +52,8 @@ export function OutstandingCapitalCard({ capital }: OutstandingCapitalCardProps)
           </View>
           <Text
             numberOfLines={1}
-            className="text-foreground font-extrabold text-2xl leading-tight"
+            adjustsFontSizeToFit
+            className="text-foreground font-extrabold text-3xl leading-tight mt-1"
           >
             {formatAmountNumber(capital.BOB ?? 0)}
           </Text>
@@ -76,7 +74,8 @@ export function OutstandingCapitalCard({ capital }: OutstandingCapitalCardProps)
             </View>
             <Text
               numberOfLines={1}
-              className="text-emerald-600 dark:text-emerald-400 font-extrabold text-2xl leading-tight"
+              adjustsFontSizeToFit
+              className="text-emerald-600 dark:text-emerald-400 font-extrabold text-3xl leading-tight mt-1"
             >
               {formatAmountNumber(capital.USD ?? 0)}
             </Text>

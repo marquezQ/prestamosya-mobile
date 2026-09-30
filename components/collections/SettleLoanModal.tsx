@@ -111,8 +111,8 @@ export function SettleLoanModal({
   } = useForm<SettleFormData>({
     resolver: zodResolver(settleSchema),
     defaultValues: {
-      amount: outstandingBalance > 0 ? String(outstandingBalance) : '',
-      discount: '0',
+      amount: '',
+      discount: '',
       method: 'cash',
       paymentDate: getTodayISO(),
       notes: '',
@@ -123,8 +123,8 @@ export function SettleLoanModal({
   useEffect(() => {
     if (isOpen) {
       reset({
-        amount: outstandingBalance > 0 ? String(outstandingBalance) : '',
-        discount: '0',
+        amount: '',
+        discount: '',
         method: 'cash',
         paymentDate: getTodayISO(),
         notes: '',
@@ -138,7 +138,7 @@ export function SettleLoanModal({
     const payload: SettleLoanInput = {
       loanId,
       amount: parseFloat(data.amount),
-      discount: parseFloat(data.discount),
+      discount: data.discount ? parseFloat(data.discount) : 0,
       method: data.method,
       paymentDate: data.paymentDate,
       notes: data.notes?.trim() || undefined,
@@ -168,7 +168,8 @@ export function SettleLoanModal({
         <KeyboardAwareScrollView
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
-          contentContainerClassName="gap-3 py-1"
+          bottomOffset={90}
+          contentContainerClassName="gap-3 py-1 pb-20"
         >
           {/* Ficha del cliente */}
           <PaymentClientSummary clientName={clientName} clientPhone={clientPhone} />
@@ -194,56 +195,57 @@ export function SettleLoanModal({
             </Text>
           </View>
 
-          {/* Monto a cobrar */}
-          <View>
-            <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Monto a Cobrar ({currency === 'USD' ? '$us' : 'Bs.-'}) *
-            </Text>
-            <Controller
-              control={control}
-              name="amount"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  className="bg-background text-foreground font-bold text-lg h-12 rounded-xl"
-                />
-              )}
-            />
-            {errors.amount && (
-              <Text className="text-destructive text-sm mt-1">
-                {errors.amount.message}
+          {/* Monto y Descuento en una sola fila */}
+          <View className="flex-row gap-3">
+            <View className="flex-1">
+              <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5" numberOfLines={1}>
+                Monto ({currency}) *
               </Text>
-            )}
-          </View>
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType="numeric"
+                    placeholder="0"
+                    className="bg-background text-foreground font-bold text-lg h-12 rounded-xl"
+                  />
+                )}
+              />
+              {errors.amount && (
+                <Text className="text-destructive text-xs mt-1">
+                  {errors.amount.message}
+                </Text>
+              )}
+            </View>
 
-          {/* Descuento */}
-          <View>
-            <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Descuento ({currency === 'USD' ? '$us' : 'Bs.-'}) — Opcional
-            </Text>
-            <Controller
-              control={control}
-              name="discount"
-              render={({ field: { value, onChange, onBlur } }) => (
-                <Input
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="numeric"
-                  placeholder="0"
-                  className="bg-background text-foreground text-lg h-12 rounded-xl"
-                />
-              )}
-            />
-            {errors.discount && errors.discount.message?.trim() && (
-              <Text className="text-destructive text-sm mt-1">
-                {errors.discount.message}
+            <View className="flex-1">
+              <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5" numberOfLines={1}>
+                Desc. ({currency})
               </Text>
-            )}
+              <Controller
+                control={control}
+                name="discount"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType="numeric"
+                    placeholder="0"
+                    className="bg-background text-foreground text-lg h-12 rounded-xl"
+                  />
+                )}
+              />
+              {errors.discount && errors.discount.message?.trim() && (
+                <Text className="text-destructive text-xs mt-1">
+                  {errors.discount.message}
+                </Text>
+              )}
+            </View>
           </View>
 
           {/* Método de pago */}

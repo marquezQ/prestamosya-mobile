@@ -38,7 +38,7 @@ export function PortfolioCard({
       <SectionHeader
         icon={<ShieldAlert size={18} color={palette.azul} />}
         title="Estado de tu Cartera"
-        subtitle="delinquencyRate · portfolioAtRisk · capitalDeployed"
+
         right={<SectionTag kind="now" />}
       />
 

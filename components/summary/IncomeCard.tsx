@@ -26,7 +26,7 @@ export function IncomeCard({ income }: IncomeCardProps) {
       <SectionHeader
         icon={<TrendingUp size={18} color={palette.azul} />}
         title="Desglose de Ingresos"
-        subtitle="incomeBreakdown"
+
         right={<SectionTag kind="month" />}
       />
 
@@ -73,7 +73,7 @@ export function IncomeCard({ income }: IncomeCardProps) {
         </View>
         <View className="flex-1 bg-muted/50 rounded-xl p-3">
           <Text className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
-            Efectivo total ingresado
+            Efectivo ingresado
           </Text>
           <DualCurrencyAmount amount={cashIn} textClassName="text-foreground font-extrabold text-base" />
         </View>

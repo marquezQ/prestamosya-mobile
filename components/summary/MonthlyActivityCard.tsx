@@ -27,7 +27,7 @@ export function MonthlyActivityCard({
       <SectionHeader
         icon={<HandCoins size={18} color={palette.celeste} />}
         title="Actividad del Mes"
-        subtitle="riskIndicators · desembolsos y cierres del período"
+        subtitle="Desembolsos y cierres del período"
         right={<SectionTag kind="month" />}
       />
 

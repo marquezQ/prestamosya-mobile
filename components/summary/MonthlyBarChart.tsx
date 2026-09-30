@@ -24,7 +24,7 @@ export function MonthlyBarChart({ data }: MonthlyBarChartProps) {
     <SectionHeader
       icon={<BarChart3 size={18} color={palette.azul} />}
       title="Historial Mensual"
-      subtitle="monthlyHistory · netProfit.BOB"
+      subtitle="Historial de Ganancia Neta"
     />
   );
 

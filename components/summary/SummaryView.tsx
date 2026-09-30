@@ -15,7 +15,7 @@ import { MonthlyActivityCard } from './MonthlyActivityCard';
 import { PortfolioCard } from './PortfolioCard';
 import { MonthlyBarChart } from './MonthlyBarChart';
 import { palette } from '@/lib/theme/colors';
-import { RefreshCw, CalendarDays, Wallet } from 'lucide-react-native';
+import { RefreshCw, Wallet } from 'lucide-react-native';
 
 export function SummaryView() {
   const insets = useSafeAreaInsets();
@@ -104,11 +104,6 @@ export function SummaryView() {
 
         {!isLoading && !isError && stats && (
           <>
-            <SummaryGroupHeader
-              icon={<CalendarDays size={18} color={palette.azul} />}
-              title="Resumen del Mes"
-              subtitle="Lo ocurrido entre el día 1 y el último día del mes seleccionado"
-            />
             <IncomeCard income={stats.incomeBreakdown} />
             <PerformanceCard performance={stats.performanceSummary} />
             <BalanceCard balance={stats.monthlyBalance} />

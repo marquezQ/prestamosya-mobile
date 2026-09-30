@@ -54,7 +54,7 @@ export function PerformanceCard({ performance }: PerformanceCardProps) {
       <SectionHeader
         icon={<Gauge size={18} color={palette.azul} />}
         title="Resumen de Rendimiento"
-        subtitle="performanceSummary"
+
         right={<SectionTag kind="month" />}
       />
 

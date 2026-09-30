@@ -22,7 +22,7 @@ export function BalanceCard({ balance }: BalanceCardProps) {
       <SectionHeader
         icon={<Coins size={18} color={palette.celeste} />}
         title="Balance del Mes"
-        subtitle="monthlyBalance · resultado del período"
+        subtitle="Resultado del período"
         right={<SectionTag kind="month" />}
       />
 

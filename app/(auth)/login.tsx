@@ -282,6 +282,8 @@ export default function LoginScreen() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
+                    autoCapitalize="none"
+                    autoCorrect={false}
                     editable={!isPending}
                     aria-labelledby="password"
                     style={[s.input, s.inputPR]}
