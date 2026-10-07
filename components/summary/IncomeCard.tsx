@@ -33,14 +33,21 @@ export function IncomeCard({ income }: IncomeCardProps) {
       <View className="flex-row gap-3 mt-1">
         <View className="flex-1 bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 rounded-2xl p-3.5 justify-between">
           <View className="flex-row items-center justify-between mb-1.5">
-            <Text className="text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider">
-              Intereses cobrados (BOB)
+            <Text
+              numberOfLines={1}
+              className="flex-1 mr-1 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider"
+            >
+              {hasUSD ? 'Intereses (BOB)' : 'Intereses cobrados'}
             </Text>
-            <View className="px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/25">
+            <View className="shrink-0 px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/25">
               <Text className="text-sky-700 dark:text-sky-300 text-xs font-extrabold">Bs.-</Text>
             </View>
           </View>
-          <Text numberOfLines={1} className="text-foreground font-extrabold text-2xl leading-tight">
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            className="text-foreground font-extrabold text-2xl leading-tight"
+          >
             {formatAmountNumber(interest.BOB ?? 0)}
           </Text>
         </View>
@@ -48,16 +55,23 @@ export function IncomeCard({ income }: IncomeCardProps) {
         {hasUSD && (
           <View className="flex-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3.5 justify-between">
             <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
-                Intereses cobrados (USD)
+              <Text
+                numberOfLines={1}
+                className="flex-1 mr-1 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider"
+              >
+                Intereses (USD)
               </Text>
-              <View className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25">
+              <View className="shrink-0 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25">
                 <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-extrabold">
                   $us
                 </Text>
               </View>
             </View>
-            <Text numberOfLines={1} className="text-emerald-600 dark:text-emerald-400 font-extrabold text-2xl leading-tight">
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              className="text-emerald-600 dark:text-emerald-400 font-extrabold text-2xl leading-tight"
+            >
               {formatAmountNumber(interest.USD ?? 0)}
             </Text>
           </View>

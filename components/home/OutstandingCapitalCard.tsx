@@ -41,10 +41,13 @@ export function OutstandingCapitalCard({ capital }: OutstandingCapitalCardProps)
         {/* BOB Card */}
         <View className="flex-1 bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 rounded-2xl p-3.5 justify-between">
           <View className="flex-row items-center justify-between mb-1.5">
-            <Text className="text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider">
+            <Text
+              numberOfLines={1}
+              className="flex-1 mr-1 text-sky-700 dark:text-sky-300 text-xs font-bold uppercase tracking-wider"
+            >
               Bolivianos
             </Text>
-            <View className="px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/25">
+            <View className="shrink-0 px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-500/25">
               <Text className="text-sky-700 dark:text-sky-300 text-[10px] font-extrabold">
                 Bs.-
               </Text>
@@ -63,10 +66,13 @@ export function OutstandingCapitalCard({ capital }: OutstandingCapitalCardProps)
         {hasUSD && (
           <View className="flex-1 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3.5 justify-between">
             <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
+              <Text
+                numberOfLines={1}
+                className="flex-1 mr-1 text-emerald-700 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider"
+              >
                 Dólares
               </Text>
-              <View className="px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25">
+              <View className="shrink-0 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/25">
                 <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-extrabold">
                   $us
                 </Text>
