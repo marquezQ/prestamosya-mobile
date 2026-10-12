@@ -22,7 +22,8 @@ export function OverdueCollectionList({ overdueItems }: OverdueCollectionListPro
 
   const handleOpenWhatsApp = (item: OverdueInstallmentItem) => {
     const formattedPending = formatCurrency(item.pendingAmount, item.currency);
-    const text = `Hola ${item.client.firstName}, le recordamos que tiene pendiente de pago la cuota N° ${item.installmentNumber} por un saldo de ${formattedPending} con ${item.daysOverdue} días de mora. Favor cancelar a la brevedad.`;
+    const clientName = item.client.fullName || item.client.firstName;
+    const text = `Hola ${clientName}, le recordamos que tiene pendiente de pago la cuota N° ${item.installmentNumber} por un saldo de ${formattedPending} con ${item.daysOverdue} días de mora. Favor cancelar a la brevedad.`;
     sendWhatsAppWithChooser({ phone: item.client.phone, text });
   };
 
