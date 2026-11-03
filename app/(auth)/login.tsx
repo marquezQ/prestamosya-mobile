@@ -28,6 +28,7 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const loginSchema = z.object({
   username: z
     .string()
+    .trim()
     .min(3, "El usuario debe tener al menos 3 caracteres")
     .max(20, "El usuario no puede exceder los 20 caracteres"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
@@ -199,11 +200,17 @@ export default function LoginScreen() {
 
   const onSubmit = (data: LoginForm) => {
     setErrorMessage(null);
-    login(data, {
-      onError: (error) => {
-        setErrorMessage(error.message || "Credenciales incorrectas");
+    login(
+      {
+        username: data.username.trim(),
+        password: data.password,
       },
-    });
+      {
+        onError: (error) => {
+          setErrorMessage(error.message || "Credenciales incorrectas");
+        },
+      }
+    );
   };
 
   const inner = (

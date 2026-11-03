@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/DatePicker';
-import { CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { CheckCircle2, AlertCircle, Banknote, QrCode } from 'lucide-react-native';
 import { PaymentMethod, RegisterPaymentInput, RegisterPaymentResponseData } from '@/types/payment';
 import { LoanInstallmentItem, Currency } from '@/types/loan';
 import { getTodayISO } from '@/lib/format';
@@ -23,7 +22,6 @@ import { getApiErrorMessage } from '@/services/api';
 import { useRegisterPayment } from '@/hooks/useRegisterPayment';
 import { PaymentClientSummary } from './modal/PaymentClientSummary';
 import { PendingInstallmentsSummary } from './modal/PendingInstallmentsSummary';
-import { PaymentMethodSelector } from './modal/PaymentMethodSelector';
 
 const paymentSchema = z.object({
   amount: z
@@ -119,12 +117,7 @@ export function RegisterPaymentModal({
           </DialogTitle>
         </DialogHeader>
 
-        <KeyboardAwareScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          bottomOffset={60}
-          contentContainerClassName="gap-3 py-1"
-        >
+        <View className="gap-3 py-1">
           {/* Ficha resumida del cliente */}
           <PaymentClientSummary clientName={clientName} clientPhone={clientPhone} />
 
@@ -157,27 +150,76 @@ export function RegisterPaymentModal({
             )}
           </View>
 
-          {/* Selector de Método de Pago simplificado */}
-          <Controller
-            control={control}
-            name="method"
-            render={({ field: { value, onChange } }) => (
-              <PaymentMethodSelector value={value} onChange={onChange} />
-            )}
-          />
-
-          {/* Selector de Fecha */}
+          {/* Fila única de 3 columnas: Efectivo | Transferencia/QR | Fecha de Pago */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Fecha de Pago *
+              Método y Fecha de Pago *
             </Text>
-            <Controller
-              control={control}
-              name="paymentDate"
-              render={({ field: { value, onChange } }) => (
-                <DatePicker value={value} onChange={onChange} />
-              )}
-            />
+            <View className="flex-row gap-2 items-center">
+              {/* Método de pago en 2 columnas */}
+              <Controller
+                control={control}
+                name="method"
+                render={({ field: { value, onChange } }) => (
+                  <>
+                    <Pressable
+                      onPress={() => onChange('cash')}
+                      className={`flex-1 flex-row items-center justify-center gap-1.5 h-12 px-2 rounded-xl border ${
+                        value === 'cash'
+                          ? 'bg-secondary border-secondary'
+                          : 'bg-muted/40 border-border/70 active:bg-muted'
+                      }`}
+                    >
+                      <Banknote size={16} color={value === 'cash' ? '#ffffff' : '#2368A3'} />
+                      <Text
+                        numberOfLines={1}
+                        className={`text-xs font-bold ${
+                          value === 'cash' ? 'text-white' : 'text-foreground'
+                        }`}
+                      >
+                        Efectivo
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => onChange('transfer')}
+                      className={`flex-1 flex-row items-center justify-center gap-1.5 h-12 px-1.5 rounded-xl border ${
+                        value === 'transfer'
+                          ? 'bg-secondary border-secondary'
+                          : 'bg-muted/40 border-border/70 active:bg-muted'
+                      }`}
+                    >
+                      <QrCode size={16} color={value === 'transfer' ? '#ffffff' : '#2368A3'} />
+                      <Text
+                        numberOfLines={1}
+                        className={`text-xs font-bold ${
+                          value === 'transfer' ? 'text-white' : 'text-foreground'
+                        }`}
+                      >
+                        QR / Transf.
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
+              />
+
+              {/* Fecha en la 3ra columna */}
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="paymentDate"
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      value={value}
+                      onChange={onChange}
+                      className="w-full"
+                      buttonClassName="h-12 rounded-xl bg-muted/40 border-border/70 px-2 justify-center"
+                      textClassName="text-xs font-bold text-center"
+                    />
+                  )}
+                />
+              </View>
+            </View>
             {errors.paymentDate && (
               <Text className="text-destructive text-sm mt-1">
                 {errors.paymentDate.message}
@@ -214,7 +256,7 @@ export function RegisterPaymentModal({
               </Text>
             </View>
           )}
-        </KeyboardAwareScrollView>
+        </View>
 
         <DialogFooter className="mt-2 flex-row gap-3">
           <Button

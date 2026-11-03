@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,14 +14,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/DatePicker';
-import { AlertCircle, BadgeCheck, Info } from 'lucide-react-native';
+import { AlertCircle, BadgeCheck, Banknote, Info, QrCode } from 'lucide-react-native';
 import { SettleLoanInput, SettleLoanResponseData } from '@/types/payment';
 import { Currency } from '@/types/loan';
-import { formatCurrency, getTodayISO } from '@/lib/format';
+import { formatCurrency, getTodayISO, getInitials } from '@/lib/format';
 import { getApiErrorMessage } from '@/services/api';
 import { useSettleLoan } from '@/hooks/useSettleLoan';
-import { PaymentClientSummary } from './modal/PaymentClientSummary';
-import { PaymentMethodSelector } from './modal/PaymentMethodSelector';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Schema
@@ -95,13 +92,13 @@ export function SettleLoanModal({
   onClose,
   loanId,
   clientName,
-  clientPhone = '',
   outstandingBalance,
   currency = 'BOB',
   onSettleSuccess,
 }: SettleLoanModalProps) {
   const settleLoan = useSettleLoan();
   const settleSchema = buildSettleSchema(outstandingBalance, currency);
+  const initials = getInitials(clientName);
 
   const {
     control,
@@ -165,18 +162,22 @@ export function SettleLoanModal({
           </View>
         </DialogHeader>
 
-        <KeyboardAwareScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          bottomOffset={90}
-          contentContainerClassName="gap-3 py-1 pb-20"
-        >
-          {/* Ficha del cliente */}
-          <PaymentClientSummary clientName={clientName} clientPhone={clientPhone} />
+        <View className="gap-3 py-1">
+          {/* Ficha del cliente: avatar + nombre (sin teléfono) */}
+          <View className="flex-row items-center gap-3 bg-muted/40 border border-border/60 rounded-xl p-2.5">
+            <View className="w-10 h-10 rounded-full bg-primary/20 items-center justify-center shrink-0">
+              <Text className="text-secondary font-bold text-base">{initials}</Text>
+            </View>
+            <View className="flex-1 justify-center">
+              <Text className="text-foreground font-bold text-base leading-snug" numberOfLines={1}>
+                {clientName}
+              </Text>
+            </View>
+          </View>
 
-          {/* Banner informativo */}
+          {/* Banner informativo de recomendación */}
           <View className="flex-row items-start gap-2.5 bg-primary/10 border border-primary/25 rounded-xl p-3">
-            <Info size={16} color="#6DB6EF" />
+            <Info size={18} color="#6DB6EF" className="shrink-0 mt-0.5" />
             <Text className="text-foreground text-sm font-medium flex-1 leading-snug">
               La liquidación cancela todo el saldo pendiente en un solo pago. Puedes aplicar un descuento para reducir el monto real a cobrar.
             </Text>
@@ -211,7 +212,7 @@ export function SettleLoanModal({
                     onBlur={onBlur}
                     keyboardType="numeric"
                     placeholder="0"
-                    className="bg-background text-foreground font-bold text-lg h-12 rounded-xl"
+                    className="bg-background text-foreground font-bold text-base h-12 rounded-xl"
                   />
                 )}
               />
@@ -236,7 +237,7 @@ export function SettleLoanModal({
                     onBlur={onBlur}
                     keyboardType="numeric"
                     placeholder="0"
-                    className="bg-background text-foreground text-lg h-12 rounded-xl"
+                    className="bg-background text-foreground text-base h-12 rounded-xl"
                   />
                 )}
               />
@@ -248,29 +249,78 @@ export function SettleLoanModal({
             </View>
           </View>
 
-          {/* Método de pago */}
-          <Controller
-            control={control}
-            name="method"
-            render={({ field: { value, onChange } }) => (
-              <PaymentMethodSelector value={value} onChange={onChange} />
-            )}
-          />
-
-          {/* Fecha */}
+          {/* Fila única de 3 columnas: Efectivo | Transferencia/QR | Fecha de Liquidación */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Fecha de Liquidación *
+              Método y Fecha de Liquidación *
             </Text>
-            <Controller
-              control={control}
-              name="paymentDate"
-              render={({ field: { value, onChange } }) => (
-                <DatePicker value={value} onChange={onChange} />
-              )}
-            />
+            <View className="flex-row gap-2 items-center">
+              {/* Método de pago en 2 columnas */}
+              <Controller
+                control={control}
+                name="method"
+                render={({ field: { value, onChange } }) => (
+                  <>
+                    <Pressable
+                      onPress={() => onChange('cash')}
+                      className={`flex-1 flex-row items-center justify-center gap-1.5 h-12 px-2 rounded-xl border ${
+                        value === 'cash'
+                          ? 'bg-secondary border-secondary'
+                          : 'bg-muted/40 border-border/70 active:bg-muted'
+                      }`}
+                    >
+                      <Banknote size={16} color={value === 'cash' ? '#ffffff' : '#2368A3'} />
+                      <Text
+                        numberOfLines={1}
+                        className={`text-xs font-bold ${
+                          value === 'cash' ? 'text-white' : 'text-foreground'
+                        }`}
+                      >
+                        Efectivo
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => onChange('transfer')}
+                      className={`flex-1 flex-row items-center justify-center gap-1.5 h-12 px-1.5 rounded-xl border ${
+                        value === 'transfer'
+                          ? 'bg-secondary border-secondary'
+                          : 'bg-muted/40 border-border/70 active:bg-muted'
+                      }`}
+                    >
+                      <QrCode size={16} color={value === 'transfer' ? '#ffffff' : '#2368A3'} />
+                      <Text
+                        numberOfLines={1}
+                        className={`text-xs font-bold ${
+                          value === 'transfer' ? 'text-white' : 'text-foreground'
+                        }`}
+                      >
+                        QR / Transf.
+                      </Text>
+                    </Pressable>
+                  </>
+                )}
+              />
+
+              {/* Fecha en la 3ra columna */}
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="paymentDate"
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      value={value}
+                      onChange={onChange}
+                      className="w-full"
+                      buttonClassName="h-12 rounded-xl bg-muted/40 border-border/70 px-2 justify-center"
+                      textClassName="text-xs font-bold text-center"
+                    />
+                  )}
+                />
+              </View>
+            </View>
             {errors.paymentDate && (
-              <Text className="text-destructive text-sm mt-1">
+              <Text className="text-destructive text-xs mt-1">
                 {errors.paymentDate.message}
               </Text>
             )}
@@ -279,7 +329,7 @@ export function SettleLoanModal({
           {/* Notas */}
           <View>
             <Text className="text-foreground text-xs font-bold uppercase tracking-wider mb-1.5">
-              Notas / Observaciones (Opcional)
+              Notas (Opcional)
             </Text>
             <Controller
               control={control}
@@ -289,7 +339,7 @@ export function SettleLoanModal({
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  placeholder="Ej. Liquidación anticipada acordada con el cliente"
+                  placeholder="Ej. Liquidación anticipada acordada"
                   className="bg-background text-foreground text-sm h-12 rounded-xl"
                 />
               )}
@@ -298,16 +348,16 @@ export function SettleLoanModal({
 
           {/* Error del backend */}
           {settleLoan.isError && (
-            <View className="flex-row items-center gap-2 bg-destructive/10 border border-destructive/30 rounded-xl p-3">
-              <AlertCircle size={18} color="#ef4444" />
-              <Text className="text-destructive text-sm font-semibold flex-1">
+            <View className="flex-row items-center gap-2 bg-destructive/10 border border-destructive/30 rounded-xl p-2.5">
+              <AlertCircle size={16} color="#ef4444" />
+              <Text className="text-destructive text-xs font-semibold flex-1">
                 {getApiErrorMessage(settleLoan.error)}
               </Text>
             </View>
           )}
-        </KeyboardAwareScrollView>
+        </View>
 
-        <DialogFooter className="mt-2 flex-row gap-3">
+        <DialogFooter className="mt-3 flex-row gap-3">
           <Button
             variant="outline"
             onPress={onClose}

@@ -1,11 +1,19 @@
 import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
+import { useKeyboardTranslate } from '@/hooks/useKeyboardTranslate';
 import { cn } from '@/lib/utils';
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type GestureResponderEvent, type ViewProps } from 'react-native';
+import {
+  Platform,
+  Text,
+  View,
+  type GestureResponderEvent,
+  type ViewProps,
+} from 'react-native';
 import { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
 const Dialog = DialogPrimitive.Root;
@@ -22,10 +30,13 @@ function DialogOverlay({
   className,
   children,
   onPress,
+  style,
   ...props
 }: Omit<React.ComponentProps<typeof DialogPrimitive.Overlay>, 'asChild'> & {
   children?: React.ReactNode;
 }) {
+  const insets = useSafeAreaInsets();
+  const keyboardAnimatedStyle = useKeyboardTranslate(0.5);
   const { onOpenChange } = DialogPrimitive.useRootContext();
 
   function onOverlayPress(event: GestureResponderEvent) {
@@ -38,6 +49,13 @@ function DialogOverlay({
   return (
     <FullWindowOverlay>
       <DialogPrimitive.Overlay
+        style={[
+          {
+            paddingBottom: Math.max(insets.bottom, 16),
+            paddingTop: Math.max(insets.top, 16),
+          },
+          style as any,
+        ]}
         className={cn(
           'absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center bg-black/50 p-2',
           Platform.select({
@@ -55,10 +73,13 @@ function DialogOverlay({
           as="Pressable">
           {/* w-full en ambos wrappers: sin ancho definido, Yoga los mide por
               contenido intrínseco (shrink-to-fit) y el DialogContent con
-              w-full colapsa al ancho de su contenido en vez de llenar la pantalla. */}
+              w-full colapsa al ancho de su contenido en vez de llenar la pantalla.
+              El keyboardAnimatedStyle traslada el modal hacia arriba como una unidad sólida,
+              sin contraer su altura ni volverlo scrolleable. */}
           <NativeOnlyAnimatedView
             entering={FadeIn.delay(50).reduceMotion(ReduceMotion.System)}
             exiting={FadeOut.duration(150).reduceMotion(ReduceMotion.System)}
+            style={keyboardAnimatedStyle as any}
             className="w-full items-center">
             <>{children}</>
           </NativeOnlyAnimatedView>
@@ -67,10 +88,12 @@ function DialogOverlay({
     </FullWindowOverlay>
   );
 }
+
 function DialogContent({
   className,
   portalHost,
   children,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   portalHost?: string;
@@ -79,6 +102,7 @@ function DialogContent({
     <DialogPortal hostName={portalHost}>
       <DialogOverlay>
         <DialogPrimitive.Content
+          style={style}
           className={cn(
             'bg-background border-border z-50 mx-auto flex w-full max-w-[calc(100%-2rem)] flex-col gap-4 rounded-lg border p-6 shadow-lg shadow-black/5 sm:max-w-lg',
             Platform.select({

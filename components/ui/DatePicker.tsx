@@ -3,11 +3,14 @@ import { Platform, Pressable, View } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Text } from '@/components/ui/text';
 import { format, isValid, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface DatePickerProps {
   value: string | null;
   onChange: (date: string) => void;
   className?: string;
+  buttonClassName?: string;
+  textClassName?: string;
 }
 
 /**
@@ -18,7 +21,13 @@ interface DatePickerProps {
  * que ocurría al guardar instantes UTC. El backend interpreta la fecha en
  * America/La_Paz (Bolivia).
  */
-export function DatePicker({ value, onChange, className }: DatePickerProps) {
+export function DatePicker({
+  value,
+  onChange,
+  className,
+  buttonClassName,
+  textClassName,
+}: DatePickerProps) {
   const [show, setShow] = useState(false);
 
   let parsed = new Date();
@@ -47,7 +56,13 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
 
   if (Platform.OS === 'ios') {
     return (
-      <View className={`h-12 justify-center border border-input rounded-md bg-background px-1 ${className || ''}`}>
+      <View
+        className={cn(
+          'h-12 justify-center border border-input rounded-md bg-background px-1',
+          className,
+          buttonClassName
+        )}
+      >
         <DateTimePicker
           value={parsed}
           mode="date"
@@ -64,9 +79,17 @@ export function DatePicker({ value, onChange, className }: DatePickerProps) {
     <View className={className}>
       <Pressable
         onPress={() => setShow(true)}
-        className="h-12 border border-input bg-background rounded-md px-3 justify-center"
+        className={cn(
+          'h-12 border border-input bg-background rounded-md px-3 justify-center',
+          buttonClassName
+        )}
       >
-        <Text className={value ? 'text-foreground text-base' : 'text-muted-foreground text-base'}>
+        <Text
+          className={cn(
+            value ? 'text-foreground' : 'text-muted-foreground',
+            textClassName || 'text-base'
+          )}
+        >
           {displayValue || 'Fecha'}
         </Text>
       </Pressable>
