@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Alert, ActivityIndicator, Platform } from 'react-native';
 import axios from 'axios';
 import { z } from 'zod';
@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import { Button } from '@/components/ui/button';
 import { LocationPicker } from '@/components/ui/LocationPicker';
+import { ClientPhotoPicker } from './ClientPhotoPicker';
 import { useCreateClient } from '@/hooks/useCreateClient';
 import { useUpdateClient } from '@/hooks/useUpdateClient';
-import { Client } from '@/types/client';
+import { Client, ClientCreateInput, ClientUpdateInput, ClientImagePayload } from '@/types/client';
+import { getApiErrorMessage } from '@/services/api';
 
 const clientSchema = z.object({
   fullName: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
@@ -39,6 +41,8 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
   const { mutateAsync: updateClient, isPending: isUpdating } = useUpdateClient();
   const isPending = isCreating || isUpdating;
 
+  const [photoFile, setPhotoFile] = useState<ClientImagePayload | null>(null);
+
   const {
     control,
     handleSubmit,
@@ -62,6 +66,7 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
 
   // Sincroniza los valores cuando el formulario se abre en modo edición
   useEffect(() => {
+    setPhotoFile(null);
     if (clientToEdit) {
       reset({
         fullName: clientToEdit.fullName,
@@ -90,7 +95,24 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
   const onSubmit = async (data: ClientFormValues) => {
     try {
       if (isEditMode && clientToEdit) {
-        await updateClient({ id: clientToEdit.id, data });
+        const updatePayload: ClientUpdateInput = {};
+        if (data.fullName !== clientToEdit.fullName) updatePayload.fullName = data.fullName;
+        if (data.phone !== clientToEdit.phone) updatePayload.phone = data.phone;
+        if (data.idNumber !== clientToEdit.idNumber) updatePayload.idNumber = data.idNumber;
+        if (data.phoneAlt !== (clientToEdit.phoneAlt ?? '')) updatePayload.phoneAlt = data.phoneAlt || null;
+        if (data.address !== (clientToEdit.address ?? '')) updatePayload.address = data.address || null;
+        if (data.latitude !== clientToEdit.latitude) updatePayload.latitude = data.latitude;
+        if (data.longitude !== clientToEdit.longitude) updatePayload.longitude = data.longitude;
+        if (data.notes !== (clientToEdit.notes ?? '')) updatePayload.notes = data.notes || null;
+        if (photoFile) updatePayload.image = photoFile;
+
+        // Si no hubo cambios en texto ni nueva foto, se considera exitoso sin llamar al backend
+        if (Object.keys(updatePayload).length === 0) {
+          onSuccess?.();
+          return;
+        }
+
+        await updateClient({ id: clientToEdit.id, data: updatePayload });
         if (Platform.OS === 'web') {
           window.alert('Cliente actualizado correctamente.');
           onSuccess?.();
@@ -100,7 +122,19 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
           ]);
         }
       } else {
-        await createClient(data);
+        const createPayload: ClientCreateInput = {
+          fullName: data.fullName,
+          phone: data.phone,
+          idNumber: data.idNumber,
+          phoneAlt: data.phoneAlt || null,
+          address: data.address || null,
+          latitude: data.latitude,
+          longitude: data.longitude,
+          notes: data.notes || null,
+          ...(photoFile ? { image: photoFile } : {}),
+        };
+
+        await createClient(createPayload);
         if (Platform.OS === 'web') {
           window.alert('Cliente registrado correctamente.');
           onSuccess?.();
@@ -111,6 +145,7 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
         }
       }
     } catch (error) {
+      console.error('Error al guardar cliente:', error);
       if (axios.isAxiosError(error) && error.response?.status === 409) {
         const message = isEditMode
           ? 'Ya existe otro cliente con ese CI o teléfono.'
@@ -122,10 +157,14 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
         }
       } else {
         const action = isEditMode ? 'actualizar' : 'registrar';
+        const errorMsg = getApiErrorMessage(
+          error,
+          `Hubo un problema al ${action} al cliente. Inténtalo de nuevo.`,
+        );
         if (Platform.OS === 'web') {
-          window.alert(`Hubo un problema al ${action} al cliente. Inténtalo de nuevo.`);
+          window.alert(errorMsg);
         } else {
-          Alert.alert('Error', `Hubo un problema al ${action} al cliente. Inténtalo de nuevo.`);
+          Alert.alert('Error', errorMsg);
         }
       }
     }
@@ -133,9 +172,19 @@ export function ClientForm({ clientToEdit, onSuccess }: ClientFormProps) {
 
   const latitude = watch('latitude');
   const longitude = watch('longitude');
+  const fullName = watch('fullName');
 
   return (
     <View className="gap-4">
+      <View className="items-center py-2">
+        <ClientPhotoPicker
+          clientName={fullName}
+          value={photoFile}
+          existingUrl={clientToEdit?.photoUrl}
+          onChange={setPhotoFile}
+        />
+      </View>
+
       <View>
         <Label nativeID="fullName" className="mb-2">Nombre Completo *</Label>
         <Controller

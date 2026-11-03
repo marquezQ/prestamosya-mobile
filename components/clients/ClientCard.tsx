@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Pressable, Linking, GestureResponderEvent } from 'react-native';
+import { View, Pressable, Linking, GestureResponderEvent, Image } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Client } from '@/types/client';
 import { Phone, MessageSquare } from 'lucide-react-native';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { palette } from '@/lib/theme/colors';
 import { sendWhatsAppWithChooser } from '@/lib/whatsapp';
+import { getInitials } from '@/lib/format';
 
 interface ClientCardProps {
   client: Client;
@@ -40,14 +41,6 @@ function getClientStatusConfig(status: string) {
 }
 
 export function ClientCard({ client, onPress }: ClientCardProps) {
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
-
   const statusConfig = getClientStatusConfig(client.status);
 
   const handleCall = (e: GestureResponderEvent) => {
@@ -71,11 +64,19 @@ export function ClientCard({ client, onPress }: ClientCardProps) {
     >
       {/* Avatar */}
       <Avatar alt={client.fullName} className="h-12 w-12 bg-primary/20 items-center justify-center shrink-0 rounded-full">
-        <AvatarFallback>
-          <Text className="text-secondary font-bold text-lg">
-            {getInitials(client.fullName)}
-          </Text>
-        </AvatarFallback>
+        {client.photoUrl ? (
+          <Image
+            source={{ uri: client.photoUrl }}
+            className="w-full h-full rounded-full"
+            resizeMode="cover"
+          />
+        ) : (
+          <AvatarFallback>
+            <Text className="text-secondary font-bold text-lg">
+              {getInitials(client.fullName)}
+            </Text>
+          </AvatarFallback>
+        )}
       </Avatar>
 
       {/* Info */}

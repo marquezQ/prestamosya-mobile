@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Linking, Image, Pressable } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Client } from '@/types/client';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -10,6 +10,8 @@ import { es } from 'date-fns/locale';
 import { palette, getThemeColors } from '@/lib/theme/colors';
 import { useColorScheme } from 'nativewind';
 import { sendWhatsAppWithChooser } from '@/lib/whatsapp';
+import { getInitials } from '@/lib/format';
+import { ClientPhotoViewer } from './ClientPhotoViewer';
 
 interface ClientProfileHeaderProps {
   client: Client;
@@ -17,16 +19,9 @@ interface ClientProfileHeaderProps {
 }
 
 export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps) {
+  const [isPhotoViewerOpen, setIsPhotoViewerOpen] = useState(false);
   const { colorScheme } = useColorScheme();
   const colors = getThemeColors(colorScheme);
-
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
 
   const handleCall = () => {
     if (client.phone) {
@@ -49,17 +44,46 @@ export function ClientProfileHeader({ client, onEdit }: ClientProfileHeaderProps
     <View className="items-center px-4 pt-3.5 pb-3 bg-card border-b border-border/40">
       {/* Avatar Section */}
       <View className="relative mb-2">
-        <Avatar alt={client.fullName} className="h-16 w-16 bg-primary/20 items-center justify-center rounded-full">
-          <AvatarFallback>
-            <Text className="text-secondary font-bold text-2xl">
-              {getInitials(client.fullName)}
-            </Text>
-          </AvatarFallback>
-        </Avatar>
-        <View className="absolute bottom-0 right-0 bg-background rounded-full p-0.5 border border-border">
+        <Pressable
+          onPress={() => {
+            if (client.photoUrl) {
+              setIsPhotoViewerOpen(true);
+            }
+          }}
+          disabled={!client.photoUrl}
+          className={client.photoUrl ? 'active:opacity-80' : ''}
+        >
+          <Avatar alt={client.fullName} className="h-16 w-16 bg-primary/20 items-center justify-center rounded-full">
+            {client.photoUrl ? (
+              <Image
+                source={{ uri: client.photoUrl }}
+                className="w-full h-full rounded-full"
+                resizeMode="cover"
+              />
+            ) : (
+              <AvatarFallback>
+                <Text className="text-secondary font-bold text-2xl">
+                  {getInitials(client.fullName)}
+                </Text>
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </Pressable>
+        <View
+          pointerEvents="none"
+          className="absolute bottom-0 right-0 bg-background rounded-full p-0.5 border border-border"
+        >
           <CheckCircle2 size={16} color={palette.azul} />
         </View>
       </View>
+
+      <ClientPhotoViewer
+        isOpen={isPhotoViewerOpen}
+        onClose={() => setIsPhotoViewerOpen(false)}
+        imageUrl={client.photoUrl}
+        clientName={client.fullName}
+        idNumber={client.idNumber}
+      />
 
       {/* Name and ID Section */}
       <Text className="text-xl font-bold text-foreground text-center mb-0.5">

@@ -9,9 +9,21 @@ export interface Client {
   longitude: number | null;
   status: 'CURRENT' | 'DELINQUENT' | 'NO_LOAN';
   notes: string | null;
+  /** URL de la foto del cliente optimizada por Cloudinary. null = sin foto. */
+  photoUrl: string | null;
   createdAt: string;
   updatedAt: string;
   activeLoanCount?: number;
+}
+
+/**
+ * Imagen seleccionada desde expo-image-picker para adjuntar al perfil del cliente.
+ * Desacoplada del tipo Asset de la librería para no filtrar dependencias al servicio.
+ */
+export interface ClientImagePayload {
+  uri: string;
+  name: string;
+  mimeType?: string;
 }
 
 export interface ClientCreateInput {
@@ -23,6 +35,8 @@ export interface ClientCreateInput {
   latitude: number | null;
   longitude: number | null;
   notes: string | null;
+  /** Foto de perfil opcional. Si se provee, se envía como multipart/form-data. */
+  image?: ClientImagePayload;
 }
 
 /**

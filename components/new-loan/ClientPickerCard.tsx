@@ -1,12 +1,14 @@
 import React from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Image } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Check } from 'lucide-react-native';
+import { getInitials } from '@/lib/format';
 
 interface ClientPickerCardProps {
   fullName: string;
   idNumber: string;
+  photoUrl?: string | null;
   isSelected: boolean;
   onPress: () => void;
 }
@@ -14,6 +16,7 @@ interface ClientPickerCardProps {
 export function ClientPickerCard({
   fullName,
   idNumber,
+  photoUrl,
   isSelected,
   onPress,
 }: ClientPickerCardProps) {
@@ -31,11 +34,19 @@ export function ClientPickerCard({
       {/* Avatar */}
       <Avatar
         alt={fullName}
-        className="h-12 w-12 bg-primary/20 items-center justify-center shrink-0"
+        className="h-12 w-12 bg-primary/20 items-center justify-center shrink-0 rounded-full"
       >
-        <AvatarFallback>
-          <Text className="text-primary font-bold text-lg">{initials}</Text>
-        </AvatarFallback>
+        {photoUrl ? (
+          <Image
+            source={{ uri: photoUrl }}
+            className="w-full h-full rounded-full"
+            resizeMode="cover"
+          />
+        ) : (
+          <AvatarFallback>
+            <Text className="text-primary font-bold text-lg">{initials}</Text>
+          </AvatarFallback>
+        )}
       </Avatar>
 
       {/* Info */}
@@ -56,12 +67,4 @@ export function ClientPickerCard({
       )}
     </Pressable>
   );
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(' ');
-  if (parts.length >= 2) {
-    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-  }
-  return name.substring(0, 2).toUpperCase();
 }

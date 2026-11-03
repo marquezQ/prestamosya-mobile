@@ -86,6 +86,7 @@ export function StepSelectClient() {
           <ClientPickerCard
             fullName={item.fullName}
             idNumber={item.idNumber}
+            photoUrl={item.photoUrl}
             isSelected={selectedClient?.id === item.id}
             onPress={() =>
               selectClient({
