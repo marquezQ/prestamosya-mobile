@@ -62,12 +62,34 @@ import { TextInput, Text } from "react-native";
 
 **CRITICAL**: SDK 54 runs with `edge-to-edge` enabled (forced on Android 15+). The OS no longer resizes the window when the keyboard opens, so React Native's built-in `KeyboardAvoidingView` is **unreliable on Android** — especially `behavior="height"` (known render-loop / input-covering bugs).
 
+### 1. Pantallas Completas (Full Screens)
 **Standard**: use `react-native-keyboard-controller` (bundled in Expo Go SDK 54, no dev build needed):
 - `KeyboardProvider` must wrap the app — **already mounted in `app/_layout.tsx`**. Without it, `KeyboardAwareScrollView` logs `Couldn't find real values for KeyboardContext` and silently does nothing.
 - Wrap scrollable forms in `KeyboardAwareScrollView` from `@/components/ui/KeyboardAwareScrollView` (has a `.web.tsx` fallback). It auto-scrolls the focused input above the keyboard with a native-synchronized animation on both platforms.
 - Keep `keyboardShouldPersistTaps="handled"` so taps on buttons/dropdowns work while the keyboard is open.
 - Tap-outside-to-dismiss: wrap the form in `TouchableWithoutFeedback onPress={Keyboard.dismiss}`.
 - Do NOT use `KeyboardAvoidingView` with `behavior="height"` on Android.
+
+### 2. Formularios en Modales / Diálogos (`DialogPrimitive.Portal`)
+**REGLA DE ORO DE UX/UI MOBILE**: Los modales de acción (ej. `RegisterPaymentModal`, `SettleLoanModal`, `GuaranteeFormModal`) **NUNCA deben contraerse ni volverse scrolleables al abrir el teclado**, ya que reduce visualmente los componentes, genera barras de scroll feas y comprime el diseño.
+- **Arquitectura**: `DialogOverlay` en `components/ui/dialog.tsx` aplica `useKeyboardTranslate(0.5)` vía Reanimated a 120 fps en el hilo de la UI.
+- **Traslación Geométrica**: Al trasladar el modal hacia arriba exactamente $\frac{\text{alturaTeclado}}{2}$, el modal se mantiene geométricamente centrado en el espacio visible sobre el teclado sin contraerse.
+- **Estructura del Cuerpo**: Usar un `<View className="gap-3 py-1">` (o `gap-4 py-2`) con altura natural. **NO usar `KeyboardAwareScrollView` ni `<ScrollView>` dentro de modales**, a menos que el formulario tenga más de 12 campos que excedan físicamente la pantalla vertical total.
+
+## 🧹 Sanitización y Trimming de Inputs de Texto
+- En formularios de autenticación (ej. `app/(auth)/login.tsx`), el campo `username` debe sanitizarse tanto en el cliente como en el backend:
+  - **Cliente (Zod)**: Aplicar `.transform((val) => val.trim())` o `.trim()` en el schema Zod y un `.trim()` explícito en el handler `onSubmit` para eliminar espacios accidentales al inicio o final.
+  - **Backend (NestJS)**: En los DTOs de autenticación (`LoginDto`), aplicar decoradores `@Transform(({ value }) => typeof value === 'string' ? value.trim() : value)` para garantizar que ningún espacio adicional genere fallas de autenticación.
+
+## 📸 Carga de Imágenes Multipart/Form-Data (Fotos de Perfil y Garantías)
+- **Tamaño Máximo**: Validar estrictamente un máximo de 20MB (`fileSize > 20 * 1024 * 1024`).
+- **Cross-Platform Payload**:
+  - **Web**: Convertir la URI en un `Blob` real mediante `fetch(uri).then(r => r.blob())` y enviarlo como `formData.append('photo', blob, 'photo.jpg')`.
+  - **Native (iOS/Android)**: Adjuntar el objeto React Native `{ uri, name: 'photo.jpg', type: mimeType || 'image/jpeg' } as any`.
+- **CRITICAL NestJS Multipart DTO Caveat**:
+  - Cuando NestJS procesa `multipart/form-data` con `@UseInterceptors(FileInterceptor(...))`, todos los campos del body llegan como `string`.
+  - Los campos numéricos en DTOs (ej. `latitude`, `longitude`, `estimatedValue`) **DEBEN** llevar el decorador `@Type(() => Number)` de `class-transformer` además de `@IsNumber()`. De lo contrario, `ValidationPipe` recibirá strings y rechazará las peticiones con HTTP 400 (`"latitude must be a number..."`).
+- **Partial Updates (PATCH)**: En actualizaciones parciales, solo anexar el archivo `photo` si el usuario seleccionó una nueva imagen, o enviar `deletePhoto: true` / `photo: null` si el usuario eliminó la foto previa. Si no se modificó la foto, no enviar nada en el payload.
 
 ## 🗺️ Location Fields (latitude/longitude)
 
@@ -121,7 +143,7 @@ The guarantee create/edit form (`components/client-detail/guarantees/GuaranteeFo
 ### When to use a modal form (vs. full screen)
 - Use a modal when the entity has ≤ 4 fields and no complex nested data.
 - Use a full screen (Expo Router push) for multi-step or complex flows.
-- Para forms que necesitan scroll dentro del `DialogContent` (ej. `RegisterPaymentModal`), envolver el cuerpo en un `<ScrollView keyboardShouldPersistTaps="handled">` — NO usar `KeyboardAwareScrollView` dentro de portales.
+- Los modales deben mantener una estructura sólida con `<View className="gap-3 py-1">` a su altura 100% natural. `DialogOverlay` se encarga de elevar el modal en pantalla al abrir el teclado mediante `useKeyboardTranslate(0.5)`. NUNCA usar `KeyboardAwareScrollView` dentro de portales, y evitar `ScrollView` a menos que sea un modal extraordinariamente largo.
 
 ### Chip Selector for Enum Fields
 When a form field maps to a small fixed enum (e.g. `GuaranteeType`), prefer a **chip/pill selector** over a `<Select>` dropdown, as it is more intuitive on mobile:

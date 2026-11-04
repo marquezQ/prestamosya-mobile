@@ -92,7 +92,12 @@ Global client state (e.g., current selected theme, UI toggles, non-persistent us
 | `hooks/useCreateClient.ts` | React Query `useMutation`; invalidates queryKey `['clients']` on success |
 | `components/clients/ClientForm.tsx` | RHF + Zod form that calls `useCreateClient` |
 
-- Payload shape matches `ClientCreateInput` in `types/client.ts`; optional fields (`phoneAlt`, `address`, `latitude`, `longitude`, `notes`) are nullable.
+- Payload shape matches `ClientCreateInput` in `types/client.ts`; optional fields (`phoneAlt`, `address`, `latitude`, `longitude`, `notes`, `photo`) are nullable.
+- **Foto de perfil del cliente**:
+  - `photoUrl: string | null` retornado por el backend (Cloudinary).
+  - Al crear (`POST /clients`) o editar (`PATCH /clients/:id`), `clientService.ts` empaqueta la petición en `multipart/form-data` si existe un archivo `photo` (`ClientImagePayload`).
+  - En Web se genera un `Blob` nativo; en iOS/Android se utiliza el objeto `{ uri, name, type }`.
+  - En NestJS, los campos numéricos (`latitude`, `longitude`) requieren `@Type(() => Number)` en el DTO porque multipart envía todos los campos de texto como strings.
 - **Backend constraint (NestJS)**: `latitude`/`longitude` are validated with `@IsNumber({ maxDecimalPlaces: 8 })`. Coordinates must stay ≤8 decimals — the app rounds to 6 in `LocationPicker`. See `.agents/FORMS.md`.
 - The backend returns **`409 Conflict`** on duplicate CI or phone — handled in `ClientForm` (shows a specific error message).
 
@@ -147,7 +152,7 @@ El tab Cobros y el flujo de pagos están conectados al backend real.
 - Labels dinámicos: cuando `selectedDate !== metadata.serverToday`, los títulos dicen "Cuotas/Cobrados del {fecha}" en vez de "de hoy".
 - Config única de badges de estado: `getInstallmentStatusConfig()` en `components/collections/installmentStatus.tsx`.
 - Helpers de formato compartidos en `lib/format.ts` (`formatBs`, `formatDateBO`, `getTodayISO`, `getInitials`, `formatAmountNumber`) — no duplicar localmente.
-- El modal de pago usa RNR `Dialog` (patrón `GuaranteeFormModal`). Si se agregan campos, mantener `ScrollView` con `keyboardShouldPersistTaps="handled"` dentro de `DialogContent`.
+- Los modales de acción (`RegisterPaymentModal`, `SettleLoanModal`, `GuaranteeFormModal`) usan RNR `Dialog` con `<View className="gap-3 py-1">` a altura 100% natural. La elevación suave para evitar el teclado se maneja a nivel de `DialogOverlay` mediante `useKeyboardTranslate(0.5)` a 120 fps en Reanimated; NUNCA usar `KeyboardAwareScrollView` dentro de portales/modales.
 
 ---
 

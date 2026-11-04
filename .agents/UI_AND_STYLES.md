@@ -257,15 +257,29 @@ Input placeholders must be simple and minimal. Use plain `"0"` for numeric field
   placeholder="Ej. 1000"                     // Use "0" for numeric inputs
 ```
 
-### Keyboard Handling in Dialog Forms (CRITICAL)
-Any form rendered inside a `Dialog`/`DialogContent` MUST use the RNKC wrapper — never a raw RN `ScrollView`:
+### Keyboard Handling & Safe Area en Dialog Modals (CRITICAL)
+
+En Expo SDK 54 con `edgeToEdgeEnabled: true` en Android, la ventana se dibuja detrás de la barra de navegación del sistema y el teclado virtual no encoge la ventana.
+
+1. **Protección contra Botones de Navegación Nativos de Android (Atrás, Home, Multitarea)**:
+   - `DialogOverlay` (`components/ui/dialog.tsx`) aplica insets obligatorios:
+     ```tsx
+     paddingBottom: Math.max(insets.bottom, 16),
+     paddingTop: Math.max(insets.top, 16),
+     ```
+   - Esto garantiza que el modal nunca se superponga ni quede detrás de los botones de navegación nativos del dispositivo en ningún estado.
+
+2. **Evitación del Teclado sin Contracción ni Scroll**:
+   - Para evitar que los modales se encojan, se compriman o muestren barras de scroll incómodas al escribir, `DialogOverlay` utiliza el hook `useKeyboardTranslate(0.5)` de `@/hooks/useKeyboardTranslate`.
+   - Traslada el modal hacia arriba a 120 fps en el hilo nativo de Reanimated exactamente la mitad de la altura del teclado ($\frac{K}{2}$), manteniéndolo centrado en el espacio visible sobre el teclado.
+   - **Contenido del Modal**: Los modales como `RegisterPaymentModal`, `SettleLoanModal` y `GuaranteeFormModal` usan un `<View className="gap-3 py-1">` con su altura natural 100% visible.
+   - **Regla estricta**: NUNCA usar `KeyboardAwareScrollView` dentro de portales/diálogos (provoca colapso vertical en Yoga). Tampoco usar `ScrollView` innecesario en modales de acción estándar.
 
 ```
-❌ import { ScrollView } from 'react-native'        // ignores keyboard → inputs hidden behind it
-✅ import { KeyboardAwareScrollView } from '@/components/ui/KeyboardAwareScrollView'
+❌ <KeyboardAwareScrollView> dentro de DialogContent // colapsa o comprime el modal
+❌ <ScrollView> dentro de DialogContent              // causa barras de scroll innecesarias
+✅ <View className="gap-3 py-1">                     // altura natural; DialogOverlay se encarga de elevarlo a 120fps
 ```
-
-The RNKC component auto-scrolls the focused input above the keyboard on iOS/Android and has a `.web.tsx` fallback. It requires the root `KeyboardProvider` (already mounted in `_layout.tsx`). Reference implementation: `app/(auth)/login.tsx` and `components/collections/RegisterPaymentModal.tsx`. Do NOT add `KeyboardAvoidingView` on top of it — Android already resizes the window (edge-to-edge + adjustResize) and double-compensating causes visual jumps.
 
 ---
 
