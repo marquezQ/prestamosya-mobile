@@ -7,6 +7,9 @@ import type {
   CreateManualLoanInput,
   CreateLoanResponse,
   LoanDetailResponse,
+  GetLoansParams,
+  GetLoansResponse,
+  LoanListItem,
 } from '@/types/loan';
 
 export const loanService = {
@@ -37,6 +40,17 @@ export const loanService = {
       data,
     );
     return response.data;
+  },
+
+  /**
+   * Obtiene la lista de préstamos según filtro y búsqueda opcional.
+   * GET /loans?filter=...&search=...
+   */
+  getLoans: async (params?: GetLoansParams): Promise<LoanListItem[]> => {
+    const response = await api.get<GetLoansResponse>(ENDPOINTS.LOANS.LIST, {
+      params,
+    });
+    return response.data.data;
   },
 
   /**

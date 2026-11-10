@@ -215,3 +215,46 @@ export interface LoanDetailResponse {
   data: LoanDetailData;
   message?: string;
 }
+
+// ─── Listado General de Préstamos (GET /loans) ───────────────
+
+export type LoanFilterScope = 'active' | 'up_to_date' | 'overdue' | 'completed';
+
+export interface LoanListItemClient {
+  id: string;
+  fullName: string;
+  idNumber: string;
+  phone: string;
+  photoUrl: string | null;
+}
+
+export interface LoanListItem {
+  id: string;
+  currency: Currency;
+  mode: LoanMode;
+  scheduleType: LoanScheduleType;
+  capitalAmount: number;
+  interestRate: number;
+  periodType: string | null;
+  totalInstallments: number;
+  totalAmount: number;
+  totalPaid: number;
+  outstandingBalance: number;
+  status: 'ACTIVE' | 'COMPLETED' | 'DEFAULTED' | 'REFINANCED';
+  startDate: string;
+  nextDueDate: string | null;
+  isDelinquent: boolean;
+  paidInstallments: number;
+  overdueInstallmentsCount: number;
+  client: LoanListItemClient;
+  createdAt: string;
+}
+
+export interface GetLoansParams {
+  filter?: LoanFilterScope;
+  search?: string;
+}
+
+export interface GetLoansResponse {
+  data: LoanListItem[];
+}

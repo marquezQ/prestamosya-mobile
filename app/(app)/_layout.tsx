@@ -46,6 +46,7 @@ export default function AppLayout() {
       {/* Otras pantallas que no son tabs */}
       <Stack.Screen name="client/[id]" />
       <Stack.Screen name="client/edit/[id]" />
+      <Stack.Screen name="loans" />
       <Stack.Screen name="loan/new" />
       <Stack.Screen name="loan/[id]" />
       <Stack.Screen name="profile" />

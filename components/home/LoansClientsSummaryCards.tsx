@@ -1,8 +1,18 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Text } from '@/components/ui/text';
 import { LoansSummary, ClientsSummary } from '@/types/dashboard';
-import { Banknote, Users, AlertTriangle, CheckCircle2, UserCheck, UserX, UserMinus } from 'lucide-react-native';
+import {
+  Banknote,
+  Users,
+  AlertTriangle,
+  CheckCircle2,
+  UserCheck,
+  UserX,
+  UserMinus,
+  ChevronRight,
+} from 'lucide-react-native';
 import { palette } from '@/lib/theme/colors';
 
 interface LoansClientsSummaryCardsProps {
@@ -14,6 +24,7 @@ export function LoansClientsSummaryCards({
   loansSummary,
   clientsSummary,
 }: LoansClientsSummaryCardsProps) {
+  const router = useRouter();
   const rate = loansSummary.delinquencyRate ?? 0;
   
   // Color dinámico para la mora
@@ -45,16 +56,22 @@ export function LoansClientsSummaryCards({
     <View className="mx-4 gap-4 mb-3">
       {/* ─── BLOQUE 1: PRÉSTAMOS ─── */}
       <View className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-        {/* Card Header */}
+        {/* Card Header con enlace directo a la cartera */}
         <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() => router.push({ pathname: '/(app)/loans' as any, params: { filter: 'active' } })}
+            className="flex-row items-center gap-2 active:opacity-80"
+          >
             <View className="w-8 h-8 rounded-xl bg-primary/10 items-center justify-center">
               <Banknote size={18} color={palette.azul} />
             </View>
-            <Text className="text-foreground font-bold text-base">
-              Estado de Préstamos
-            </Text>
-          </View>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-foreground font-bold text-base">
+                Estado de Préstamos
+              </Text>
+              <ChevronRight size={16} color="#64748b" />
+            </View>
+          </Pressable>
 
           {/* Delinquency Rate Badge */}
           <View className={`flex-row items-center gap-1 px-2.5 py-0.5 rounded-full border ${rateBadge.bg}`}>
@@ -65,20 +82,26 @@ export function LoansClientsSummaryCards({
           </View>
         </View>
 
-        {/* Stats Grid */}
+        {/* Stats Grid interactivo (Drill-down a /loans con su respectivo filtro) */}
         <View className="flex-row gap-2.5">
           {/* Activos */}
-          <View className="flex-1 bg-muted/40 rounded-xl p-3 items-center border border-border/50">
+          <Pressable
+            onPress={() => router.push({ pathname: '/(app)/loans' as any, params: { filter: 'active' } })}
+            className="flex-1 bg-muted/40 rounded-xl p-3 items-center border border-border/50 active:bg-muted/70 active:scale-[0.98]"
+          >
             <Text className="text-muted-foreground text-[10px] font-bold uppercase tracking-wider mb-0.5">
               Activos
             </Text>
             <Text className="text-foreground font-bold text-xl">
               {loansSummary.totalActive ?? 0}
             </Text>
-          </View>
+          </Pressable>
 
           {/* Al día */}
-          <View className="flex-1 bg-green-500/5 rounded-xl p-3 items-center border border-green-500/20">
+          <Pressable
+            onPress={() => router.push({ pathname: '/(app)/loans' as any, params: { filter: 'up_to_date' } })}
+            className="flex-1 bg-green-500/5 rounded-xl p-3 items-center border border-green-500/20 active:bg-green-500/15 active:scale-[0.98]"
+          >
             <View className="flex-row items-center gap-1 mb-0.5">
               <CheckCircle2 size={10} color="#22c55e" />
               <Text className="text-green-700 dark:text-green-400 text-[10px] font-bold uppercase tracking-wider">
@@ -88,10 +111,13 @@ export function LoansClientsSummaryCards({
             <Text className="text-green-600 dark:text-green-400 font-bold text-xl">
               {loansSummary.totalUpToDate ?? 0}
             </Text>
-          </View>
+          </Pressable>
 
           {/* En Mora */}
-          <View className="flex-1 bg-red-500/5 rounded-xl p-3 items-center border border-red-500/20">
+          <Pressable
+            onPress={() => router.push({ pathname: '/(app)/loans' as any, params: { filter: 'overdue' } })}
+            className="flex-1 bg-red-500/5 rounded-xl p-3 items-center border border-red-500/20 active:bg-red-500/15 active:scale-[0.98]"
+          >
             <View className="flex-row items-center gap-1 mb-0.5">
               <AlertTriangle size={10} color="#ef4444" />
               <Text className="text-red-700 dark:text-red-400 text-[10px] font-bold uppercase tracking-wider">
@@ -101,22 +127,28 @@ export function LoansClientsSummaryCards({
             <Text className="text-red-600 dark:text-red-400 font-bold text-xl">
               {loansSummary.totalDelinquent ?? 0}
             </Text>
-          </View>
+          </Pressable>
         </View>
       </View>
 
       {/* ─── BLOQUE 2: CLIENTES ─── */}
       <View className="bg-card border border-border rounded-2xl p-4 shadow-sm">
-        {/* Card Header */}
+        {/* Card Header con enlace a Clientes */}
         <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() => router.push('/(app)/(tabs)/clients')}
+            className="flex-row items-center gap-2 active:opacity-80"
+          >
             <View className="w-8 h-8 rounded-xl bg-secondary/10 items-center justify-center">
               <Users size={18} color={palette.celeste} />
             </View>
-            <Text className="text-foreground font-bold text-base">
-              Estado de Clientes
-            </Text>
-          </View>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-foreground font-bold text-base">
+                Estado de Clientes
+              </Text>
+              <ChevronRight size={16} color="#64748b" />
+            </View>
+          </Pressable>
           <View className="bg-muted px-2.5 py-0.5 rounded-full border border-border">
             <Text className="text-muted-foreground text-xs font-bold">
               {clientsSummary.totalClients ?? 0} clientes
